@@ -5,17 +5,22 @@
     xmlns:local="using:PostClient.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:PostClient.ViewModels"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     Width="600" Height="400">
-    <Grid>
+    <Page.Resources>
+        <vm:LoginViewModel x:Key="viewModel"/>
+    </Page.Resources>
+    <Grid DataContext="{StaticResource viewModel}">
         <StackPanel Margin="10,0,10,0">
             <TextBlock Text="Email"/>
-            <TextBox/>
+            <TextBox Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock Text="Password"/>
-            <TextBox/>
+            <TextBox Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Content="Login"
-                    HorizontalAlignment="Right"/>
+                    HorizontalAlignment="Right"
+                    Command="{Binding LoginCommand}"/>
         </StackPanel>
     </Grid>
 </Page>
