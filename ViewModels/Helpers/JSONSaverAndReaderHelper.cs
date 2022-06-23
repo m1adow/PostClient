@@ -1,20 +1,19 @@
 ﻿using Newtonsoft.Json;
 using PostClient.Models;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace PostClient.ViewModels.Helpers
 {
     public static class JSONSaverAndReaderHelper
-    {
-        private static StorageFolder _storageFolder = ApplicationData.Current.LocalFolder;
-        private static string _name = "AccountCredentials.txt";
+    {    
+        private static readonly string _name = "AccountCredentials.txt";
 
         public static async Task<Account> Read()
         {
-            StorageFile file = await _storageFolder.GetFileAsync(_name);
+            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+            StorageFile file = await storageFolder.GetFileAsync(_name);
 
             string json = await FileIO.ReadTextAsync(file);
 
@@ -27,7 +26,8 @@ namespace PostClient.ViewModels.Helpers
         {
             string json = JsonConvert.SerializeObject(account);
 
-            StorageFile file = await _storageFolder.CreateFileAsync(_name,
+            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+            StorageFile file = await storageFolder.CreateFileAsync(_name,
                     CreationCollisionOption.ReplaceExisting);
 
             await FileIO.WriteTextAsync(file, json);  

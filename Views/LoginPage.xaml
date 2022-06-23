@@ -8,7 +8,7 @@
     xmlns:vm="using:PostClient.ViewModels"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    Width="600" Height="400">
+    Width="600" Height="200">
     <Page.Resources>
         <vm:LoginViewModel x:Key="viewModel"/>
     </Page.Resources>
