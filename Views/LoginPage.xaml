@@ -16,7 +16,7 @@
         <StackPanel Margin="10,0,10,0">
             <TextBlock Text="Email"/>
             <TextBox Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock Text="Password"/>
+            <TextBlock Text="App Password"/>
             <TextBox Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Content="Login"
                     HorizontalAlignment="Right"

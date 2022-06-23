@@ -4,6 +4,7 @@ using PostClient.Models;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Popups;
 
@@ -11,7 +12,7 @@ namespace PostClient.ViewModels
 {
     public class SendMessageViewModel : ViewModelBase
     {
-        private readonly Account _account = new Account();
+        private Account _account = new Account();
 
         private string _messageSender = string.Empty;
 
@@ -59,10 +60,15 @@ namespace PostClient.ViewModels
         {
             SendMessageCommand = new RelayCommand(SendMessage, IsFieldsFilled);
 
-            _account = JSONSaverAndReaderHelper.Read().Result;
-            MessageSender = _account.Email;
+            GetAccountAndFillEmail();
         }
 
+        private async void GetAccountAndFillEmail()
+        {
+            _account = await JSONSaverAndReaderHelper.Read();
+            MessageSender = _account.Email;
+        }
+        
         #region Methods for sending message
         private async void SendMessage()
         {
