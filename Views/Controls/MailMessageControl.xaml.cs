@@ -28,6 +28,9 @@ namespace PostClient.Views.Controls
 
             MailMessage mailMessage = e.NewValue as MailMessage; ;
 
+            if (mailMessage == null)
+                return;
+
             control.subjectTextBlock.Text = mailMessage.Subject;
             control.dateTextBlock.Text = mailMessage.Date.ToLocalTime().ToString();
             control.fromTextBlock.Text = mailMessage.From;

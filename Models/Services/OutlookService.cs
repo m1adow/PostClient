@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using PostClient.Models.Infrastructure;
 using System;
 using System.Collections.ObjectModel;
 
@@ -10,7 +11,7 @@ namespace PostClient.Models.Services
     {
         private SmtpClient _client;
 
-        public ObservableCollection<MailMessage> LoadMessages(Account account)
+        public ObservableCollection<MailMessage> LoadMessages(Account account, int[] count)
         {
             throw new NotImplementedException();
         }

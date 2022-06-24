@@ -26,14 +26,43 @@
             <Button Content="Send"
                     Command="{Binding SendCommand}"/>
         </StackPanel>
-        <ListView Grid.Column="1"
-                  Margin="10"
-                  ItemsSource="{Binding Messages, Mode=TwoWay}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <uc:MailMessageControl MailMessage="{Binding}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="10*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="Sent"
+                        Grid.Column="0"/>
+                <Button Content="Favourite"
+                        Grid.Column="1"/>
+                <Button Content="Deleted"
+                        Grid.Column="2"/>
+                <Button Content="&lt;"
+                        FontSize="30"
+                        Grid.Column="3"
+                        Command="{Binding LoadPreviousListOfMessagesCommand}"/>
+                <Button Content=">"
+                        FontSize="30"
+                        Grid.Column="4"
+                        Command="{Binding LoadNextListOfMessagesCommand}"/>
+            </Grid>
+            <ListView Margin="10"
+                      ItemsSource="{Binding Messages, Mode=TwoWay}"
+                      Grid.Row="1">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <uc:MailMessageControl MailMessage="{Binding}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
     </Grid>
 </Page>

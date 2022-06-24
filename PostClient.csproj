@@ -122,7 +122,7 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\MailMessage.cs" />
     <Compile Include="Models\Services\GmailService.cs" />
-    <Compile Include="Models\Services\IService.cs" />
+    <Compile Include="Models\Infrastructure\IService.cs" />
     <Compile Include="Models\Services\OutlookService.cs" />
     <Compile Include="Models\Services\PostService.cs" />
     <Compile Include="ViewModels\Helpers\JSONSaverAndReaderHelper.cs" />

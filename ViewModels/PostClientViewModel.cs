@@ -24,18 +24,26 @@ namespace PostClient.ViewModels
 
         public ICommand LoadCommand { get; private set; }
 
+        public ICommand LoadNextListOfMessagesCommand { get; private set; }
+
+        public ICommand LoadPreviousListOfMessagesCommand { get; private set; }
+
+        private int[] _countOfMessages = new int[2] { 0, 5 };
+
         public PostClientViewModel()
         {
             SendCommand = new RelayCommand(OpenSendMessagePage);
             LoginCommand = new RelayCommand(OpenLoginPage);
             LoadCommand = new RelayCommand(LoadMessages);
+            LoadNextListOfMessagesCommand = new RelayCommand(LoadNextListOfMessages);
+            LoadPreviousListOfMessagesCommand = new RelayCommand(LoadPreviousListOfMessages);
         }
 
-        #region Methods for send command
+        #region Method for send command
         private void OpenSendMessagePage() => ShowPage(nameof(SendMessagePage));
         #endregion
 
-        #region Methods for login command
+        #region Method for login command
         private void OpenLoginPage() => ShowPage(nameof(LoginPage));
         #endregion
 
@@ -64,27 +72,48 @@ namespace PostClient.ViewModels
             await ApplicationViewSwitcher.TryShowAsStandaloneAsync(viewId, ViewSizePreference.UseMinimum);
         }
 
-        #region Methods for load messages
-        private async void LoadMessages()
+        #region Method for load messages
+        private void LoadMessages() => LoadMessagesWithCount(_countOfMessages);
+        #endregion
+
+        #region Method for load next list of messages
+        private void LoadNextListOfMessages()
+        {
+            _countOfMessages = new int[] { _countOfMessages[0] + 5, _countOfMessages[1] + 5 };
+            LoadMessagesWithCount(_countOfMessages);
+        }
+        #endregion
+
+        #region Method for load previous list of messages
+        private void LoadPreviousListOfMessages()
+        {
+            _countOfMessages = new int[] { _countOfMessages[0] - 5, _countOfMessages[1] - 5 };
+            LoadMessagesWithCount(_countOfMessages);
+        }
+        #endregion
+
+        private async void LoadMessagesWithCount(int[] count)
         {
             Account account = await JSONSaverAndReaderHelper.Read();
 
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    AddMessagesToCollection(new GmailService().LoadMessages(account));
+                    AddMessagesToCollection(new GmailService().LoadMessages(account, count));
                     break;
                 case nameof(OutlookService):
-                    AddMessagesToCollection(new OutlookService().LoadMessages(account));
+                    AddMessagesToCollection(new OutlookService().LoadMessages(account, count));
                     break;
             }
         }
 
         private void AddMessagesToCollection(ObservableCollection<MailMessage> messages)
         {
+            Messages.Clear();
+
             foreach (var message in messages)
                 Messages.Add(message);
         }
+
     }
-    #endregion
 }
