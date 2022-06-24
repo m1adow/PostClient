@@ -1,6 +1,8 @@
 ﻿using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 using PostClient.Models;
+using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
@@ -68,11 +70,25 @@ namespace PostClient.ViewModels
             _account = await JSONSaverAndReaderHelper.Read();
             MessageSender = _account.Email;
         }
-        
+
         #region Methods for sending message
-        private async void SendMessage()
+        private void SendMessage()
+        {
+            switch (_account.PostServiceName)
+            {
+                case nameof(GmailService):
+                    new GmailService().SendMessage(_account, CreateMessage());
+                    break;
+                case nameof(OutlookService):
+                    new OutlookService().SendMessage(_account, CreateMessage());
+                    break;
+            }
+        }
+
+        private MimeMessage CreateMessage()
         {
             MimeMessage message = new MimeMessage();
+
             message.From.Add(new MailboxAddress(MessageName, _account.Email));
             message.To.Add(MailboxAddress.Parse(MessageReciever));
             message.Subject = MessageSubject;
@@ -81,24 +97,13 @@ namespace PostClient.ViewModels
                 Text = MessageBody
             };
 
-            SmtpClient client = new SmtpClient();
+            return message;
+        }
 
-            try
-            {
-                client.Connect("smtp.gmail.com", 465, true);
-                client.Authenticate(_account.Email, _account.Password);
-                client.Send(message);
-            }
-            catch (Exception exc)
-            {
-                MessageDialog messageDialog = new MessageDialog(exc.Message);
-                await messageDialog.ShowAsync();
-            }
-            finally
-            {
-                client.Disconnect(true);
-                client.Dispose();
-            }
+        private async void ShowMessageDialogForException(Exception exception)
+        {
+            MessageDialog messageDialog = new MessageDialog(exception.Message);
+            await messageDialog.ShowAsync();
         }
 
         private bool IsFieldsFilled() => MessageReciever.Length > 0;

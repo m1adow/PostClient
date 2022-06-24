@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using PostClient.Models;
+﻿using PostClient.Models;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -17,14 +17,17 @@ namespace PostClient.ViewModels.Helpers
 
             string json = await FileIO.ReadTextAsync(file);
 
-            Account account = JsonConvert.DeserializeObject<Account>(json);
+            Account account = JsonSerializer.Deserialize<Account>(json);
 
             return account;
         }
 
         public static async void Save(Account account)
         {
-            string json = JsonConvert.SerializeObject(account);
+            string json = JsonSerializer.Serialize((object)account, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
 
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
             StorageFile file = await storageFolder.CreateFileAsync(_name,

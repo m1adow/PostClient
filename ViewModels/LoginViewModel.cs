@@ -1,4 +1,5 @@
 ﻿using PostClient.Models;
+using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System.Windows.Input;
@@ -23,6 +24,22 @@ namespace PostClient.ViewModels
             set => Set(ref _password, value, new ICommand[] { LoginCommand });
         }
 
+        private bool _isGmailRadioButtonChecked = true;
+
+        public bool IsGmailRadioButtonChecked
+        {
+            get => _isGmailRadioButtonChecked;
+            set => Set(ref _isGmailRadioButtonChecked, value);
+        }
+
+        private bool _isOutlookRadioButtonChecked = false;
+
+        public bool IsOutlookRadioButtonChecked
+        {
+            get => _isOutlookRadioButtonChecked;
+            set => Set(ref _isOutlookRadioButtonChecked, value);
+        }
+
         public ICommand LoginCommand { get; private set; }
 
         public LoginViewModel()
@@ -36,11 +53,20 @@ namespace PostClient.ViewModels
             Account account = new Account()
             {
                 Email = this.Email,
-                Password = this.Password
+                Password = this.Password,
+                PostServiceName = GetServiceName()
             };
 
             JSONSaverAndReaderHelper.Save(account);
             ClearFields();
+        }
+
+        private string GetServiceName()
+        {
+            if (IsGmailRadioButtonChecked)
+                return nameof(GmailService);
+            else
+                return nameof(OutlookService);
         }
 
         private void ClearFields()
@@ -49,7 +75,7 @@ namespace PostClient.ViewModels
             Password = string.Empty;
         }
 
-        private bool IsFieldsFilled() => Email.Length > 0 && Password.Length > 0;
+        private bool IsFieldsFilled() => Email.Length > 0 && Password.Length > 0 && IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked;
         #endregion
     }
 }

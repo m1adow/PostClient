@@ -8,7 +8,7 @@
     xmlns:vm="using:PostClient.ViewModels"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    Width="600" Height="200">
+    Width="600" Height="250">
     <Page.Resources>
         <vm:LoginViewModel x:Key="viewModel"/>
     </Page.Resources>
@@ -18,6 +18,19 @@
             <TextBox Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock Text="App Password"/>
             <TextBox Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="Select service"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <RadioButton Grid.Column="0"
+                             Content="Gmail" 
+                             IsChecked="{Binding IsGmailRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <RadioButton Grid.Column="1" 
+                             Content="Outlook"
+                             IsChecked="{Binding IsOutlookRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </Grid>
             <Button Content="Login"
                     HorizontalAlignment="Right"
                     Command="{Binding LoginCommand}"/>
