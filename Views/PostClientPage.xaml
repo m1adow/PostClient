@@ -40,29 +40,46 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Content="Sent"
-                        Grid.Column="0"/>
+                        Grid.Column="0"
+                        Visibility="{Binding RightSideControlsVisibility}"/>
                 <Button Content="Favourite"
-                        Grid.Column="1"/>
+                        Grid.Column="1"
+                        Visibility="{Binding RightSideControlsVisibility}"/>
                 <Button Content="Deleted"
-                        Grid.Column="2"/>
+                        Grid.Column="2"
+                        Visibility="{Binding RightSideControlsVisibility}"/>
                 <Button Content="&lt;"
                         FontSize="30"
                         Grid.Column="3"
-                        Command="{Binding LoadPreviousListOfMessagesCommand}"/>
+                        Command="{Binding LoadPreviousListOfMessagesCommand}"
+                        Visibility="{Binding RightSideControlsVisibility}"/>
                 <Button Content=">"
                         FontSize="30"
                         Grid.Column="4"
-                        Command="{Binding LoadNextListOfMessagesCommand}"/>
+                        Command="{Binding LoadNextListOfMessagesCommand}"
+                        Visibility="{Binding RightSideControlsVisibility}"/>
+                <Button Content="X"
+                        FontSize="30"
+                        Grid.Column="4"
+                        Background="red"
+                        Command="{Binding CloseMessageCommand}"
+                        Visibility="{Binding MessageBodyControlsVisibility}"/>
             </Grid>
             <ListView Margin="10"
                       ItemsSource="{Binding Messages, Mode=TwoWay}"
-                      Grid.Row="1">
+                      Grid.Row="1"
+                      Visibility="{Binding RightSideControlsVisibility}"
+                      SelectedValue="{Binding SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <uc:MailMessageControl MailMessage="{Binding}"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            <uc:MessageBodyControl MessageBody="{Binding SelectedMailMessage.Body}"
+                                   Visibility="{Binding MessageBodyControlsVisibility}"
+                                   Grid.Row="1"
+                                   Margin="10"/>
         </Grid>
     </Grid>
 </Page>

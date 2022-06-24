@@ -18,6 +18,42 @@ namespace PostClient.ViewModels
     {
         public ObservableCollection<MailMessage> Messages { get; private set; } = new ObservableCollection<MailMessage>();
 
+        private MailMessage _selectedMailMessage = new MailMessage();
+
+        public MailMessage SelectedMailMessage
+        {
+            get => _selectedMailMessage;
+            set
+            {
+                if (value == null)
+                    value = new MailMessage();
+
+                Set(ref _selectedMailMessage, value);
+
+                if (_selectedMailMessage != null && _selectedMailMessage.Body != null)
+                {
+                    RightSideControlsVisibility = Visibility.Collapsed;
+                    MessageBodyControlsVisibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private Visibility _rightSideControlsVisibility = Visibility.Visible;
+
+        public Visibility RightSideControlsVisibility
+        {
+            get => _rightSideControlsVisibility;
+            set => Set(ref _rightSideControlsVisibility, value);
+        }
+
+        private Visibility _messageBodyControlsVisibility = Visibility.Collapsed;
+
+        public Visibility MessageBodyControlsVisibility
+        {
+            get => _messageBodyControlsVisibility;
+            set => Set(ref _messageBodyControlsVisibility, value);
+        }
+
         public ICommand SendCommand { get; private set; }
 
         public ICommand LoginCommand { get; private set; }
@@ -28,6 +64,8 @@ namespace PostClient.ViewModels
 
         public ICommand LoadPreviousListOfMessagesCommand { get; private set; }
 
+        public ICommand CloseMessageCommand { get; private set; }
+
         private int[] _countOfMessages = new int[2] { 0, 5 };
 
         public PostClientViewModel()
@@ -37,6 +75,7 @@ namespace PostClient.ViewModels
             LoadCommand = new RelayCommand(LoadMessages);
             LoadNextListOfMessagesCommand = new RelayCommand(LoadNextListOfMessages);
             LoadPreviousListOfMessagesCommand = new RelayCommand(LoadPreviousListOfMessages);
+            CloseMessageCommand = new RelayCommand(CloseMessage);
         }
 
         #region Method for send command
@@ -115,5 +154,14 @@ namespace PostClient.ViewModels
                 Messages.Add(message);
         }
 
+        #region Method for closing message
+        private void CloseMessage()
+        {
+            _selectedMailMessage = new MailMessage();
+
+            RightSideControlsVisibility = Visibility.Visible;
+            MessageBodyControlsVisibility = Visibility.Collapsed;
+        }
+        #endregion
     }
 }
