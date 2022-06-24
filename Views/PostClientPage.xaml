@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:PostClient.ViewModels"
+    xmlns:uc="using:PostClient.Views.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Page.Resources>
@@ -16,13 +17,23 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-            <Button Content="Send"
-                    Background="Purple"
-                    Command="{Binding SendCommand}"/>
+        <StackPanel Margin="10"
+                    Grid.Column="0">
             <Button Content="Login"
-                    Background="Purple"
                     Command="{Binding LoginCommand}"/>
+            <Button Content="Load"
+                    Command="{Binding LoadCommand}"/>
+            <Button Content="Send"
+                    Command="{Binding SendCommand}"/>
         </StackPanel>
+        <ListView Grid.Column="1"
+                  Margin="10"
+                  ItemsSource="{Binding Messages, Mode=TwoWay}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <uc:MailMessageControl MailMessage="{Binding}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Page>

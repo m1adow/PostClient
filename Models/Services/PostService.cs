@@ -4,7 +4,7 @@ using Windows.UI.Popups;
 
 namespace PostClient.Models.Services
 {
-    public abstract class PostService
+    internal abstract class PostService
     {
         protected async void ShowMessageDialogForException(Exception exception)
         {

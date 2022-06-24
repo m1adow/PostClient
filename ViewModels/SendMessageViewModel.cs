@@ -1,6 +1,4 @@
-﻿using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
+﻿using MimeKit;
 using PostClient.Models;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
@@ -12,7 +10,7 @@ using Windows.UI.Popups;
 
 namespace PostClient.ViewModels
 {
-    public class SendMessageViewModel : ViewModelBase
+    internal sealed class SendMessageViewModel : ViewModelBase
     {
         private Account _account = new Account();
 

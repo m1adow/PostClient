@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace PostClient.ViewModels
 {
-    public class LoginViewModel : ViewModelBase
+    internal sealed class LoginViewModel : ViewModelBase
     {
         private string _email = string.Empty;
 

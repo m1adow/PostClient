@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace PostClient.ViewModels.Infrastructure
 {
-    public class RelayCommand : ICommand
+    internal sealed class RelayCommand : ICommand
     {
         private readonly Action _execute;
 

@@ -7,19 +7,28 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using PostClient.Views;
+using PostClient.Models;
+using PostClient.ViewModels.Helpers;
+using System.Collections.ObjectModel;
+using PostClient.Models.Services;
 
 namespace PostClient.ViewModels
 {
-    public class PostClientViewModel : ViewModelBase
+    internal sealed class PostClientViewModel : ViewModelBase
     {
+        public ObservableCollection<MailMessage> Messages { get; private set; } = new ObservableCollection<MailMessage>();
+
         public ICommand SendCommand { get; private set; }
 
         public ICommand LoginCommand { get; private set; }
+
+        public ICommand LoadCommand { get; private set; }
 
         public PostClientViewModel()
         {
             SendCommand = new RelayCommand(OpenSendMessagePage);
             LoginCommand = new RelayCommand(OpenLoginPage);
+            LoadCommand = new RelayCommand(LoadMessages);
         }
 
         #region Methods for send command
@@ -54,5 +63,28 @@ namespace PostClient.ViewModels
 
             await ApplicationViewSwitcher.TryShowAsStandaloneAsync(viewId, ViewSizePreference.UseMinimum);
         }
+
+        #region Methods for load messages
+        private async void LoadMessages()
+        {
+            Account account = await JSONSaverAndReaderHelper.Read();
+
+            switch (account.PostServiceName)
+            {
+                case nameof(GmailService):
+                    AddMessagesToCollection(new GmailService().LoadMessages(account));
+                    break;
+                case nameof(OutlookService):
+                    AddMessagesToCollection(new OutlookService().LoadMessages(account));
+                    break;
+            }
+        }
+
+        private void AddMessagesToCollection(ObservableCollection<MailMessage> messages)
+        {
+            foreach (var message in messages)
+                Messages.Add(message);
+        }
     }
+    #endregion
 }

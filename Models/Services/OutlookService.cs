@@ -2,12 +2,18 @@
 using MailKit.Security;
 using MimeKit;
 using System;
+using System.Collections.ObjectModel;
 
 namespace PostClient.Models.Services
 {
-    public class OutlookService : PostService, IService
+    internal sealed class OutlookService : PostService, IService
     {
         private SmtpClient _client;
+
+        public ObservableCollection<MailMessage> LoadMessages(Account account)
+        {
+            throw new NotImplementedException();
+        }
 
         public void SendMessage(Account account, MimeMessage message)
         {

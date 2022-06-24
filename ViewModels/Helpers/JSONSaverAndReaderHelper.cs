@@ -6,7 +6,7 @@ using Windows.Storage;
 
 namespace PostClient.ViewModels.Helpers
 {
-    public static class JSONSaverAndReaderHelper
+    internal static class JSONSaverAndReaderHelper
     {    
         private static readonly string _name = "AccountCredentials.txt";
 
