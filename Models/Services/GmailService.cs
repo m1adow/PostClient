@@ -46,7 +46,7 @@ namespace PostClient.Models.Services
             inbox.Open(FolderAccess.ReadOnly);
 
             int indexOfLastMessage = inbox.Count - count[0];
-            int indexOfFirstMessage = inbox.Count - count[1];
+            int indexOfFirstMessage = inbox.Count < count[1] ? 0 : inbox.Count - count[1];
 
             CheckForOutOfBounds(indexOfLastMessage, inbox.Count, indexOfFirstMessage);
 
