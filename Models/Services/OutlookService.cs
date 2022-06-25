@@ -56,21 +56,10 @@ namespace PostClient.Models.Services
             {
                 var messageMime = inbox.GetMessage(i);
 
-                string body = String.Empty;
-
-                try
-                {
-                    body = ((TextPart)messageMime.Body).Text;
-                }
-                catch
-                {
-
-                }
-
                 MailMessage message = new MailMessage()
                 {
                     Subject = messageMime.Subject,
-                    Body = body,
+                    Body = messageMime.HtmlBody ?? messageMime.TextBody,
                     From = messageMime.From[0].Name,
                     Date = messageMime.Date
                 };

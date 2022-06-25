@@ -1,4 +1,5 @@
 ﻿using PostClient.Models;
+using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -26,10 +27,7 @@ namespace PostClient.Views.Controls
         {
             MailMessageControl control = d as MailMessageControl;
 
-            MailMessage mailMessage = e.NewValue as MailMessage; ;
-
-            if (mailMessage == null)
-                return;
+            MailMessage mailMessage = e.NewValue as MailMessage ?? new MailMessage();
 
             control.subjectTextBlock.Text = mailMessage.Subject;
             control.dateTextBlock.Text = mailMessage.Date.ToLocalTime().ToString();

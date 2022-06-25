@@ -38,10 +38,7 @@ namespace PostClient.Views.Controls
         {
             MessageBodyControl control = d as MessageBodyControl;
 
-            string messageBody = e.NewValue as string;
-
-            if (messageBody == null)
-                return;
+            string messageBody = e.NewValue as string ?? string.Empty;
 
             control.webView.NavigateToString(messageBody);
         }
