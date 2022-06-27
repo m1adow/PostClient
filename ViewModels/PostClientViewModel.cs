@@ -1,18 +1,14 @@
 ﻿using PostClient.ViewModels.Infrastructure;
 using System.Windows.Input;
 using System;
-using Windows.ApplicationModel.Core;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using PostClient.Views;
 using PostClient.Models;
 using PostClient.ViewModels.Helpers;
 using System.Collections.ObjectModel;
 using PostClient.Models.Services;
 using System.Collections.Generic;
 using MimeKit;
+using Windows.UI.Popups;
 
 namespace PostClient.ViewModels
 {
@@ -32,20 +28,9 @@ namespace PostClient.ViewModels
 
                 Set(ref _selectedMailMessage, value);
 
-                if (_selectedMailMessage != null && _selectedMailMessage.Body != null)
-                {
-                    RightSideControlsVisibility = Visibility.Collapsed;
+                if (_selectedMailMessage.Body.Length > 0)
                     MessageBodyControlsVisibility = Visibility.Visible;
-                }
             }
-        }
-
-        private Visibility _rightSideControlsVisibility = Visibility.Visible;
-
-        public Visibility RightSideControlsVisibility
-        {
-            get => _rightSideControlsVisibility;
-            set => Set(ref _rightSideControlsVisibility, value);
         }
 
         private Visibility _messageBodyControlsVisibility = Visibility.Collapsed;
@@ -70,6 +55,14 @@ namespace PostClient.ViewModels
         {
             get => _loginControlsVisibility;
             set => Set(ref _loginControlsVisibility, value);
+        }
+
+        private Visibility _sendMessageControlsVisibility = Visibility.Collapsed;
+
+        public Visibility SendMessageControlsVisibility
+        {
+            get => _sendMessageControlsVisibility;
+            set => Set(ref _sendMessageControlsVisibility, value);
         }
 
         private bool _isRememberMeChecked = false;
@@ -112,6 +105,50 @@ namespace PostClient.ViewModels
             set => Set(ref _isOutlookRadioButtonChecked, value);
         }
 
+        private string _messageSender = string.Empty;
+
+        public string MessageSender
+        {
+            get => _messageSender;
+            private set => Set(ref _messageSender, value);
+        }
+
+        private string _messageReciever = string.Empty;
+
+        public string MessageReciever
+        {
+            get => _messageReciever;
+            set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand });
+        }
+
+        private string _messageName = "New message";
+
+        public string MessageName
+        {
+            get => _messageName;
+            set => Set(ref _messageName, value);
+        }
+
+        private string _messageSubject = "It's my beautiful post app";
+
+        public string MessageSubject
+        {
+            get => _messageSubject;
+            set => Set(ref _messageSubject, value);
+        }
+
+        private string _messageBody = "Hi world!";
+
+        public string MessageBody
+        {
+            get => _messageBody;
+            set => Set(ref _messageBody, value);
+        }
+
+        public ICommand SendMessageCommand { get; private set; }
+
+        public ICommand CancelSendingMessageCommand { get; private set; }
+
         public ICommand LoginCommand { get; private set; }
 
         public ICommand SendCommand { get; private set; }
@@ -130,21 +167,62 @@ namespace PostClient.ViewModels
 
         private List<MimeMessage> _mimeMessages = new List<MimeMessage>();
 
-        private int[] _countOfMessages = new int[2] { 0, 5 };
+        private int[] _countOfMessages = new int[2] { 0, 10 };
 
         private Account _account = new Account();
 
         public PostClientViewModel()
         {
+            SendMessageCommand = new RelayCommand(SendMessage, IsSendMessageFieldsFilled);
+            CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
             LoginCommand = new RelayCommand(LoginIntoAccount, IsLoginFieldsFilled);
-            SendCommand = new RelayCommand(OpenSendMessagePage);
+            SendCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
             ShowLoginControlsCommand = new RelayCommand(ShowLoginControls);
             CancelLoginControlsCommand = new RelayCommand(HideLoginControls);
             LoadCommand = new RelayCommand(LoadMessages);
             LoadNextListOfMessagesCommand = new RelayCommand(LoadNextListOfMessages);
             LoadPreviousListOfMessagesCommand = new RelayCommand(LoadPreviousListOfMessages);
-            CloseMessageCommand = new RelayCommand(CloseMessage);          
+            CloseMessageCommand = new RelayCommand(CloseMessage);
         }
+
+        #region Methods for sending message
+        private void SendMessage()
+        {  
+            switch (_account.PostServiceName)
+            {
+                case nameof(GmailService):
+                    new GmailService().SendMessage(_account, CreateMessage());
+                    break;
+                case nameof(OutlookService):
+                    new OutlookService().SendMessage(_account, CreateMessage());
+                    break;
+            }
+
+            ShowMessageDialog("Mail has sent successfully");
+            SendMessageControlsVisibility = Visibility.Collapsed;
+        }
+
+        private MimeMessage CreateMessage()
+        {
+            MimeMessage message = new MimeMessage();
+
+            message.From.Add(new MailboxAddress(MessageName, _account.Email));
+            message.To.Add(MailboxAddress.Parse(MessageReciever));
+            message.Subject = MessageSubject;
+            message.Body = new TextPart()
+            {
+                Text = MessageBody
+            };
+
+            return message;
+        }
+
+        private bool IsSendMessageFieldsFilled() => MessageReciever.Length > 0;
+        #endregion
+
+        #region Methods for cancel sending 
+        private void CancelSendingMessage() => SendMessageControlsVisibility = Visibility.Collapsed;
+        #endregion
 
         #region Methods for login command
         private void LoginIntoAccount()
@@ -182,30 +260,16 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for send command
-        private void OpenSendMessagePage() => ShowPage(nameof(SendMessagePage));
-
-        private async void ShowPage(string page)
+        private async void ShowSendMessageControlsAndLoadAccount() 
         {
-            var view = CoreApplication.CreateNewView();
+            if (_account.Email == null && _account.Password == null && _account.PostServiceName == null)
+            {
+                _account = await JSONSaverAndReaderHelper.Read();
+                MessageSender = _account.Email;
+            }
 
-            int viewId = 0;
-
-            await view.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-                () =>
-                {
-                    Frame frame = new Frame();
-
-                    if (page == nameof(SendMessagePage))
-                        frame.Navigate(typeof(SendMessagePage));
-
-                    Window.Current.Content = frame;
-                    Window.Current.Activate();
-
-                    viewId = ApplicationView.GetForCurrentView().Id;
-                });
-
-            await ApplicationViewSwitcher.TryShowAsStandaloneAsync(viewId, ViewSizePreference.UseMinimum);
-        }
+            SendMessageControlsVisibility = Visibility.Visible;
+        } 
         #endregion
 
         #region Method for showing login controls command
@@ -244,28 +308,36 @@ namespace PostClient.ViewModels
 
         private void AddMessagesToCollection(List<MimeMessage> messages)
         {
-            _mimeMessages.Clear();
+            Messages.Clear();
 
-            _mimeMessages = messages;
+            if (_mimeMessages != messages)
+                _mimeMessages = messages;
 
             int indexOfLastMessage = messages.Count - _countOfMessages[0];
             int indexOfFirstMessage = messages.Count < _countOfMessages[1] ? 0 : messages.Count - _countOfMessages[1];
 
-            CheckForOutOfBounds(indexOfLastMessage, messages.Count, indexOfFirstMessage);
-
-            for (int i = indexOfLastMessage - 1; i > indexOfFirstMessage - 1; i--)
+            try
             {
-                MailMessage mailMessage = CreateMessage(messages[i]);
-                Messages.Add(mailMessage);
+                CheckForOutOfBounds(indexOfLastMessage, messages.Count, indexOfFirstMessage);
+
+                for (int i = indexOfLastMessage - 1; i > indexOfFirstMessage - 1; i--)
+                {
+                    MailMessage mailMessage = CreateMessage(messages[i]);
+                    Messages.Add(mailMessage);
+                }
+            }
+            catch (Exception exception)
+            {
+                ShowMessageDialog(exception.Message);
             }            
         }
 
         private void CheckForOutOfBounds(int last, int max, int first)
         {
             if (last > max)
-                throw new Exception("You've reached last list of messages");
+                throw new ArgumentOutOfRangeException("You've reached last list of messages");
             if (first < 0)
-                throw new Exception("You've reached first list of messages");
+                throw new ArgumentOutOfRangeException("You've reached first list of messages");
         }
 
         private MailMessage CreateMessage(MimeMessage messageMime)
@@ -285,32 +357,32 @@ namespace PostClient.ViewModels
         #region Method for load next list of messages
         private void LoadNextListOfMessages()
         {
-            _countOfMessages = new int[] { _countOfMessages[0] + 5, _countOfMessages[1] + 5 };
-            LoadMessagesWithCount(_countOfMessages);
+            _countOfMessages = new int[] { _countOfMessages[0] + 10, _countOfMessages[1] + 10 };
+            AddMessagesToCollection(_mimeMessages);
         }
         #endregion
 
         #region Method for load previous list of messages
         private void LoadPreviousListOfMessages()
         {
-            _countOfMessages = new int[] { _countOfMessages[0] - 5, _countOfMessages[1] - 5 };
-            LoadMessagesWithCount(_countOfMessages);
+            _countOfMessages = new int[] { _countOfMessages[0] - 10, _countOfMessages[1] - 10 };
+            AddMessagesToCollection(_mimeMessages);
         }
         #endregion
-
-        private void LoadMessagesWithCount(int[] count)
-        {
-            
-        }
 
         #region Method for closing message
         private void CloseMessage()
         {
             _selectedMailMessage = new MailMessage();
 
-            RightSideControlsVisibility = Visibility.Visible;
             MessageBodyControlsVisibility = Visibility.Collapsed;
         }
-        #endregion       
+        #endregion
+
+        private async void ShowMessageDialog(string message)
+        {
+            MessageDialog messageDialog = new MessageDialog(message);
+            await messageDialog.ShowAsync();
+        }
     }
 }

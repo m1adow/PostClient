@@ -16,13 +16,13 @@
           x:Name="infoGrid">
         <StackPanel Margin="10">
             <TextBlock Text="{Binding Subject}"
-                       FontSize="25"
+                       FontSize="15"
                        FontWeight="Bold"/>
             <TextBlock Text="{Binding Date}"
                        Margin="20,0,0,0"
                        FontSize="10"/>
             <TextBlock Text="{Binding From}"
-                       FontSize="20"/>
+                       FontSize="12"/>
         </StackPanel>
     </Grid>
 </UserControl>
