@@ -27,7 +27,7 @@
                     Command="{Binding SendMessageViewModel.ShowSendingControlosCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <Button Content="Sync"
-                    Command="{Binding LoadCommand}"
+                    Command="{Binding LoadMessagesViewModel.LoadCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <TextBlock Text="Login:"
                        Margin="0,50,0,0"
@@ -95,15 +95,15 @@
                         Grid.Column="2"/>
                 <Button Content="&lt;"
                         Grid.Column="3"
-                        Command="{Binding LoadPreviousListOfMessagesCommand}"/>
+                        Command="{Binding LoadMessagesViewModel.LoadPreviousListOfMessagesCommand}"/>
                 <Button Content=">"
                         Grid.Column="4"
-                        Command="{Binding LoadNextListOfMessagesCommand}"/>
+                        Command="{Binding LoadMessagesViewModel.LoadNextListOfMessagesCommand}"/>
             </Grid>
             <ListView Margin="10"
-                      ItemsSource="{Binding Messages, Mode=TwoWay}"
+                      ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
                       Grid.Row="1"
-                      SelectedValue="{Binding SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                      SelectedValue="{Binding LoadMessagesViewModel.SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <uc:MailMessageControl MailMessage="{Binding}"/>
@@ -125,11 +125,11 @@
                 <Button Content="X"
                         Grid.Column="2"
                         Background="red"
-                        Command="{Binding CloseMessageCommand}"
-                        Visibility="{Binding MessageBodyControlsVisibility}"/>
+                        Command="{Binding LoadMessagesViewModel.CloseMessageCommand}"
+                        Visibility="{Binding LoadMessagesViewModel.MessageBodyControlsVisibility}"/>
             </Grid>
-            <uc:MessageBodyControl MessageBody="{Binding SelectedMailMessage.Body}"
-                                   Visibility="{Binding MessageBodyControlsVisibility}"
+            <uc:MessageBodyControl MessageBody="{Binding LoadMessagesViewModel.SelectedMailMessage.Body}"
+                                   Visibility="{Binding LoadMessagesViewModel.MessageBodyControlsVisibility}"
                                    Grid.Row="1"
                                    Margin="10"/>
             <Grid Grid.Row="1"

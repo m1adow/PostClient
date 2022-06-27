@@ -103,6 +103,7 @@ namespace PostClient.ViewModels
 
             ClearFields();
             HideLoginControls();
+            (LoginCommand as RelayCommand).OnExecuteChanged(); //for disabling login button on second time
             _changeAccount(_account);
             _loadMessages();
         }
@@ -121,7 +122,7 @@ namespace PostClient.ViewModels
             Password = string.Empty;
         }
 
-        private bool IsLoginFieldsFilled() => Email.Length > 0 && Password.Length > 0 && IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked;
+        private bool IsLoginFieldsFilled() => Email.Length > 0 && Password.Length > 0 && (IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked);
         #endregion       
 
         #region Method for showing login controls command
