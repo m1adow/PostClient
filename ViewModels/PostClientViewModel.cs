@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using PostClient.Models.Services;
 using System.Collections.Generic;
 using MimeKit;
-using Windows.UI.Popups;
 
 namespace PostClient.ViewModels
 {
@@ -57,13 +56,7 @@ namespace PostClient.ViewModels
             set => Set(ref _loginControlsVisibility, value);
         }
 
-        private Visibility _sendMessageControlsVisibility = Visibility.Collapsed;
-
-        public Visibility SendMessageControlsVisibility
-        {
-            get => _sendMessageControlsVisibility;
-            set => Set(ref _sendMessageControlsVisibility, value);
-        }
+        
 
         private bool _isRememberMeChecked = false;
 
@@ -103,55 +96,9 @@ namespace PostClient.ViewModels
         {
             get => _isOutlookRadioButtonChecked;
             set => Set(ref _isOutlookRadioButtonChecked, value);
-        }
-
-        private string _messageSender = string.Empty;
-
-        public string MessageSender
-        {
-            get => _messageSender;
-            private set => Set(ref _messageSender, value);
-        }
-
-        private string _messageReciever = string.Empty;
-
-        public string MessageReciever
-        {
-            get => _messageReciever;
-            set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand });
-        }
-
-        private string _messageName = "New message";
-
-        public string MessageName
-        {
-            get => _messageName;
-            set => Set(ref _messageName, value);
-        }
-
-        private string _messageSubject = "It's my beautiful post app";
-
-        public string MessageSubject
-        {
-            get => _messageSubject;
-            set => Set(ref _messageSubject, value);
-        }
-
-        private string _messageBody = "Hi world!";
-
-        public string MessageBody
-        {
-            get => _messageBody;
-            set => Set(ref _messageBody, value);
-        }
-
-        public ICommand SendMessageCommand { get; private set; }
-
-        public ICommand CancelSendingMessageCommand { get; private set; }
+        }       
 
         public ICommand LoginCommand { get; private set; }
-
-        public ICommand SendCommand { get; private set; }
 
         public ICommand ShowLoginControlsCommand { get; private set; }
 
@@ -171,12 +118,13 @@ namespace PostClient.ViewModels
 
         private Account _account = new Account();
 
+        public SendMessageViewModel SendMessageViewModel { get; } 
+
         public PostClientViewModel()
         {
-            SendMessageCommand = new RelayCommand(SendMessage, IsSendMessageFieldsFilled);
-            CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
+            SendMessageViewModel = new SendMessageViewModel(_account);
+
             LoginCommand = new RelayCommand(LoginIntoAccount, IsLoginFieldsFilled);
-            SendCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
             ShowLoginControlsCommand = new RelayCommand(ShowLoginControls);
             CancelLoginControlsCommand = new RelayCommand(HideLoginControls);
             LoadCommand = new RelayCommand(LoadMessages);
@@ -185,45 +133,7 @@ namespace PostClient.ViewModels
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
 
-        #region Methods for sending message
-        private void SendMessage()
-        {  
-            switch (_account.PostServiceName)
-            {
-                case nameof(GmailService):
-                    new GmailService().SendMessage(_account, CreateMessage());
-                    break;
-                case nameof(OutlookService):
-                    new OutlookService().SendMessage(_account, CreateMessage());
-                    break;
-            }
-
-            ShowMessageDialog("Mail has sent successfully");
-            SendMessageControlsVisibility = Visibility.Collapsed;
-        }
-
-        private MimeMessage CreateMessage()
-        {
-            MimeMessage message = new MimeMessage();
-
-            message.From.Add(new MailboxAddress(MessageName, _account.Email));
-            message.To.Add(MailboxAddress.Parse(MessageReciever));
-            message.Subject = MessageSubject;
-            message.Body = new TextPart()
-            {
-                Text = MessageBody
-            };
-
-            return message;
-        }
-
-        private bool IsSendMessageFieldsFilled() => MessageReciever.Length > 0;
-        #endregion
-
-        #region Methods for cancel sending 
-        private void CancelSendingMessage() => SendMessageControlsVisibility = Visibility.Collapsed;
-        #endregion
-
+        
         #region Methods for login command
         private void LoginIntoAccount()
         {
@@ -257,20 +167,7 @@ namespace PostClient.ViewModels
         }
 
         private bool IsLoginFieldsFilled() => Email.Length > 0 && Password.Length > 0 && IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked;
-        #endregion
-
-        #region Method for send command
-        private async void ShowSendMessageControlsAndLoadAccount() 
-        {
-            if (_account.Email == null && _account.Password == null && _account.PostServiceName == null)
-            {
-                _account = await JSONSaverAndReaderHelper.Read();
-                MessageSender = _account.Email;
-            }
-
-            SendMessageControlsVisibility = Visibility.Visible;
-        } 
-        #endregion
+        #endregion       
 
         #region Method for showing login controls command
         private void ShowLoginControls()
@@ -298,10 +195,10 @@ namespace PostClient.ViewModels
             switch (_account.PostServiceName)
             {
                 case nameof(GmailService):
-                    AddMessagesToCollection(new GmailService().LoadMessages(_account));
+                    AddMessagesToCollection(new GmailService().LoadMessages(_account, MessageDialogShower.ShowMessageDialog));
                     break;
                 case nameof(OutlookService):
-                    AddMessagesToCollection(new OutlookService().LoadMessages(_account));
+                    AddMessagesToCollection(new OutlookService().LoadMessages(_account, MessageDialogShower.ShowMessageDialog));
                     break;
             }
         }
@@ -328,7 +225,7 @@ namespace PostClient.ViewModels
             }
             catch (Exception exception)
             {
-                ShowMessageDialog(exception.Message);
+                MessageDialogShower.ShowMessageDialog(exception.Message);
             }            
         }
 
@@ -378,11 +275,5 @@ namespace PostClient.ViewModels
             MessageBodyControlsVisibility = Visibility.Collapsed;
         }
         #endregion
-
-        private async void ShowMessageDialog(string message)
-        {
-            MessageDialog messageDialog = new MessageDialog(message);
-            await messageDialog.ShowAsync();
-        }
     }
 }

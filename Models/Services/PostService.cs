@@ -1,20 +1,12 @@
 ﻿using MailKit;
 using MailKit.Net.Imap;
 using MimeKit;
-using System;
 using System.Collections.Generic;
-using Windows.UI.Popups;
 
 namespace PostClient.Models.Services
 {
     internal abstract class PostService
     {
-        protected async void ShowMessageDialogForException(Exception exception)
-        {
-            MessageDialog messageDialog = new MessageDialog(exception.Message);
-            await messageDialog.ShowAsync();
-        }
-
         protected void EstablishConnection(ImapClient client, Account account, string imapServer)
         {
             client.Connect(imapServer, 993, true);

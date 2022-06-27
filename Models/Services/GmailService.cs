@@ -9,7 +9,7 @@ namespace PostClient.Models.Services
 {
     internal sealed class GmailService : PostService, IService
     {
-        public List<MimeMessage> LoadMessages(Account account)
+        public List<MimeMessage> LoadMessages(Account account, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();
             List<MimeMessage> messages = new List<MimeMessage>();
@@ -21,7 +21,7 @@ namespace PostClient.Models.Services
             }
             catch (Exception exception)
             {
-                ShowMessageDialogForException(exception);
+                exceptionHandler(exception.Message);
             }
             finally
             {
@@ -32,7 +32,7 @@ namespace PostClient.Models.Services
             return messages;
         }
 
-        public void SendMessage(Account account, MimeMessage message)
+        public void SendMessage(Account account, MimeMessage message, Action<string> exceptionHandler)
         {
             SmtpClient client = new SmtpClient();
 
@@ -44,7 +44,7 @@ namespace PostClient.Models.Services
             }
             catch (Exception exception)
             {
-                ShowMessageDialogForException(exception);
+                exceptionHandler(exception.Message);
             }
             finally
             {

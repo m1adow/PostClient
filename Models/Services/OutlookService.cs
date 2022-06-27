@@ -1,5 +1,4 @@
-﻿using MailKit;
-using MailKit.Net.Imap;
+﻿using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
@@ -11,7 +10,7 @@ namespace PostClient.Models.Services
 {
     internal sealed class OutlookService : PostService, IService
     {
-        public List<MimeMessage> LoadMessages(Account account)
+        public List<MimeMessage> LoadMessages(Account account, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();
             List<MimeMessage> messages = new List<MimeMessage>();
@@ -23,7 +22,7 @@ namespace PostClient.Models.Services
             }
             catch (Exception exception)
             {
-                ShowMessageDialogForException(exception);
+                exceptionHandler(exception.Message);
             }
             finally
             {
@@ -34,7 +33,7 @@ namespace PostClient.Models.Services
             return messages;
         }
 
-        public void SendMessage(Account account, MimeMessage message)
+        public void SendMessage(Account account, MimeMessage message, Action<string> exceptionHandler)
         {
             SmtpClient client = new SmtpClient();
 
@@ -46,7 +45,7 @@ namespace PostClient.Models.Services
             }
             catch (Exception exception)
             {
-                ShowMessageDialogForException(exception);
+                exceptionHandler(exception.Message);
             }
             finally
             {
