@@ -14,35 +14,35 @@
     </Page.Resources>
     <Grid DataContext="{StaticResource viewModel}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Margin="10"
                     Grid.Column="0">
             <Button Content="Login"
-                    Command="{Binding ShowLoginControlsCommand}"
-                    Visibility="{Binding ManagmentButtonsVisibility}"/>
+                    Command="{Binding LoginViewModel.ShowLoginControlsCommand}"
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <Button Content="New mail"
                     Command="{Binding SendMessageViewModel.ShowSendingControlosCommand}"
-                    Visibility="{Binding ManagmentButtonsVisibility}"/>
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <Button Content="Sync"
                     Command="{Binding LoadCommand}"
-                    Visibility="{Binding ManagmentButtonsVisibility}"/>
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <TextBlock Text="Login:"
                        Margin="0,50,0,0"
-                       Visibility="{Binding LoginControlsVisibility}"/>
-            <TextBox Visibility="{Binding LoginControlsVisibility}"
-                     Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+            <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
+                     Text="{Binding LoginViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock Text="Password:"
-                       Visibility="{Binding LoginControlsVisibility}"/>
-            <TextBox Visibility="{Binding LoginControlsVisibility}"
-                     Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+            <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
+                     Text="{Binding LoginViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <CheckBox Content="Remember me"
-                      Visibility="{Binding LoginControlsVisibility}"
-                      IsChecked="{Binding IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                      Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
+                      IsChecked="{Binding LoginViewModel.IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock Text="Select service:"
-                       Visibility="{Binding LoginControlsVisibility}"/>
+                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -50,12 +50,12 @@
                 </Grid.ColumnDefinitions>
                 <RadioButton Grid.Column="0"
                              Content="Gmail" 
-                             IsChecked="{Binding IsGmailRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Visibility="{Binding LoginControlsVisibility}"/>
+                             IsChecked="{Binding LoginViewModel.IsGmailRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                 <RadioButton Grid.Column="1" 
                              Content="Outlook"
-                             IsChecked="{Binding IsOutlookRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Visibility="{Binding LoginControlsVisibility}"/>
+                             IsChecked="{Binding LoginViewModel.IsOutlookRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -65,13 +65,13 @@
                 <Button Grid.Column="0"
                         Margin="5"
                         Content="OK"
-                        Command="{Binding LoginCommand}"
-                        Visibility="{Binding LoginControlsVisibility}"/>
+                        Command="{Binding LoginViewModel.LoginCommand}"
+                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                 <Button Grid.Column="1"
                         Margin="5"
                         Content="Cancel"
-                        Command="{Binding CancelLoginControlsCommand}"
-                        Visibility="{Binding LoginControlsVisibility}"/>
+                        Command="{Binding LoginViewModel.CancelLoginControlsCommand}"
+                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             </Grid>
         </StackPanel>
         <Grid Grid.Column="1">

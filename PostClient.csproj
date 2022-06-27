@@ -129,6 +129,7 @@
     <Compile Include="ViewModels\Helpers\MessageDialogShower.cs" />
     <Compile Include="ViewModels\Helpers\StorageFileWriterAndReader.cs" />
     <Compile Include="ViewModels\Infrastructure\RelayCommand.cs" />
+    <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\PostClientViewModel.cs" />
     <Compile Include="ViewModels\Infrastructure\ViewModelBase.cs" />
     <Compile Include="ViewModels\SendMessageViewModel.cs" />

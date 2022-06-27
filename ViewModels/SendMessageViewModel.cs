@@ -3,6 +3,7 @@ using PostClient.Models;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
+using System;
 using System.Windows.Input;
 using Windows.UI.Xaml;
 
@@ -64,11 +65,14 @@ namespace PostClient.ViewModels
 
         public ICommand ShowSendingControlosCommand { get; }
 
-        private Account _account;
+        private Account _account = new Account();
 
-        public SendMessageViewModel(Account account)
+        private Func<Account> _getAccount;
+
+        public SendMessageViewModel(Func<Account> getAccount)
         {
-            _account = account;
+            _getAccount = getAccount;
+            _account = getAccount();
 
             SendMessageCommand = new RelayCommand(SendMessage, IsSendMessageFieldsFilled);
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
@@ -124,15 +128,12 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for send command
-        private async void ShowSendMessageControlsAndLoadAccount()
+        private void ShowSendMessageControlsAndLoadAccount()
         {
-            if (_account.Email == null && _account.Password == null && _account.PostServiceName == null)
-            {
-                _account = await JSONSaverAndReaderHelper.Read();
-                MessageSender = _account.Email;
-            }
-
             SendMessageControlsVisibility = Visibility.Visible;
+
+            _account = _getAccount();
+            MessageSender = _account.Email;
         }
         #endregion
     }
