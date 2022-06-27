@@ -5,23 +5,21 @@ using MailKit.Security;
 using MimeKit;
 using PostClient.Models.Infrastructure;
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace PostClient.Models.Services
 {
     internal sealed class OutlookService : PostService, IService
     {
-        private SmtpClient _client;
-
-        public ObservableCollection<MailMessage> LoadMessages(Account account, int[] count)
+        public List<MimeMessage> LoadMessages(Account account)
         {
             ImapClient client = new ImapClient();
-            ObservableCollection<MailMessage> messages = new ObservableCollection<MailMessage>();
+            List<MimeMessage> messages = new List<MimeMessage>();
 
             try
             {
-                EstablishConnection(client, account);
-                GetMessages(client, count, messages);
+                EstablishConnection(client, account, "imap.outlook.com");
+                GetMessages(client, messages);
             }
             catch (Exception exception)
             {
@@ -36,47 +34,15 @@ namespace PostClient.Models.Services
             return messages;
         }
 
-        private void EstablishConnection(ImapClient client, Account account)
-        {
-            client.Connect("imap.outlook.com", 993, true);
-            client.Authenticate(account.Email, account.Password);
-        }
-
-        private void GetMessages(ImapClient client, int[] count, ObservableCollection<MailMessage> messages)
-        {
-            var inbox = client.Inbox;
-            inbox.Open(FolderAccess.ReadOnly);
-
-            int indexOfLastMessage = inbox.Count - count[0];
-            int indexOfFirstMessage = inbox.Count < count[1] ? 0 : inbox.Count - count[1];
-
-            CheckForOutOfBounds(indexOfLastMessage, inbox.Count, indexOfFirstMessage);
-
-            for (int i = indexOfLastMessage - 1; i > indexOfFirstMessage - 1; i--)
-            {
-                var messageMime = inbox.GetMessage(i);
-
-                MailMessage message = new MailMessage()
-                {
-                    Subject = messageMime.Subject,
-                    Body = messageMime.HtmlBody ?? messageMime.TextBody,
-                    From = messageMime.From[0].Name,
-                    Date = messageMime.Date
-                };
-
-                messages.Add(message);
-            }
-        }
-
         public void SendMessage(Account account, MimeMessage message)
         {
-            _client = new SmtpClient();
+            SmtpClient client = new SmtpClient();
 
             try
             {
-                _client.Connect("smtp.outlook.com", 587, SecureSocketOptions.StartTls);
-                _client.Authenticate(account.Email, account.Password);
-                _client.Send(message);
+                client.Connect("smtp.outlook.com", 587, SecureSocketOptions.StartTls);
+                client.Authenticate(account.Email, account.Password);
+                client.Send(message);
             }
             catch (Exception exception)
             {
@@ -84,8 +50,8 @@ namespace PostClient.Models.Services
             }
             finally
             {
-                _client.Disconnect(true);
-                _client.Dispose();
+                client.Disconnect(true);
+                client.Dispose();
             }
         }
     }

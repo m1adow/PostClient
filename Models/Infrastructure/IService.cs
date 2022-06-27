@@ -1,11 +1,11 @@
 ﻿using MimeKit;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace PostClient.Models.Infrastructure
 {
     internal interface IService
     {
         void SendMessage(Account account, MimeMessage message);
-        ObservableCollection<MailMessage> LoadMessages(Account account, int[] count);
+        List<MimeMessage> LoadMessages(Account account);
     }
 }

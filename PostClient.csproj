@@ -128,7 +128,6 @@
     <Compile Include="ViewModels\Helpers\JSONSaverAndReaderHelper.cs" />
     <Compile Include="ViewModels\Helpers\StorageFileWriterAndReader.cs" />
     <Compile Include="ViewModels\Infrastructure\RelayCommand.cs" />
-    <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\PostClientViewModel.cs" />
     <Compile Include="ViewModels\SendMessageViewModel.cs" />
     <Compile Include="ViewModels\Infrastructure\ViewModelBase.cs" />
@@ -137,9 +136,6 @@
     </Compile>
     <Compile Include="Views\Controls\MessageBodyControl.xaml.cs">
       <DependentUpon>MessageBodyControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\LoginPage.xaml.cs">
-      <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PostClientPage.xaml.cs">
       <DependentUpon>PostClientPage.xaml</DependentUpon>
@@ -174,10 +170,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\MessageBodyControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

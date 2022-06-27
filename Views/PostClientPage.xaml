@@ -20,11 +20,58 @@
         <StackPanel Margin="10"
                     Grid.Column="0">
             <Button Content="Login"
-                    Command="{Binding LoginCommand}"/>
+                    Command="{Binding ShowLoginControlsCommand}"
+                    Visibility="{Binding ManagmentButtonsVisibility}"/>
             <Button Content="Load"
-                    Command="{Binding LoadCommand}"/>
+                    Command="{Binding LoadCommand}"
+                    Visibility="{Binding ManagmentButtonsVisibility}"/>
             <Button Content="Send"
-                    Command="{Binding SendCommand}"/>
+                    Command="{Binding SendCommand}"
+                    Visibility="{Binding ManagmentButtonsVisibility}"/>
+            <TextBlock Text="Login:"
+                       Margin="0,50,0,0"
+                       Visibility="{Binding LoginControlsVisibility}"/>
+            <TextBox Visibility="{Binding LoginControlsVisibility}"
+                     Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="Password:"
+                       Visibility="{Binding LoginControlsVisibility}"/>
+            <TextBox Visibility="{Binding LoginControlsVisibility}"
+                     Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <CheckBox Content="Remember me"
+                      Visibility="{Binding LoginControlsVisibility}"
+                      IsChecked="{Binding IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="Select service:"
+                       Visibility="{Binding LoginControlsVisibility}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <RadioButton Grid.Column="0"
+                             Content="Gmail" 
+                             IsChecked="{Binding IsGmailRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding LoginControlsVisibility}"/>
+                <RadioButton Grid.Column="1" 
+                             Content="Outlook"
+                             IsChecked="{Binding IsOutlookRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding LoginControlsVisibility}"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Margin="5"
+                        Content="OK"
+                        Command="{Binding LoginCommand}"
+                        Visibility="{Binding LoginControlsVisibility}"/>
+                <Button Grid.Column="1"
+                        Margin="5"
+                        Content="Cancel"
+                        Command="{Binding CancelLoginControlsCommand}"
+                        Visibility="{Binding LoginControlsVisibility}"/>
+            </Grid>
         </StackPanel>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>

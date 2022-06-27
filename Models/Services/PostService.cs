@@ -1,5 +1,8 @@
-﻿using MimeKit;
+﻿using MailKit;
+using MailKit.Net.Imap;
+using MimeKit;
 using System;
+using System.Collections.Generic;
 using Windows.UI.Popups;
 
 namespace PostClient.Models.Services
@@ -12,12 +15,22 @@ namespace PostClient.Models.Services
             await messageDialog.ShowAsync();
         }
 
-        protected void CheckForOutOfBounds(int last, int max, int first)
+        protected void EstablishConnection(ImapClient client, Account account, string imapServer)
         {
-            if (last > max)
-                throw new Exception("You've reached last list of messages");
-            if (first < 0)
-                throw new Exception("You've reached first list of messages");
+            client.Connect(imapServer, 993, true);
+            client.Authenticate(account.Email, account.Password);
+        }
+
+        protected void GetMessages(ImapClient client, List<MimeMessage> messages)
+        {
+            var inbox = client.Inbox;
+            inbox.Open(FolderAccess.ReadOnly);
+
+            for (int i = inbox.Count - 1; i > (inbox.Count > 10 ? inbox.Count - 10 : 0); i--)
+            {
+                var messageMime = inbox.GetMessage(i);
+                messages.Add(messageMime);
+            }
         }
     }
 }
