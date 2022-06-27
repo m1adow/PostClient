@@ -72,11 +72,9 @@ namespace PostClient.ViewModels
 
         public ICommand CancelLoginControlsCommand { get; }
 
-        private Account _account;
+        private readonly Action _loadMessages;
 
-        private Action _loadMessages;
-
-        private Action<Account> _changeAccount;
+        private readonly Action<Account> _changeAccount;
 
         public LoginViewModel(Action<Account> changeAccount, Action loadMessages)
         {
@@ -91,7 +89,7 @@ namespace PostClient.ViewModels
         #region Methods for login command
         private void LoginIntoAccount()
         {
-            _account = new Account()
+            Account account = new Account()
             {
                 Email = this.Email,
                 Password = this.Password,
@@ -99,12 +97,12 @@ namespace PostClient.ViewModels
             };
 
             if (IsRememberMeChecked)
-                JSONSaverAndReaderHelper.Save(_account);
+                JSONSaverAndReaderHelper.Save(account);
 
             ClearFields();
             HideLoginControls();
             (LoginCommand as RelayCommand).OnExecuteChanged(); //for disabling login button on second time
-            _changeAccount(_account);
+            _changeAccount(account);
             _loadMessages();
         }
 

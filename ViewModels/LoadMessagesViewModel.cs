@@ -54,14 +54,11 @@ namespace PostClient.ViewModels
 
         public Action LoadMessagesAction { get; }
 
-        private Account _account;
-
-        private Func<Account> _getAccount;
+        private readonly Func<Account> _getAccount;
 
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
             _getAccount = getAccount;
-            _account = getAccount();
             LoadMessagesAction = LoadMessages;
 
             LoadCommand = new RelayCommand(LoadMessages);
@@ -73,15 +70,15 @@ namespace PostClient.ViewModels
         #region Method for load messages
         private void LoadMessages()
         {
-            _account = _getAccount();
+            Account account = _getAccount();
 
-            switch (_account.PostServiceName)
+            switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    AddMessagesToCollection(new GmailService().LoadMessages(_account, MessageDialogShower.ShowMessageDialog));
+                    AddMessagesToCollection(new GmailService().LoadMessages(account, MessageDialogShower.ShowMessageDialog));
                     break;
                 case nameof(OutlookService):
-                    AddMessagesToCollection(new OutlookService().LoadMessages(_account, MessageDialogShower.ShowMessageDialog));
+                    AddMessagesToCollection(new OutlookService().LoadMessages(account, MessageDialogShower.ShowMessageDialog));
                     break;
             }
         }

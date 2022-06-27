@@ -6,19 +6,19 @@ namespace PostClient.ViewModels
 {
     internal sealed class PostClientViewModel : ViewModelBase
     {
-        private Account _account = new Account();
-
         public SendMessageViewModel SendMessageViewModel { get; } 
 
         public LoadMessagesViewModel LoadMessagesViewModel { get; }
 
-        public LoginViewModel LoginViewModel { get; } 
+        public LoginViewModel LoginViewModel { get; }
+
+        private Account _account = new Account();
 
         public PostClientViewModel()
         {
             SendMessageViewModel = new SendMessageViewModel(GetAccount);
             LoadMessagesViewModel = new LoadMessagesViewModel(GetAccount);
-            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesAction);  
+            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesAction);
         }
 
         private Account GetAccount()
