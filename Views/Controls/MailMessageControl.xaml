@@ -5,22 +5,24 @@
     xmlns:local="using:PostClient.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mdls="using:PostClient.Models"
     mc:Ignorable="d"
     d:DesignHeight="100"
     d:DesignWidth="200">
-    <Grid>
+    <UserControl.Resources>
+        <mdls:MailMessage x:Key="message"/>
+    </UserControl.Resources>
+    <Grid DataContext="{StaticResource message}"
+          x:Name="infoGrid">
         <StackPanel Margin="10">
-            <TextBlock Text="Subject"
+            <TextBlock Text="{Binding Subject}"
                        FontSize="25"
-                       FontWeight="Bold"
-                       x:Name="subjectTextBlock"/>
-            <TextBlock Text="Time"
+                       FontWeight="Bold"/>
+            <TextBlock Text="{Binding Date}"
                        Margin="20,0,0,0"
-                       FontSize="10"
-                       x:Name="dateTextBlock"/>
-            <TextBlock Text="From"
-                       FontSize="20"
-                       x:Name="fromTextBlock"/>
+                       FontSize="10"/>
+            <TextBlock Text="{Binding From}"
+                       FontSize="20"/>
         </StackPanel>
     </Grid>
 </UserControl>

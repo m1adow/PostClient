@@ -4,7 +4,6 @@ using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Popups;
 

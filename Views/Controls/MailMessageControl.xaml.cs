@@ -1,5 +1,4 @@
 ﻿using PostClient.Models;
-using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -21,17 +20,13 @@ namespace PostClient.Views.Controls
         }
 
         public static readonly DependencyProperty MessageProperty =
-            DependencyProperty.Register("MailMessage", typeof(MailMessage), typeof(MailMessageControl), new PropertyMetadata(null, SetText));
+            DependencyProperty.Register("MailMessage", typeof(MailMessage), typeof(MailMessageControl), new PropertyMetadata(null, OnDependencyPropertyChanged));
 
-        private static void SetText(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MailMessageControl control = d as MailMessageControl;
 
-            MailMessage mailMessage = e.NewValue as MailMessage ?? new MailMessage();
-
-            control.subjectTextBlock.Text = mailMessage.Subject;
-            control.dateTextBlock.Text = mailMessage.Date.ToLocalTime().ToString();
-            control.fromTextBlock.Text = mailMessage.From;
+            control.infoGrid.DataContext = (e.NewValue as MailMessage) ?? new MailMessage();
         }
     }
 }
