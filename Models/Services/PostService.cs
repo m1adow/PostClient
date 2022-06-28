@@ -38,5 +38,17 @@ namespace PostClient.Models.Services
             client.Inbox.AddFlags(uids, MessageFlags.Deleted, true);
             client.Inbox.Expunge(uids);
         }
+
+        protected void FlagSpecificMessage(ImapClient client, uint uid)
+        {
+            IList<UniqueId> uids = new List<UniqueId>()
+            {
+                new UniqueId(uid)
+            };
+
+            client.Inbox.Open(FolderAccess.ReadWrite);
+            client.Inbox.AddFlags(uids, MessageFlags.Flagged, true);
+            client.Inbox.Expunge(uids);
+        }
     }
 }

@@ -144,6 +144,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <Button Content="Flag"
+                        Grid.Column="0"
+                        Command="{Binding ControlMessageViewModel.FlagMessageCommand}"
+                        Visibility="{Binding ControlMessageViewModel.MessageBodyControlsVisibility}"/>
                 <Button Content="Delete"
                         Grid.Column="1"
                         Command="{Binding ControlMessageViewModel.DeleteMessageCommand}"

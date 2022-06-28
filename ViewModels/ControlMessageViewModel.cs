@@ -35,21 +35,45 @@ namespace PostClient.ViewModels
             set => Set(ref _messageBodyControlsVisibility, value);
         }
 
+        public ICommand FlagMessageCommand { get; }
+
         public ICommand DeleteMessageCommand { get; }
 
         public ICommand CloseMessageCommand { get; }
 
         private Func<Account> _getAccount;
+        private Func<MailMessage, bool> _addMessageToFlaggedList;
         private Func<MailMessage, bool> _deleteMessageFromList;
 
-        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteMessageFromList)
+        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> addMessageToFlaggedList, Func<MailMessage, bool> deleteMessageFromList)
         {
             _getAccount = getAccount;
+            _addMessageToFlaggedList = addMessageToFlaggedList;
             _deleteMessageFromList = deleteMessageFromList;
 
+            FlagMessageCommand = new RelayCommand(FlagMessage);
             DeleteMessageCommand = new RelayCommand(DeleteMessage);
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
+
+        #region Methods for flag message
+        private void FlagMessage()
+        {
+            Account account = _getAccount();
+
+            switch (account.PostServiceName)
+            {
+                case nameof(GmailService):
+                    new GmailService().FlagMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    break;
+                case nameof(OutlookService):
+                    new OutlookService().FlagMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    break;
+            }
+
+            _addMessageToFlaggedList(SelectedMailMessage);
+        }
+        #endregion
 
         #region Methods for deleting message
         private void DeleteMessage()
@@ -63,7 +87,7 @@ namespace PostClient.ViewModels
                     break;
                 case nameof(OutlookService):
                     new OutlookService().DeleteMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
-                    break;  
+                    break;
             }
 
             _deleteMessageFromList(SelectedMailMessage);

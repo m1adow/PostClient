@@ -52,6 +52,26 @@ namespace PostClient.Models.Services
             }
         }
 
+        public void FlagMessage(Account account, MailMessage message, Action<string> exceptionHandler)
+        {
+            ImapClient client = new ImapClient();
+
+            try
+            {
+                EstablishConnection(client, account, "imap.gmail.com");
+                FlagSpecificMessage(client, message.Uid);
+            }
+            catch (Exception exception)
+            {
+                exceptionHandler(exception.Message);
+            }
+            finally
+            {
+                client.Disconnect(true);
+                client.Dispose();
+            }
+        }
+
         public Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SearchQuery searchQuery, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();

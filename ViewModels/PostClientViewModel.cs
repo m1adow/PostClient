@@ -26,7 +26,7 @@ namespace PostClient.ViewModels
             SendMessageViewModel = new SendMessageViewModel(GetAccount);
             LoadMessagesViewModel = new LoadMessagesViewModel(GetAccount);
             LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction);
-            ControlMessageViewModel = new ControlMessageViewModel(GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
+            ControlMessageViewModel = new ControlMessageViewModel(GetAccount, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc);
         }
 
         private Account GetAccount()

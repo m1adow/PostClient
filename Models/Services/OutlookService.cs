@@ -38,6 +38,11 @@ namespace PostClient.Models.Services
             throw new NotImplementedException();
         }
 
+        public void FlagMessage(Account account, MailMessage message, Action<string> exceptionHandler)
+        {
+            throw new NotImplementedException();
+        }
+
         public Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SearchQuery searchQuery, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();

@@ -16,7 +16,14 @@ namespace PostClient.ViewModels
     {
         public ObservableCollection<MailMessage> Messages { get; } = new ObservableCollection<MailMessage>();
 
-        private List<MailMessage> _messages = new List<MailMessage>();
+        private List<MailMessage> _allMessages = new List<MailMessage>();
+
+        private List<MailMessage> _deletedMessages = new List<MailMessage>();
+
+        private List<MailMessage> _flaggedMessages = new List<MailMessage>();
+
+        private List<MailMessage> _draftMessages = new List<MailMessage>();
+
 
         public ICommand LoadAllMessagesFromLocalStorageCommand { get; }
 
@@ -32,6 +39,8 @@ namespace PostClient.ViewModels
 
         public Action LoadMessagesFromLocalStorageAction { get; }
 
+        public Func<MailMessage, bool> FlagMessageFunc { get; }
+
         public Func<MailMessage, bool> DeleteMessageFunc { get; }
 
         private readonly Func<Account> _getAccount;
@@ -41,6 +50,7 @@ namespace PostClient.ViewModels
             _getAccount = getAccount;
             LoadMessagesFromServerAction = LoadAllMessagesFromServer;
             LoadMessagesFromLocalStorageAction = LoadAllMessagesFromLocalStorage;
+            FlagMessageFunc = FlagMessage;
             DeleteMessageFunc = DeleteMessage;
 
             LoadAllMessagesFromLocalStorageCommand = new RelayCommand(LoadAllMessagesFromLocalStorage);
@@ -53,32 +63,32 @@ namespace PostClient.ViewModels
         #region Method for load messages from local storage
         private async void LoadAllMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
-            UpdateMessageCollection();
+            _allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+            UpdateMessageCollection(_allMessages);
         }
         #endregion
 
         #region Method for load deleted messages
         private async void LoadDeletedMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DeletedMessages.json"); ;
-            UpdateMessageCollection();
+            _deletedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DeletedMessages.json"); ;
+            UpdateMessageCollection(_deletedMessages);
         }
         #endregion
 
         #region Method for load flagged messages
         private async void LoadFlaggedMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
-            UpdateMessageCollection();
+            _flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            UpdateMessageCollection(_flaggedMessages);
         }
         #endregion
 
         #region Method for load draft messages
         private async void LoadDraftMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
-            UpdateMessageCollection();
+            _draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
+            UpdateMessageCollection(_draftMessages);
         }
         #endregion
 
@@ -93,7 +103,7 @@ namespace PostClient.ViewModels
             var draftMimeMessages = GetMimeMessages(account, SearchQuery.Draft);
 
             var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
-            _messages = allMailMessages;
+            _allMessages = allMailMessages;
 
             var deletedMailMessages = ConvertFromMimeMessageToMailMessage(deletedMimeMessages);
             var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
@@ -104,7 +114,7 @@ namespace PostClient.ViewModels
             SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
             SaveMessages(draftMailMessages, "DraftMessages.json");
 
-            UpdateMessageCollection();
+            UpdateMessageCollection(_allMessages);
         }
 
         private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SearchQuery searchQuery)
@@ -150,20 +160,27 @@ namespace PostClient.ViewModels
 
         private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
 
-        private void UpdateMessageCollection()
+        private void UpdateMessageCollection(List<MailMessage> messages)
         {
             Messages.Clear();
 
-            for (int i = 0; i < _messages.Count; i++)
-                Messages.Add(_messages[i]);
+            for (int i = 0; i < messages.Count; i++)
+                Messages.Add(_allMessages[i]);
         }
         #endregion
 
+        private bool FlagMessage(MailMessage message)
+        {
+            _flaggedMessages.Add(message);
+
+            return true;
+        }
+
         private bool DeleteMessage(MailMessage message)
         {
-            _messages.Remove(message);
+            _allMessages.Remove(message);
 
-            UpdateMessageCollection();
+            UpdateMessageCollection(_allMessages);
 
             return true;
         }
