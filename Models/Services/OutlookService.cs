@@ -1,4 +1,5 @@
-﻿using MailKit.Net.Imap;
+﻿using MailKit;
+using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Search;
 using MailKit.Security;
@@ -11,29 +12,6 @@ namespace PostClient.Models.Services
 {
     internal sealed class OutlookService : PostService, IService
     {
-        public List<MimeMessage> LoadMessages(Account account, SearchQuery searchQuery, Action<string> exceptionHandler)
-        {
-            ImapClient client = new ImapClient();
-            List<MimeMessage> messages = new List<MimeMessage>();
-
-            try
-            {
-                EstablishConnection(client, account, "imap.outlook.com");
-                GetMessages(client, messages, searchQuery);
-            }
-            catch (Exception exception)
-            {
-                exceptionHandler(exception.Message);
-            }
-            finally
-            {
-                client.Disconnect(true);
-                client.Dispose();
-            }
-
-            return messages;
-        }
-
         public void SendMessage(Account account, MimeMessage message, Action<string> exceptionHandler)
         {
             SmtpClient client = new SmtpClient();
@@ -53,6 +31,34 @@ namespace PostClient.Models.Services
                 client.Disconnect(true);
                 client.Dispose();
             }
+        }
+
+        public void DeleteMessage(Account account, MailMessage message, Action<string> exceptionHandler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SearchQuery searchQuery, Action<string> exceptionHandler)
+        {
+            ImapClient client = new ImapClient();
+            Dictionary<UniqueId, MimeMessage> messages = new Dictionary<UniqueId, MimeMessage>();
+
+            try
+            {
+                EstablishConnection(client, account, "imap.outlook.com");
+                GetMessages(client, messages, searchQuery);
+            }
+            catch (Exception exception)
+            {
+                exceptionHandler(exception.Message);
+            }
+            finally
+            {
+                client.Disconnect(true);
+                client.Dispose();
+            }
+
+            return messages;
         }
     }
 }

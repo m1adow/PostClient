@@ -4,6 +4,7 @@ namespace PostClient.Models
 {
     internal sealed class MailMessage
     {
+        public uint Uid { get; set; }
         public string Subject { get; set; }
         public string Body { get; set; }
         public string From { get; set; }
@@ -11,6 +12,7 @@ namespace PostClient.Models
 
         public MailMessage()
         {
+            Uid = 0;
             Subject = String.Empty;
             Body = String.Empty;
             From = String.Empty;

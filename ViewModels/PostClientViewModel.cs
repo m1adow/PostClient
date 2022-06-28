@@ -7,7 +7,9 @@ namespace PostClient.ViewModels
 {
     internal sealed class PostClientViewModel : ViewModelBase
     {
-        public SendMessageViewModel SendMessageViewModel { get; } 
+        public ICommand LoadedHandlerCommand { get; }
+
+        public SendMessageViewModel SendMessageViewModel { get; }
 
         public LoadMessagesViewModel LoadMessagesViewModel { get; }
 
@@ -15,18 +17,16 @@ namespace PostClient.ViewModels
 
         public ControlMessageViewModel ControlMessageViewModel { get; }
 
-        public ICommand LoadedHandlerCommand { get;}
-
         private Account _account = new Account();
 
         public PostClientViewModel()
         {
+            LoadedHandlerCommand = new RelayCommand(LoadedHandler);
+
             SendMessageViewModel = new SendMessageViewModel(GetAccount);
             LoadMessagesViewModel = new LoadMessagesViewModel(GetAccount);
             LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction);
-            ControlMessageViewModel = new ControlMessageViewModel();
-
-            LoadedHandlerCommand = new RelayCommand(LoadedHandler);
+            ControlMessageViewModel = new ControlMessageViewModel(GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
         }
 
         private Account GetAccount()
@@ -49,8 +49,8 @@ namespace PostClient.ViewModels
             }
         }
 
-        private void ChangeAccountAfterLogining(Account account) => _account = account;   
-        
+        private void ChangeAccountAfterLogining(Account account) => _account = account;
+
         private void LoadedHandler()
         {
             LoadAccount();

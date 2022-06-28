@@ -1,5 +1,8 @@
-﻿using PostClient.ViewModels.Infrastructure;
-using System.Net.Mail;
+﻿using PostClient.Models;
+using PostClient.Models.Services;
+using PostClient.ViewModels.Helpers;
+using PostClient.ViewModels.Infrastructure;
+using System;
 using System.Windows.Input;
 using Windows.UI.Xaml;
 
@@ -36,8 +39,14 @@ namespace PostClient.ViewModels
 
         public ICommand CloseMessageCommand { get; }
 
-        public ControlMessageViewModel()
+        private Func<Account> _getAccount;
+        private Func<MailMessage, bool> _deleteMessageFromList;
+
+        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteMessageFromList)
         {
+            _getAccount = getAccount;
+            _deleteMessageFromList = deleteMessageFromList;
+
             DeleteMessageCommand = new RelayCommand(DeleteMessage);
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
@@ -45,9 +54,20 @@ namespace PostClient.ViewModels
         #region Methods for deleting message
         private void DeleteMessage()
         {
-            
+            Account account = _getAccount();
 
-            MessageBodyControlsVisibility = Visibility.Collapsed;
+            switch (account.PostServiceName)
+            {
+                case nameof(GmailService):
+                    new GmailService().DeleteMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    break;
+                case nameof(OutlookService):
+                    new OutlookService().DeleteMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    break;  
+            }
+
+            _deleteMessageFromList(SelectedMailMessage);
+            CloseMessage();
         }
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using MailKit.Search;
+﻿using MailKit;
+using MailKit.Search;
 using MimeKit;
 using PostClient.Models;
 using PostClient.Models.Services;
@@ -8,13 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Windows.UI.Xaml;
 
 namespace PostClient.ViewModels
 {
     internal sealed class LoadMessagesViewModel : ViewModelBase
     {
-        public ObservableCollection<MailMessage> Messages { get; private set; } = new ObservableCollection<MailMessage>();
+        public ObservableCollection<MailMessage> Messages { get; } = new ObservableCollection<MailMessage>();
 
         private List<MailMessage> _messages = new List<MailMessage>();
 
@@ -32,6 +32,8 @@ namespace PostClient.ViewModels
 
         public Action LoadMessagesFromLocalStorageAction { get; }
 
+        public Func<MailMessage, bool> DeleteMessageFunc { get; }
+
         private readonly Func<Account> _getAccount;
 
         public LoadMessagesViewModel(Func<Account> getAccount)
@@ -39,6 +41,7 @@ namespace PostClient.ViewModels
             _getAccount = getAccount;
             LoadMessagesFromServerAction = LoadAllMessagesFromServer;
             LoadMessagesFromLocalStorageAction = LoadAllMessagesFromLocalStorage;
+            DeleteMessageFunc = DeleteMessage;
 
             LoadAllMessagesFromLocalStorageCommand = new RelayCommand(LoadAllMessagesFromLocalStorage);
             LoadDeletedMessagesFromLocalStorageCommand = new RelayCommand(LoadDeletedMessagesFromLocalStorage);
@@ -51,7 +54,7 @@ namespace PostClient.ViewModels
         private async void LoadAllMessagesFromLocalStorage()
         {
             _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
-            AddMessagesToCollection(_messages);
+            UpdateMessageCollection();
         }
         #endregion
 
@@ -59,7 +62,7 @@ namespace PostClient.ViewModels
         private async void LoadDeletedMessagesFromLocalStorage()
         {
             _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DeletedMessages.json"); ;
-            AddMessagesToCollection(_messages);
+            UpdateMessageCollection();
         }
         #endregion
 
@@ -67,7 +70,7 @@ namespace PostClient.ViewModels
         private async void LoadFlaggedMessagesFromLocalStorage()
         {
             _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
-            AddMessagesToCollection(_messages);
+            UpdateMessageCollection();
         }
         #endregion
 
@@ -75,7 +78,7 @@ namespace PostClient.ViewModels
         private async void LoadDraftMessagesFromLocalStorage()
         {
             _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
-            AddMessagesToCollection(_messages);
+            UpdateMessageCollection();
         }
         #endregion
 
@@ -101,12 +104,12 @@ namespace PostClient.ViewModels
             SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
             SaveMessages(draftMailMessages, "DraftMessages.json");
 
-            AddMessagesToCollection(allMailMessages);
+            UpdateMessageCollection();
         }
 
-        private List<MimeMessage> GetMimeMessages(Account account, SearchQuery searchQuery)
+        private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SearchQuery searchQuery)
         {
-            List<MimeMessage> mimeMessages = new List<MimeMessage>();
+            Dictionary<UniqueId, MimeMessage> mimeMessages = new Dictionary<UniqueId, MimeMessage>();
 
             switch (account.PostServiceName)
             {
@@ -121,7 +124,7 @@ namespace PostClient.ViewModels
             return mimeMessages;
         }
 
-        private List<MailMessage> ConvertFromMimeMessageToMailMessage(List<MimeMessage> mimeMessages)
+        private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<UniqueId, MimeMessage> mimeMessages)
         {
             List<MailMessage> mailMessages = new List<MailMessage>();
 
@@ -131,14 +134,15 @@ namespace PostClient.ViewModels
             return mailMessages;
         }
 
-        private MailMessage CreateMessage(MimeMessage messageMime)
+        private MailMessage CreateMessage(KeyValuePair<UniqueId, MimeMessage> mimeMessage)
         {
             MailMessage message = new MailMessage()
             {
-                Subject = messageMime.Subject,
-                Body = messageMime.HtmlBody,
-                From = messageMime.From[0].Name,
-                Date = messageMime.Date
+                Uid = mimeMessage.Key.Id,
+                Subject = mimeMessage.Value.Subject,
+                Body = mimeMessage.Value.HtmlBody,
+                From = mimeMessage.Value.From[0].Name,
+                Date = mimeMessage.Value.Date
             };
 
             return message;
@@ -146,13 +150,22 @@ namespace PostClient.ViewModels
 
         private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
 
-        private void AddMessagesToCollection(List<MailMessage> messages)
+        private void UpdateMessageCollection()
         {
             Messages.Clear();
 
-            for (int i = messages.Count - 1; i >= 0; i--)
-                Messages.Add(messages[i]);
+            for (int i = 0; i < _messages.Count; i++)
+                Messages.Add(_messages[i]);
         }
         #endregion
+
+        private bool DeleteMessage(MailMessage message)
+        {
+            _messages.Remove(message);
+
+            UpdateMessageCollection();
+
+            return true;
+        }
     }
 }

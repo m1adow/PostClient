@@ -125,7 +125,7 @@
             <ListView Margin="10"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
                       Grid.Row="1"
-                      SelectedValue="{Binding LoadMessagesViewModel.SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                      SelectedValue="{Binding ControlMessageViewModel.SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <uc:MailMessageControl MailMessage="{Binding}"/>
