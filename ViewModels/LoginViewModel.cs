@@ -97,7 +97,7 @@ namespace PostClient.ViewModels
             };
 
             if (IsRememberMeChecked)
-                JSONSaverAndReaderHelper.Save(account);
+                JSONSaverAndReaderHelper.Save(account, "AccountCredentials.json");
 
             ClearFields();
             HideLoginControls();

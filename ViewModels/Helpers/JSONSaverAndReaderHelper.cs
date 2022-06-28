@@ -1,32 +1,25 @@
-﻿using PostClient.Models;
-using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace PostClient.ViewModels.Helpers
 {
     internal static class JSONSaverAndReaderHelper
-    {    
-        private static readonly string _name = "AccountCredentials.txt";
-
-        public static async Task<Account> Read()
+    {
+        public static void Save<T>(T objectForSerialization, string name)
         {
-            string json = await StorageFileWriterAndReader.Read(_name);
-
-            Account account = JsonSerializer.Deserialize<Account>(json);
-
-            return account;
-        }
-
-        public static void Save(Account account)
-        {
-            string json = JsonSerializer.Serialize((object)account, new JsonSerializerOptions
+            string json = JsonSerializer.Serialize((object)objectForSerialization, new JsonSerializerOptions
             {
                 WriteIndented = true
             });
 
-            StorageFileWriterAndReader.Write(_name, json); 
+            StorageFileWriterAndReader.Write(name, json);
+        }
+
+        public static async Task<T> Read<T>(string name)
+        {
+            string json = await StorageFileWriterAndReader.Read(name);
+
+            return JsonSerializer.Deserialize<T>(json);
         }
     }
 }

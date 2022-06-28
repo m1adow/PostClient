@@ -1,6 +1,7 @@
 ﻿using PostClient.ViewModels.Infrastructure;
 using PostClient.Models;
 using PostClient.ViewModels.Helpers;
+using System;
 
 namespace PostClient.ViewModels
 {
@@ -18,7 +19,7 @@ namespace PostClient.ViewModels
         {
             SendMessageViewModel = new SendMessageViewModel(GetAccount);
             LoadMessagesViewModel = new LoadMessagesViewModel(GetAccount);
-            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesAction);
+            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction);
         }
 
         private Account GetAccount()
@@ -29,7 +30,17 @@ namespace PostClient.ViewModels
             return _account;
         }
 
-        private async void LoadAccount() => _account = await JSONSaverAndReaderHelper.Read();
+        private async void LoadAccount()
+        {
+            try
+            {
+                _account = await JSONSaverAndReaderHelper.Read<Account>("AccountCredentials.json");
+            }
+            catch
+            {
+                MessageDialogShower.ShowMessageDialog("You have to login");
+            }
+        }
 
         private void ChangeAccountAfterLogining(Account account) => _account = account;        
     }

@@ -15,7 +15,7 @@ namespace PostClient.ViewModels
     {
         public ObservableCollection<MailMessage> Messages { get; private set; } = new ObservableCollection<MailMessage>();
 
-        private List<MimeMessage> _mimeMessages = new List<MimeMessage>();
+        private List<MailMessage> _messages = new List<MailMessage>();
 
         private int[] _countOfMessages = new int[2] { 0, 10 };
 
@@ -44,7 +44,9 @@ namespace PostClient.ViewModels
             set => Set(ref _messageBodyControlsVisibility, value);
         }
 
-        public ICommand LoadCommand { get; }
+        public ICommand LoadMessagesFromLocalStorageCommand { get; }
+
+        public ICommand LoadMessagesFromServerCommand { get; }
 
         public ICommand LoadNextListOfMessagesCommand { get; }
 
@@ -52,69 +54,56 @@ namespace PostClient.ViewModels
 
         public ICommand CloseMessageCommand { get; }
 
-        public Action LoadMessagesAction { get; }
+        public Action LoadMessagesFromServerAction { get; }
 
         private readonly Func<Account> _getAccount;
 
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
             _getAccount = getAccount;
-            LoadMessagesAction = LoadMessages;
+            LoadMessagesFromServerAction = LoadMessagesFromServer;
 
-            LoadCommand = new RelayCommand(LoadMessages);
+            LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);
+            LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
             LoadNextListOfMessagesCommand = new RelayCommand(LoadNextListOfMessages);
             LoadPreviousListOfMessagesCommand = new RelayCommand(LoadPreviousListOfMessages);
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
 
-        #region Method for load messages
-        private void LoadMessages()
+        #region Method for load messages from local storage
+        private async void LoadMessagesFromLocalStorage() => _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("Messages.json");
+        #endregion
+
+        #region Method for load messages from server
+        private void LoadMessagesFromServer()
         {
             Account account = _getAccount();
+            List<MimeMessage> mimeMessages = new List<MimeMessage>();
 
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    AddMessagesToCollection(new GmailService().LoadMessages(account, MessageDialogShower.ShowMessageDialog));
+                    mimeMessages = new GmailService().LoadMessages(account, MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    AddMessagesToCollection(new OutlookService().LoadMessages(account, MessageDialogShower.ShowMessageDialog));
+                    mimeMessages = new OutlookService().LoadMessages(account, MessageDialogShower.ShowMessageDialog);
                     break;
             }
+
+            var mailMessages = ConvertFromMimeMessageToMailMessage(mimeMessages);
+            _messages = mailMessages;
+            SaveMessages(mailMessages);
+            AddMessagesToCollection(mailMessages);
         }
 
-        private void AddMessagesToCollection(List<MimeMessage> messages)
+        private List<MailMessage> ConvertFromMimeMessageToMailMessage(List<MimeMessage> mimeMessages)
         {
-            Messages.Clear();
+            List<MailMessage> mailMessages = new List<MailMessage>();
 
-            if (_mimeMessages != messages)
-                _mimeMessages = messages;
+            foreach (var mimeMessage in mimeMessages)
+                mailMessages.Add(CreateMessage(mimeMessage));
 
-            int indexOfLastMessage = messages.Count - _countOfMessages[0];
-            int indexOfFirstMessage = messages.Count < _countOfMessages[1] ? 0 : messages.Count - _countOfMessages[1];
-
-            try
-            {
-                CheckForOutOfBounds(indexOfLastMessage, messages.Count, indexOfFirstMessage);
-
-                for (int i = indexOfLastMessage - 1; i > indexOfFirstMessage - 1; i--)
-                {
-                    MailMessage mailMessage = CreateMessage(messages[i]);
-                    Messages.Add(mailMessage);
-                }
-            }
-            catch (Exception exception)
-            {
-                MessageDialogShower.ShowMessageDialog(exception.Message);
-            }
-        }
-
-        private void CheckForOutOfBounds(int last, int max, int first)
-        {
-            if (last > max)
-                throw new ArgumentOutOfRangeException("You've reached last list of messages");
-            if (first < 0)
-                throw new ArgumentOutOfRangeException("You've reached first list of messages");
+            return mailMessages;
         }
 
         private MailMessage CreateMessage(MimeMessage messageMime)
@@ -129,13 +118,43 @@ namespace PostClient.ViewModels
 
             return message;
         }
+
+        private void SaveMessages(List<MailMessage> messages) => JSONSaverAndReaderHelper.Save(messages, "Messages.json");
+
+        private void AddMessagesToCollection(List<MailMessage> messages)
+        {
+            Messages.Clear();
+
+            int indexOfLastMessage = messages.Count - _countOfMessages[0];
+            int indexOfFirstMessage = messages.Count < _countOfMessages[1] ? 0 : messages.Count - _countOfMessages[1];
+
+            try
+            {
+                CheckForOutOfBounds(indexOfLastMessage, messages.Count, indexOfFirstMessage);
+
+                for (int i = indexOfLastMessage - 1; i > indexOfFirstMessage; i--)
+                    Messages.Add(messages[i]);
+            }
+            catch (Exception exception)
+            {
+                MessageDialogShower.ShowMessageDialog(exception.Message);
+            }
+        }
+
+        private void CheckForOutOfBounds(int last, int max, int first)
+        {
+            if (last > max)
+                throw new ArgumentOutOfRangeException("You've reached last list of messages");
+            if (first < 0)
+                throw new ArgumentOutOfRangeException("You've reached first list of messages");
+        }
         #endregion
 
         #region Method for load next list of messages
         private void LoadNextListOfMessages()
         {
             _countOfMessages = new int[] { _countOfMessages[0] + 10, _countOfMessages[1] + 10 };
-            AddMessagesToCollection(_mimeMessages);
+            AddMessagesToCollection(_messages);
         }
         #endregion
 
@@ -143,7 +162,7 @@ namespace PostClient.ViewModels
         private void LoadPreviousListOfMessages()
         {
             _countOfMessages = new int[] { _countOfMessages[0] - 10, _countOfMessages[1] - 10 };
-            AddMessagesToCollection(_mimeMessages);
+            AddMessagesToCollection(_messages);
         }
         #endregion
 

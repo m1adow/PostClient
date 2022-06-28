@@ -18,7 +18,7 @@ namespace PostClient.Models.Services
             var inbox = client.Inbox;
             inbox.Open(FolderAccess.ReadOnly);
 
-            for (int i = inbox.Count - 1; i > (inbox.Count > 100 ? inbox.Count - 100 : 0); i--)
+            for (int i = inbox.Count - 1; i >= (inbox.Count > 100 ? inbox.Count - 100 : 0); i--)
             {
                 var messageMime = inbox.GetMessage(i);
                 messages.Add(messageMime);
