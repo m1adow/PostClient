@@ -1,4 +1,5 @@
-﻿using MimeKit;
+﻿using MailKit.Search;
+using MimeKit;
 using PostClient.Models;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
@@ -17,42 +18,15 @@ namespace PostClient.ViewModels
 
         private List<MailMessage> _messages = new List<MailMessage>();
 
-        private int[] _countOfMessages = new int[2] { 0, 10 };
+        public ICommand LoadAllMessagesFromLocalStorageCommand { get; }
 
-        private MailMessage _selectedMailMessage = new MailMessage();
+        public ICommand LoadDeletedMessagesFromLocalStorageCommand { get; }
 
-        public MailMessage SelectedMailMessage
-        {
-            get => _selectedMailMessage;
-            set
-            {
-                if (value == null)
-                    value = new MailMessage();
+        public ICommand LoadFlaggedMessagesFromLocalStorageCommand { get; }
 
-                Set(ref _selectedMailMessage, value);
+        public ICommand LoadDraftMessagesFromLocalStorageCommand { get; }
 
-                if (_selectedMailMessage.Body.Length > 0)
-                    MessageBodyControlsVisibility = Visibility.Visible;
-            }
-        }
-
-        private Visibility _messageBodyControlsVisibility = Visibility.Collapsed;
-
-        public Visibility MessageBodyControlsVisibility
-        {
-            get => _messageBodyControlsVisibility;
-            set => Set(ref _messageBodyControlsVisibility, value);
-        }
-
-        public ICommand LoadMessagesFromLocalStorageCommand { get; }
-
-        public ICommand LoadMessagesFromServerCommand { get; }
-
-        public ICommand LoadNextListOfMessagesCommand { get; }
-
-        public ICommand LoadPreviousListOfMessagesCommand { get; }
-
-        public ICommand CloseMessageCommand { get; }
+        public ICommand LoadAllMessagesFromServerCommand { get; }
 
         public Action LoadMessagesFromServerAction { get; }
 
@@ -63,44 +37,88 @@ namespace PostClient.ViewModels
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
             _getAccount = getAccount;
-            LoadMessagesFromServerAction = LoadMessagesFromServer;
-            LoadMessagesFromLocalStorageAction = LoadMessagesFromLocalStorage;
+            LoadMessagesFromServerAction = LoadAllMessagesFromServer;
+            LoadMessagesFromLocalStorageAction = LoadAllMessagesFromLocalStorage;
 
-            LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);
-            LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
-            LoadNextListOfMessagesCommand = new RelayCommand(LoadNextListOfMessages);
-            LoadPreviousListOfMessagesCommand = new RelayCommand(LoadPreviousListOfMessages);
-            CloseMessageCommand = new RelayCommand(CloseMessage);
+            LoadAllMessagesFromLocalStorageCommand = new RelayCommand(LoadAllMessagesFromLocalStorage);
+            LoadDeletedMessagesFromLocalStorageCommand = new RelayCommand(LoadDeletedMessagesFromLocalStorage);
+            LoadFlaggedMessagesFromLocalStorageCommand = new RelayCommand(LoadFlaggedMessagesFromLocalStorage);
+            LoadDraftMessagesFromLocalStorageCommand = new RelayCommand(LoadDraftMessagesFromLocalStorage);
+            LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);                   
         }
 
         #region Method for load messages from local storage
-        private async void LoadMessagesFromLocalStorage()
+        private async void LoadAllMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("Messages.json");
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+            AddMessagesToCollection(_messages);
+        }
+        #endregion
+
+        #region Method for load deleted messages
+        private async void LoadDeletedMessagesFromLocalStorage()
+        {
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DeletedMessages.json"); ;
+            AddMessagesToCollection(_messages);
+        }
+        #endregion
+
+        #region Method for load flagged messages
+        private async void LoadFlaggedMessagesFromLocalStorage()
+        {
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            AddMessagesToCollection(_messages);
+        }
+        #endregion
+
+        #region Method for load draft messages
+        private async void LoadDraftMessagesFromLocalStorage()
+        {
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
             AddMessagesToCollection(_messages);
         }
         #endregion
 
         #region Method for load messages from server
-        private void LoadMessagesFromServer()
+        private void LoadAllMessagesFromServer()
         {
             Account account = _getAccount();
+
+            var allMimeMessages = GetMimeMessages(account, SearchQuery.All);
+            var deletedMimeMessages = GetMimeMessages(account, SearchQuery.Deleted);
+            var flaggedMimeMessages = GetMimeMessages(account, SearchQuery.Flagged);
+            var draftMimeMessages = GetMimeMessages(account, SearchQuery.Draft);
+
+            var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
+            _messages = allMailMessages;
+
+            var deletedMailMessages = ConvertFromMimeMessageToMailMessage(deletedMimeMessages);
+            var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
+            var draftMailMessages = ConvertFromMimeMessageToMailMessage(draftMimeMessages);
+
+            SaveMessages(allMailMessages, "AllMessages.json");
+            SaveMessages(deletedMailMessages, "DeletedMessages.json");
+            SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
+            SaveMessages(draftMailMessages, "DraftMessages.json");
+
+            AddMessagesToCollection(allMailMessages);
+        }
+
+        private List<MimeMessage> GetMimeMessages(Account account, SearchQuery searchQuery)
+        {
             List<MimeMessage> mimeMessages = new List<MimeMessage>();
 
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    mimeMessages = new GmailService().LoadMessages(account, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new GmailService().LoadMessages(account, searchQuery, MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    mimeMessages = new OutlookService().LoadMessages(account, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new OutlookService().LoadMessages(account, searchQuery, MessageDialogShower.ShowMessageDialog);
                     break;
             }
 
-            var mailMessages = ConvertFromMimeMessageToMailMessage(mimeMessages);
-            _messages = mailMessages;
-            SaveMessages(mailMessages);
-            AddMessagesToCollection(mailMessages);
+            return mimeMessages;
         }
 
         private List<MailMessage> ConvertFromMimeMessageToMailMessage(List<MimeMessage> mimeMessages)
@@ -126,59 +144,14 @@ namespace PostClient.ViewModels
             return message;
         }
 
-        private void SaveMessages(List<MailMessage> messages) => JSONSaverAndReaderHelper.Save(messages, "Messages.json");
+        private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
 
         private void AddMessagesToCollection(List<MailMessage> messages)
         {
             Messages.Clear();
 
-            int indexOfLastMessage = messages.Count - _countOfMessages[0];
-            int indexOfFirstMessage = messages.Count < _countOfMessages[1] ? 0 : messages.Count - _countOfMessages[1];
-
-            try
-            {
-                CheckForOutOfBounds(indexOfLastMessage, messages.Count, indexOfFirstMessage);
-
-                for (int i = indexOfLastMessage - 1; i > indexOfFirstMessage; i--)
-                    Messages.Add(messages[i]);
-            }
-            catch (Exception exception)
-            {
-                MessageDialogShower.ShowMessageDialog(exception.Message);
-            }
-        }
-
-        private void CheckForOutOfBounds(int last, int max, int first)
-        {
-            if (last > max)
-                throw new ArgumentOutOfRangeException("You've reached last list of messages");
-            if (first < 0)
-                throw new ArgumentOutOfRangeException("You've reached first list of messages");
-        }
-        #endregion
-
-        #region Method for load next list of messages
-        private void LoadNextListOfMessages()
-        {
-            _countOfMessages = new int[] { _countOfMessages[0] + 10, _countOfMessages[1] + 10 };
-            AddMessagesToCollection(_messages);
-        }
-        #endregion
-
-        #region Method for load previous list of messages
-        private void LoadPreviousListOfMessages()
-        {
-            _countOfMessages = new int[] { _countOfMessages[0] - 10, _countOfMessages[1] - 10 };
-            AddMessagesToCollection(_messages);
-        }
-        #endregion
-
-        #region Method for closing message
-        private void CloseMessage()
-        {
-            _selectedMailMessage = new MailMessage();
-
-            MessageBodyControlsVisibility = Visibility.Collapsed;
+            for (int i = messages.Count - 1; i >= 0; i--)
+                Messages.Add(messages[i]);
         }
         #endregion
     }

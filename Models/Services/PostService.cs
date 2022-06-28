@@ -1,5 +1,6 @@
 ﻿using MailKit;
 using MailKit.Net.Imap;
+using MailKit.Search;
 using MimeKit;
 using System.Collections.Generic;
 
@@ -13,14 +14,14 @@ namespace PostClient.Models.Services
             client.Authenticate(account.Email, account.Password);
         }
 
-        protected void GetMessages(ImapClient client, List<MimeMessage> messages)
+        protected void GetMessages(ImapClient client, List<MimeMessage> messages, SearchQuery searchQuery)
         {
-            var inbox = client.Inbox;
-            inbox.Open(FolderAccess.ReadOnly);
+            client.Inbox.Open(FolderAccess.ReadOnly);
+            var uids = client.Inbox.Search(searchQuery);
 
-            for (int i = inbox.Count - 1; i >= (inbox.Count > 100 ? inbox.Count - 100 : 0); i--)
+            for (int i = uids.Count - 1; i >= (uids.Count > 100 ? uids.Count - 100 : 0); i--)
             {
-                var messageMime = inbox.GetMessage(i);
+                var messageMime = client.Inbox.GetMessage(uids[i]);
                 messages.Add(messageMime);
             }
         }

@@ -34,10 +34,46 @@
                     Command="{Binding SendMessageViewModel.ShowSendingControlosCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <Button Content="Sync"
-                    Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
+                    Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromServerCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+            <TextBlock Text="Folders"
+                       Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+            <Button Content="Inbox"
+                    Margin="10,5,0,0"
+                    HorizontalAlignment="Left"
+                    Width="80"
+                    Height="40"
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                    Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromLocalStorageCommand}"/>
+            <Button Content="Sent Mail"
+                    Margin="10,5,0,0"
+                    HorizontalAlignment="Left"
+                    Width="80"
+                    Height="40"
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+            <Button Content="Deleted"
+                    Margin="10,5,0,0"
+                    HorizontalAlignment="Left"
+                    Width="80"
+                    Height="40"
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                    Command="{Binding LoadMessagesViewModel.LoadDeletedMessagesFromLocalStorageCommand}"/>
+            <Button Content="Flagged"
+                    Margin="10,5,0,0"
+                    HorizontalAlignment="Left"
+                    Width="80"
+                    Height="40"
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                    Command="{Binding LoadMessagesViewModel.LoadFlaggedMessagesFromLocalStorageCommand}"/>
+            <Button Content="Drafts"
+                    Margin="10,5,0,0"
+                    HorizontalAlignment="Left"
+                    Width="80"
+                    Height="40"
+                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                    Command="{Binding LoadMessagesViewModel.LoadDraftMessagesFromLocalStorageCommand}"/>
             <TextBlock Text="Login:"
-                       Margin="0,50,0,0"
+                       Margin="0,10,0,0"
                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                      Text="{Binding LoginViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -86,27 +122,6 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="10*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Content="Sent"
-                        Grid.Column="0"/>
-                <Button Content="Favourite"
-                        Grid.Column="1"/>
-                <Button Content="Deleted"
-                        Grid.Column="2"/>
-                <Button Content="&lt;"
-                        Grid.Column="3"
-                        Command="{Binding LoadMessagesViewModel.LoadPreviousListOfMessagesCommand}"/>
-                <Button Content=">"
-                        Grid.Column="4"
-                        Command="{Binding LoadMessagesViewModel.LoadNextListOfMessagesCommand}"/>
-            </Grid>
             <ListView Margin="10"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
                       Grid.Row="1"
@@ -129,14 +144,18 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <Button Content="Delete"
+                        Grid.Column="1"
+                        Command="{Binding ControlMessageViewModel.DeleteMessageCommand}"
+                        Visibility="{Binding ControlMessageViewModel.MessageBodyControlsVisibility}"/>
                 <Button Content="X"
                         Grid.Column="2"
                         Background="red"
-                        Command="{Binding LoadMessagesViewModel.CloseMessageCommand}"
-                        Visibility="{Binding LoadMessagesViewModel.MessageBodyControlsVisibility}"/>
+                        Command="{Binding ControlMessageViewModel.CloseMessageCommand}"
+                        Visibility="{Binding ControlMessageViewModel.MessageBodyControlsVisibility}"/>
             </Grid>
-            <uc:MessageBodyControl MessageBody="{Binding LoadMessagesViewModel.SelectedMailMessage.Body}"
-                                   Visibility="{Binding LoadMessagesViewModel.MessageBodyControlsVisibility}"
+            <uc:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.SelectedMailMessage.Body}"
+                                   Visibility="{Binding ControlMessageViewModel.MessageBodyControlsVisibility}"
                                    Grid.Row="1"
                                    Margin="10"/>
             <Grid Grid.Row="1"

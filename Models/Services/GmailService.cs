@@ -1,5 +1,6 @@
 ﻿using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
+using MailKit.Search;
 using MimeKit;
 using PostClient.Models.Infrastructure;
 using System;
@@ -9,7 +10,7 @@ namespace PostClient.Models.Services
 {
     internal sealed class GmailService : PostService, IService
     {
-        public List<MimeMessage> LoadMessages(Account account, Action<string> exceptionHandler)
+        public List<MimeMessage> LoadMessages(Account account, SearchQuery searchQuery, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();
             List<MimeMessage> messages = new List<MimeMessage>();
@@ -17,7 +18,7 @@ namespace PostClient.Models.Services
             try
             {
                 EstablishConnection(client, account, "imap.gmail.com");
-                GetMessages(client, messages);
+                GetMessages(client, messages, searchQuery);
             }
             catch (Exception exception)
             {
