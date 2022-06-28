@@ -56,12 +56,15 @@ namespace PostClient.ViewModels
 
         public Action LoadMessagesFromServerAction { get; }
 
+        public Action LoadMessagesFromLocalStorageAction { get; }
+
         private readonly Func<Account> _getAccount;
 
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
             _getAccount = getAccount;
             LoadMessagesFromServerAction = LoadMessagesFromServer;
+            LoadMessagesFromLocalStorageAction = LoadMessagesFromLocalStorage;
 
             LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);
             LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
@@ -71,7 +74,11 @@ namespace PostClient.ViewModels
         }
 
         #region Method for load messages from local storage
-        private async void LoadMessagesFromLocalStorage() => _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("Messages.json");
+        private async void LoadMessagesFromLocalStorage()
+        {
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("Messages.json");
+            AddMessagesToCollection(_messages);
+        }
         #endregion
 
         #region Method for load messages from server

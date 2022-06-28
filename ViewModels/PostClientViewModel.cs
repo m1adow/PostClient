@@ -2,6 +2,7 @@
 using PostClient.Models;
 using PostClient.ViewModels.Helpers;
 using System;
+using System.Windows.Input;
 
 namespace PostClient.ViewModels
 {
@@ -13,6 +14,8 @@ namespace PostClient.ViewModels
 
         public LoginViewModel LoginViewModel { get; }
 
+        public ICommand LoadedHandlerCommand { get;}
+
         private Account _account = new Account();
 
         public PostClientViewModel()
@@ -20,6 +23,8 @@ namespace PostClient.ViewModels
             SendMessageViewModel = new SendMessageViewModel(GetAccount);
             LoadMessagesViewModel = new LoadMessagesViewModel(GetAccount);
             LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction);
+
+            LoadedHandlerCommand = new RelayCommand(LoadedHandler);
         }
 
         private Account GetAccount()
@@ -42,6 +47,12 @@ namespace PostClient.ViewModels
             }
         }
 
-        private void ChangeAccountAfterLogining(Account account) => _account = account;        
+        private void ChangeAccountAfterLogining(Account account) => _account = account;   
+        
+        private void LoadedHandler()
+        {
+            LoadAccount();
+            LoadMessagesViewModel.LoadMessagesFromLocalStorageAction();
+        }
     }
 }

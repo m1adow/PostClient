@@ -3,6 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PostClient"
+    xmlns:ineractivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:PostClient.ViewModels"
@@ -12,6 +14,11 @@
     <Page.Resources>
         <vm:PostClientViewModel x:Key="viewModel"/>
     </Page.Resources>
+    <ineractivity:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loaded">
+            <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=LoadedHandlerCommand}"/>
+        </core:EventTriggerBehavior>
+    </ineractivity:Interaction.Behaviors>
     <Grid DataContext="{StaticResource viewModel}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -27,7 +34,7 @@
                     Command="{Binding SendMessageViewModel.ShowSendingControlosCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <Button Content="Sync"
-                    Command="{Binding LoadMessagesViewModel.LoadCommand}"
+                    Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <TextBlock Text="Login:"
                        Margin="0,50,0,0"
