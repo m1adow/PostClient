@@ -42,13 +42,13 @@ namespace PostClient.ViewModels
         public ICommand CloseMessageCommand { get; }
 
         private Func<Account> _getAccount;
-        private Func<MailMessage, bool> _addMessageToFlaggedList;
+        private Func<MailMessage, bool> _updateFlaggedList;
         private Func<MailMessage, bool> _deleteMessageFromList;
 
-        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> addMessageToFlaggedList, Func<MailMessage, bool> deleteMessageFromList)
+        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList)
         {
             _getAccount = getAccount;
-            _addMessageToFlaggedList = addMessageToFlaggedList;
+            _updateFlaggedList = updateFlaggedList;
             _deleteMessageFromList = deleteMessageFromList;
 
             FlagMessageCommand = new RelayCommand(FlagMessage);
@@ -71,7 +71,7 @@ namespace PostClient.ViewModels
                     break;
             }
 
-            _addMessageToFlaggedList(SelectedMailMessage);
+            _updateFlaggedList(SelectedMailMessage);
         }
         #endregion
 

@@ -95,6 +95,11 @@ namespace PostClient.ViewModels
                 Password = this.Password,
                 PostServiceName = GetServiceName()
             };
+           
+            _changeAccount(account);
+            _loadMessages();
+
+            account.Password = EncryptionHelper.Encrypt(this.Password);
 
             if (IsRememberMeChecked)
                 JSONSaverAndReaderHelper.Save(account, "AccountCredentials.json");
@@ -102,8 +107,6 @@ namespace PostClient.ViewModels
             ClearFields();
             HideLoginControls();
             (LoginCommand as RelayCommand).OnExecuteChanged(); //for disabling login button on second time
-            _changeAccount(account);
-            _loadMessages();
         }
 
         private string GetServiceName()

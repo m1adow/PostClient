@@ -8,6 +8,7 @@ namespace PostClient.Models
         public string Subject { get; set; }
         public string Body { get; set; }
         public string From { get; set; }
+        public bool IsFlagged { get; set; }
         public DateTimeOffset Date { get; set; }
 
         public MailMessage()
@@ -16,6 +17,7 @@ namespace PostClient.Models
             Subject = String.Empty;
             Body = String.Empty;
             From = String.Empty;
+            IsFlagged = false;  
             Date = DateTimeOffset.Now;
         }
     }

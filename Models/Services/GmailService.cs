@@ -59,7 +59,7 @@ namespace PostClient.Models.Services
             try
             {
                 EstablishConnection(client, account, "imap.gmail.com");
-                FlagSpecificMessage(client, message.Uid);
+                FlagSpecificMessage(client, message.Uid, message.IsFlagged);
             }
             catch (Exception exception)
             {

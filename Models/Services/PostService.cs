@@ -39,7 +39,7 @@ namespace PostClient.Models.Services
             client.Inbox.Expunge(uids);
         }
 
-        protected void FlagSpecificMessage(ImapClient client, uint uid)
+        protected void FlagSpecificMessage(ImapClient client, uint uid, bool isFlagged)
         {
             IList<UniqueId> uids = new List<UniqueId>()
             {
@@ -47,7 +47,12 @@ namespace PostClient.Models.Services
             };
 
             client.Inbox.Open(FolderAccess.ReadWrite);
-            client.Inbox.AddFlags(uids, MessageFlags.Flagged, true);
+            
+            if (isFlagged)
+                client.Inbox.RemoveFlags(uids, MessageFlags.Flagged, true);
+            else
+                client.Inbox.AddFlags(uids, MessageFlags.Flagged, true);
+
             client.Inbox.Expunge(uids);
         }
     }

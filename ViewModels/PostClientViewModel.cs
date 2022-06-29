@@ -42,6 +42,7 @@ namespace PostClient.ViewModels
             try
             {
                 _account = await JSONSaverAndReaderHelper.Read<Account>("AccountCredentials.json");
+                _account.Password = EncryptionHelper.Decrypt(_account.Password);
             }
             catch
             {

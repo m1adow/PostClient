@@ -80,6 +80,7 @@ namespace PostClient.ViewModels
         private async void LoadFlaggedMessagesFromLocalStorage()
         {
             _flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            _flaggedMessages.ForEach(m => m.IsFlagged = true);
             UpdateMessageCollection(_flaggedMessages);
         }
         #endregion
@@ -171,7 +172,16 @@ namespace PostClient.ViewModels
 
         private bool FlagMessage(MailMessage message)
         {
-            _flaggedMessages.Add(message);
+            if (message.IsFlagged)
+            {
+                message.IsFlagged = false;
+                _flaggedMessages.Remove(message);
+            }
+            else
+            {
+                message.IsFlagged = true;
+                _flaggedMessages.Add(message);
+            }
 
             return true;
         }
