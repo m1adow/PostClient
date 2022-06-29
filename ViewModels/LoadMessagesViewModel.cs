@@ -8,6 +8,7 @@ using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PostClient.ViewModels
@@ -57,40 +58,30 @@ namespace PostClient.ViewModels
             LoadDeletedMessagesFromLocalStorageCommand = new RelayCommand(LoadDeletedMessagesFromLocalStorage);
             LoadFlaggedMessagesFromLocalStorageCommand = new RelayCommand(LoadFlaggedMessagesFromLocalStorage);
             LoadDraftMessagesFromLocalStorageCommand = new RelayCommand(LoadDraftMessagesFromLocalStorage);
-            LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);                   
+            LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);
         }
 
         #region Method for load messages from local storage
         private async void LoadAllMessagesFromLocalStorage()
         {
             _allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+            _flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            _deletedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DeletedMessages.json");
+            _draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
             UpdateMessageCollection(_allMessages);
         }
         #endregion
 
         #region Method for load deleted messages
-        private async void LoadDeletedMessagesFromLocalStorage()
-        {
-            _deletedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DeletedMessages.json"); ;
-            UpdateMessageCollection(_deletedMessages);
-        }
+        private void LoadDeletedMessagesFromLocalStorage() => UpdateMessageCollection(_deletedMessages);
         #endregion
 
         #region Method for load flagged messages
-        private async void LoadFlaggedMessagesFromLocalStorage()
-        {
-            _flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
-            _flaggedMessages.ForEach(m => m.IsFlagged = true);
-            UpdateMessageCollection(_flaggedMessages);
-        }
+        private void LoadFlaggedMessagesFromLocalStorage() => UpdateMessageCollection(_flaggedMessages);
         #endregion
 
         #region Method for load draft messages
-        private async void LoadDraftMessagesFromLocalStorage()
-        {
-            _draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
-            UpdateMessageCollection(_draftMessages);
-        }
+        private void LoadDraftMessagesFromLocalStorage() => UpdateMessageCollection(_draftMessages);
         #endregion
 
         #region Method for load messages from server
@@ -107,8 +98,14 @@ namespace PostClient.ViewModels
             _allMessages = allMailMessages;
 
             var deletedMailMessages = ConvertFromMimeMessageToMailMessage(deletedMimeMessages);
+            _deletedMessages = deletedMailMessages;
+
             var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
+            flaggedMailMessages.ForEach(m => m.IsFlagged = true);
+            _flaggedMessages = flaggedMailMessages;
+
             var draftMailMessages = ConvertFromMimeMessageToMailMessage(draftMimeMessages);
+            _draftMessages = draftMailMessages;
 
             SaveMessages(allMailMessages, "AllMessages.json");
             SaveMessages(deletedMailMessages, "DeletedMessages.json");
@@ -183,12 +180,16 @@ namespace PostClient.ViewModels
                 _flaggedMessages.Add(message);
             }
 
+            JSONSaverAndReaderHelper.Save(_flaggedMessages, "FlaggedMessages.json");
+
             return true;
         }
 
         private bool DeleteMessage(MailMessage message)
         {
             _allMessages.Remove(message);
+
+            JSONSaverAndReaderHelper.Save(_allMessages, "AllMessages.json");
 
             UpdateMessageCollection(_allMessages);
 
