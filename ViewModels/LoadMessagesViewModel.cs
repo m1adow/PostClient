@@ -40,6 +40,14 @@ namespace PostClient.ViewModels
 
         public ICommand SearchMessageCommand { get; }
 
+        public ICommand SortByAlphabetMessagesCommand { get; }
+
+        public ICommand SortByAlphabetDescendingMessagesCommand { get; }
+
+        public ICommand SortNewerMessagesCommand { get; }
+
+        public ICommand SortOlderMessagesCommand { get; }
+
         public Action LoadMessagesFromServerAction { get; }
 
         public Action LoadMessagesFromLocalStorageAction { get; }
@@ -64,6 +72,10 @@ namespace PostClient.ViewModels
             LoadDraftMessagesFromLocalStorageCommand = new RelayCommand(LoadDraftMessagesFromLocalStorage);
             LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);
             SearchMessageCommand = new RelayCommand(SearchMessage);
+            SortByAlphabetMessagesCommand = new RelayCommand(SortByAlphabetMessages);
+            SortByAlphabetDescendingMessagesCommand = new RelayCommand(SortByAlphabetDescendingMessages);
+            SortNewerMessagesCommand = new RelayCommand(SortNewerMessages);
+            SortOlderMessagesCommand = new RelayCommand(SortOlderMessages);
         }
 
         #region Method for load messages from local storage
@@ -223,6 +235,38 @@ namespace PostClient.ViewModels
             if (this.SearchText == "")
                 _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
 
+            UpdateMessageCollection();
+        }
+        #endregion
+
+        #region Method for sort by alphabet messages
+        private void SortByAlphabetMessages()
+        {
+            _messages = _messages.OrderBy(m => m.Subject).ToList();
+            UpdateMessageCollection();
+        }
+        #endregion
+
+        #region Method for sort by alphabet descending messages
+        private void SortByAlphabetDescendingMessages()
+        {
+            _messages = _messages.OrderByDescending(m => m.Subject).ToList();
+            UpdateMessageCollection();
+        }
+        #endregion
+
+        #region Method for sort newer messages
+        private void SortNewerMessages()
+        {
+            _messages = _messages.OrderByDescending(m => m.Date).ToList();
+            UpdateMessageCollection();
+        }
+        #endregion
+
+        #region Method for sort older messages
+        private void SortOlderMessages()
+        {
+            _messages = _messages.OrderBy(m => m.Date).ToList();
             UpdateMessageCollection();
         }
         #endregion

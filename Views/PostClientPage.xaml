@@ -117,6 +117,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Search here:"/>
@@ -132,6 +133,20 @@
                         Content="Sync"
                         Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromServerCommand}"
                         Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                <StackPanel Grid.Column="2"
+                            Margin="10,0,0,0">
+                    <TextBlock Text="Sort"/>
+                    <ComboBox Grid.Column="2">
+                        <Button Content="A-Z"
+                                Command="{Binding LoadMessagesViewModel.SortByAlphabetMessagesCommand}"/>
+                        <Button Content="Z-A"
+                                Command="{Binding LoadMessagesViewModel.SortByAlphabetDescendingMessagesCommand}"/>
+                        <Button Content="Newer"
+                                Command="{Binding LoadMessagesViewModel.SortNewerMessagesCommand}"/>
+                        <Button Content="Older"
+                                Command="{Binding LoadMessagesViewModel.SortOlderMessagesCommand}"/>
+                    </ComboBox>
+                </StackPanel>
             </Grid>
             <ListView Margin="10"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
