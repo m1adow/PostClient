@@ -118,6 +118,16 @@
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Search here:"/>
+                    <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ineractivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="TextChanged">
+                                <core:InvokeCommandAction Command="{Binding LoadMessagesViewModel.SearchMessageCommand}"/>
+                            </core:EventTriggerBehavior>
+                        </ineractivity:Interaction.Behaviors>
+                    </TextBox>
+                </StackPanel>
                 <Button Grid.Column="1"
                         Content="Sync"
                         Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromServerCommand}"

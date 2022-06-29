@@ -20,6 +20,14 @@ namespace PostClient.ViewModels
 
         private List<MailMessage> _messages = new List<MailMessage>();
 
+        private string _searchText = string.Empty;
+
+        public string SearchText
+        {
+            get => _searchText;
+            set => Set(ref _searchText, value);
+        }
+
         public ICommand LoadAllMessagesFromLocalStorageCommand { get; }
 
         public ICommand LoadSentMessagesFromLocalStorageCommand { get; }
@@ -29,6 +37,8 @@ namespace PostClient.ViewModels
         public ICommand LoadDraftMessagesFromLocalStorageCommand { get; }
 
         public ICommand LoadAllMessagesFromServerCommand { get; }
+
+        public ICommand SearchMessageCommand { get; }
 
         public Action LoadMessagesFromServerAction { get; }
 
@@ -53,6 +63,7 @@ namespace PostClient.ViewModels
             LoadFlaggedMessagesFromLocalStorageCommand = new RelayCommand(LoadFlaggedMessagesFromLocalStorage);
             LoadDraftMessagesFromLocalStorageCommand = new RelayCommand(LoadDraftMessagesFromLocalStorage);
             LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);
+            SearchMessageCommand = new RelayCommand(SearchMessage);
         }
 
         #region Method for load messages from local storage
@@ -167,6 +178,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
+        #region Method for flag message
         private async Task<bool> FlagMessage(MailMessage message)
         {
             List<MailMessage> flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
@@ -188,7 +200,9 @@ namespace PostClient.ViewModels
 
             return true;
         }
+        #endregion
 
+        #region Method for delete message
         private bool DeleteMessage(MailMessage message)
         {
             _messages.Remove(message);
@@ -199,5 +213,18 @@ namespace PostClient.ViewModels
 
             return true;
         }
+        #endregion
+
+        #region Method for search message
+        private async void SearchMessage()
+        {
+            _messages = _messages.Where(m => m.Subject.Contains(this.SearchText)).ToList();
+
+            if (this.SearchText == "")
+                _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+
+            UpdateMessageCollection();
+        }
+        #endregion
     }
 }
