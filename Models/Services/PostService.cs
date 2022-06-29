@@ -36,9 +36,10 @@ namespace PostClient.Models.Services
                 new UniqueId(uid)
             };
 
-            client.Inbox.Open(FolderAccess.ReadWrite);
-            client.Inbox.AddFlags(uids, MessageFlags.Deleted, true);
-            client.Inbox.Expunge(uids);
+            var folder = client.GetFolder(SpecialFolder.All);
+            folder.Open(FolderAccess.ReadWrite);
+            folder.AddFlags(uids, MessageFlags.Deleted, true);
+            folder.Expunge(uids);
         }
 
         protected void FlagSpecificMessage(ImapClient client, uint uid, bool isFlagged)
@@ -48,14 +49,15 @@ namespace PostClient.Models.Services
                 new UniqueId(uid)
             };
 
-            client.Inbox.Open(FolderAccess.ReadWrite);
-            
-            if (isFlagged)
-                client.Inbox.RemoveFlags(uids, MessageFlags.Flagged, true);
-            else
-                client.Inbox.AddFlags(uids, MessageFlags.Flagged, true);
+            var folder = client.GetFolder(SpecialFolder.All);
+            folder.Open(FolderAccess.ReadWrite);
 
-            client.Inbox.Expunge(uids);
+            if (isFlagged)
+                folder.RemoveFlags(uids, MessageFlags.Flagged, true);
+            else
+                folder.AddFlags(uids, MessageFlags.Flagged, true);
+
+            folder.Expunge(uids);
         }
     }
 }

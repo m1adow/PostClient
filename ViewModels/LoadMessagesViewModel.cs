@@ -8,6 +8,8 @@ using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PostClient.ViewModels
@@ -16,14 +18,7 @@ namespace PostClient.ViewModels
     {
         public ObservableCollection<MailMessage> Messages { get; } = new ObservableCollection<MailMessage>();
 
-        private List<MailMessage> _allMessages = new List<MailMessage>();
-
-        private List<MailMessage> _sentMessages = new List<MailMessage>();
-
-        private List<MailMessage> _flaggedMessages = new List<MailMessage>();
-
-        private List<MailMessage> _draftMessages = new List<MailMessage>();
-
+        private List<MailMessage> _messages = new List<MailMessage>();
 
         public ICommand LoadAllMessagesFromLocalStorageCommand { get; }
 
@@ -39,7 +34,7 @@ namespace PostClient.ViewModels
 
         public Action LoadMessagesFromLocalStorageAction { get; }
 
-        public Func<MailMessage, bool> FlagMessageFunc { get; }
+        public Func<MailMessage, Task<bool>> FlagMessageFunc { get; }
 
         public Func<MailMessage, bool> DeleteMessageFunc { get; }
 
@@ -63,24 +58,33 @@ namespace PostClient.ViewModels
         #region Method for load messages from local storage
         private async void LoadAllMessagesFromLocalStorage()
         {
-            _allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
-            _flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
-            _sentMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("SentMessages.json");
-            _draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
-            UpdateMessageCollection(_allMessages);
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+            UpdateMessageCollection();
         }
         #endregion
 
         #region Method for load sent messages
-        private void LoadSentMessagesFromLocalStorage() => UpdateMessageCollection(_sentMessages);
+        private async void LoadSentMessagesFromLocalStorage()
+        {
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("SentMessages.json");
+            UpdateMessageCollection();
+        }
         #endregion
 
         #region Method for load flagged messages
-        private void LoadFlaggedMessagesFromLocalStorage() => UpdateMessageCollection(_flaggedMessages);
+        private async void LoadFlaggedMessagesFromLocalStorage()
+        {
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            UpdateMessageCollection();
+        }
         #endregion
 
         #region Method for load draft messages
-        private void LoadDraftMessagesFromLocalStorage() => UpdateMessageCollection(_draftMessages);
+        private async void LoadDraftMessagesFromLocalStorage()
+        {
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
+            UpdateMessageCollection();
+        }
         #endregion
 
         #region Method for load messages from server
@@ -94,24 +98,21 @@ namespace PostClient.ViewModels
             var draftMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Draft);
 
             var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
-            _allMessages = allMailMessages;
+            _messages = allMailMessages;
 
             var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
-            _sentMessages = sentMailMessages;
 
             var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
             flaggedMailMessages.ForEach(m => m.IsFlagged = true);
-            _flaggedMessages = flaggedMailMessages;
 
             var draftMailMessages = ConvertFromMimeMessageToMailMessage(draftMimeMessages);
-            _draftMessages = draftMailMessages;
 
             SaveMessages(allMailMessages, "AllMessages.json");
             SaveMessages(sentMailMessages, "SentMessages.json");
             SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
             SaveMessages(draftMailMessages, "DraftMessages.json");
 
-            UpdateMessageCollection(_allMessages);
+            UpdateMessageCollection();
         }
 
         private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
@@ -157,40 +158,44 @@ namespace PostClient.ViewModels
 
         private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
 
-        private void UpdateMessageCollection(List<MailMessage> messages)
+        private void UpdateMessageCollection()
         {
             Messages.Clear();
 
-            for (int i = 0; i < messages.Count; i++)
-                Messages.Add(messages[i]);
+            for (int i = 0; i < _messages.Count; i++)
+                Messages.Add(_messages[i]);
         }
         #endregion
 
-        private bool FlagMessage(MailMessage message)
+        private async Task<bool> FlagMessage(MailMessage message)
         {
-            if (message.IsFlagged)
+            List<MailMessage> flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+
+            var flagMessage = flaggedMessages.Where(m => m.Equals(message)).FirstOrDefault() ?? message;
+
+            if (flagMessage.IsFlagged)
             {
-                message.IsFlagged = false;
-                _flaggedMessages.Remove(message);
+                flagMessage.IsFlagged = false;
+                flaggedMessages.Remove(flagMessage);
             }
             else
             {
-                message.IsFlagged = true;
-                _flaggedMessages.Add(message);
+                flagMessage.IsFlagged = true;
+                flaggedMessages.Add(flagMessage);
             }
 
-            JSONSaverAndReaderHelper.Save(_flaggedMessages, "FlaggedMessages.json");
+            JSONSaverAndReaderHelper.Save(flaggedMessages, "FlaggedMessages.json");
 
             return true;
         }
 
         private bool DeleteMessage(MailMessage message)
         {
-            _allMessages.Remove(message);
+            _messages.Remove(message);
 
-            JSONSaverAndReaderHelper.Save(_allMessages, "AllMessages.json");
+            JSONSaverAndReaderHelper.Save(_messages, "AllMessages.json");
 
-            UpdateMessageCollection(_allMessages);
+            UpdateMessageCollection();
 
             return true;
         }

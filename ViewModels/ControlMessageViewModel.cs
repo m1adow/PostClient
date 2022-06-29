@@ -3,6 +3,7 @@ using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml;
 
@@ -42,10 +43,10 @@ namespace PostClient.ViewModels
         public ICommand CloseMessageCommand { get; }
 
         private Func<Account> _getAccount;
-        private Func<MailMessage, bool> _updateFlaggedList;
+        private Func<MailMessage, Task<bool>> _updateFlaggedList;
         private Func<MailMessage, bool> _deleteMessageFromList;
 
-        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList)
+        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList)
         {
             _getAccount = getAccount;
             _updateFlaggedList = updateFlaggedList;

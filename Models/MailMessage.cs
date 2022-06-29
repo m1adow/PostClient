@@ -20,5 +20,9 @@ namespace PostClient.Models
             IsFlagged = false;  
             Date = DateTimeOffset.Now;
         }
+
+        public override bool Equals(object obj) => this.Uid == (obj as MailMessage).Uid;
+
+        public override int GetHashCode() => base.GetHashCode();
     }
 }
