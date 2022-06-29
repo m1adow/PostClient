@@ -33,9 +33,6 @@
             <Button Content="New mail"
                     Command="{Binding SendMessageViewModel.ShowSendingControlosCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-            <Button Content="Sync"
-                    Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromServerCommand}"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <TextBlock Text="Folders"
                        Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
             <Button Content="Inbox"
@@ -50,14 +47,8 @@
                     HorizontalAlignment="Left"
                     Width="80"
                     Height="40"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-            <Button Content="Deleted"
-                    Margin="10,5,0,0"
-                    HorizontalAlignment="Left"
-                    Width="80"
-                    Height="40"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                    Command="{Binding LoadMessagesViewModel.LoadDeletedMessagesFromLocalStorageCommand}"/>
+                    Command="{Binding LoadMessagesViewModel.LoadSentMessagesFromLocalStorageCommand}"/>
             <Button Content="Flagged"
                     Margin="10,5,0,0"
                     HorizontalAlignment="Left"
@@ -122,6 +113,16 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="10*"/>
             </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1"
+                        Content="Sync"
+                        Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromServerCommand}"
+                        Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+            </Grid>
             <ListView Margin="10"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
                       Grid.Row="1"

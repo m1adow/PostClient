@@ -8,7 +8,6 @@ using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PostClient.ViewModels
@@ -19,7 +18,7 @@ namespace PostClient.ViewModels
 
         private List<MailMessage> _allMessages = new List<MailMessage>();
 
-        private List<MailMessage> _deletedMessages = new List<MailMessage>();
+        private List<MailMessage> _sentMessages = new List<MailMessage>();
 
         private List<MailMessage> _flaggedMessages = new List<MailMessage>();
 
@@ -28,7 +27,7 @@ namespace PostClient.ViewModels
 
         public ICommand LoadAllMessagesFromLocalStorageCommand { get; }
 
-        public ICommand LoadDeletedMessagesFromLocalStorageCommand { get; }
+        public ICommand LoadSentMessagesFromLocalStorageCommand { get; }
 
         public ICommand LoadFlaggedMessagesFromLocalStorageCommand { get; }
 
@@ -55,7 +54,7 @@ namespace PostClient.ViewModels
             DeleteMessageFunc = DeleteMessage;
 
             LoadAllMessagesFromLocalStorageCommand = new RelayCommand(LoadAllMessagesFromLocalStorage);
-            LoadDeletedMessagesFromLocalStorageCommand = new RelayCommand(LoadDeletedMessagesFromLocalStorage);
+            LoadSentMessagesFromLocalStorageCommand = new RelayCommand(LoadSentMessagesFromLocalStorage);
             LoadFlaggedMessagesFromLocalStorageCommand = new RelayCommand(LoadFlaggedMessagesFromLocalStorage);
             LoadDraftMessagesFromLocalStorageCommand = new RelayCommand(LoadDraftMessagesFromLocalStorage);
             LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);
@@ -66,14 +65,14 @@ namespace PostClient.ViewModels
         {
             _allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
             _flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
-            _deletedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DeletedMessages.json");
+            _sentMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("SentMessages.json");
             _draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
             UpdateMessageCollection(_allMessages);
         }
         #endregion
 
-        #region Method for load deleted messages
-        private void LoadDeletedMessagesFromLocalStorage() => UpdateMessageCollection(_deletedMessages);
+        #region Method for load sent messages
+        private void LoadSentMessagesFromLocalStorage() => UpdateMessageCollection(_sentMessages);
         #endregion
 
         #region Method for load flagged messages
@@ -89,16 +88,16 @@ namespace PostClient.ViewModels
         {
             Account account = _getAccount();
 
-            var allMimeMessages = GetMimeMessages(account, SearchQuery.All);
-            var deletedMimeMessages = GetMimeMessages(account, SearchQuery.Deleted);
-            var flaggedMimeMessages = GetMimeMessages(account, SearchQuery.Flagged);
-            var draftMimeMessages = GetMimeMessages(account, SearchQuery.Draft);
+            var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
+            var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
+            var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All);
+            var draftMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Draft);
 
             var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
             _allMessages = allMailMessages;
 
-            var deletedMailMessages = ConvertFromMimeMessageToMailMessage(deletedMimeMessages);
-            _deletedMessages = deletedMailMessages;
+            var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
+            _sentMessages = sentMailMessages;
 
             var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
             flaggedMailMessages.ForEach(m => m.IsFlagged = true);
@@ -108,24 +107,24 @@ namespace PostClient.ViewModels
             _draftMessages = draftMailMessages;
 
             SaveMessages(allMailMessages, "AllMessages.json");
-            SaveMessages(deletedMailMessages, "DeletedMessages.json");
+            SaveMessages(sentMailMessages, "SentMessages.json");
             SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
             SaveMessages(draftMailMessages, "DraftMessages.json");
 
             UpdateMessageCollection(_allMessages);
         }
 
-        private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SearchQuery searchQuery)
+        private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
         {
             Dictionary<UniqueId, MimeMessage> mimeMessages = new Dictionary<UniqueId, MimeMessage>();
 
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    mimeMessages = new GmailService().LoadMessages(account, searchQuery, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new GmailService().LoadMessages(account, specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    mimeMessages = new OutlookService().LoadMessages(account, searchQuery, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new OutlookService().LoadMessages(account, specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
                     break;
             }
 
@@ -148,7 +147,7 @@ namespace PostClient.ViewModels
             {
                 Uid = mimeMessage.Key.Id,
                 Subject = mimeMessage.Value.Subject,
-                Body = mimeMessage.Value.HtmlBody,
+                Body = mimeMessage.Value.HtmlBody ?? (mimeMessage.Value.Body as TextPart).Text,
                 From = mimeMessage.Value.From[0].Name,
                 Date = mimeMessage.Value.Date
             };
@@ -163,7 +162,7 @@ namespace PostClient.ViewModels
             Messages.Clear();
 
             for (int i = 0; i < messages.Count; i++)
-                Messages.Add(_allMessages[i]);
+                Messages.Add(messages[i]);
         }
         #endregion
 

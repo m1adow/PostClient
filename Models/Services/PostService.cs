@@ -14,15 +14,17 @@ namespace PostClient.Models.Services
             client.Authenticate(account.Email, account.Password);
         }
 
-        protected void GetMessages(ImapClient client, Dictionary<UniqueId, MimeMessage> messages, SearchQuery searchQuery)
+        protected void GetMessages(ImapClient client, Dictionary<UniqueId, MimeMessage> messages, SpecialFolder specialFolder, SearchQuery searchQuery)
         {
-            client.Inbox.Open(FolderAccess.ReadOnly);
+            var folder = client.GetFolder(specialFolder);
 
-            var uids = client.Inbox.Search(searchQuery);
+            folder.Open(FolderAccess.ReadOnly);
+
+            var uids = folder.Search(searchQuery);
 
             for (int i = uids.Count - 1; i >= (uids.Count > 100 ? uids.Count - 100 : 0); i--)
             {
-                var messageMime = client.Inbox.GetMessage(uids[i]);
+                var messageMime = folder.GetMessage(uids[i]);
                 messages.Add(uids[i], messageMime);
             }
         }

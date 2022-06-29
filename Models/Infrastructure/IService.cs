@@ -11,6 +11,6 @@ namespace PostClient.Models.Infrastructure
         void SendMessage(Account account, MimeMessage message, Action<string> exceptionHandler);
         void DeleteMessage(Account account, MailMessage message, Action<string> exceptionHandler);
         void FlagMessage(Account account, MailMessage message, Action<string> exceptionHandler);
-        Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SearchQuery searchQuery, Action<string> exceptionHandler);
+        Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler);
     }
 }

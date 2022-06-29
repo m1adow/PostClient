@@ -43,7 +43,7 @@ namespace PostClient.Models.Services
             throw new NotImplementedException();
         }
 
-        public Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SearchQuery searchQuery, Action<string> exceptionHandler)
+        public Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();
             Dictionary<UniqueId, MimeMessage> messages = new Dictionary<UniqueId, MimeMessage>();
@@ -51,7 +51,7 @@ namespace PostClient.Models.Services
             try
             {
                 EstablishConnection(client, account, "imap.outlook.com");
-                GetMessages(client, messages, searchQuery);
+                GetMessages(client, messages, specialFolder, searchQuery);
             }
             catch (Exception exception)
             {
