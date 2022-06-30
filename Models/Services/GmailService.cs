@@ -11,14 +11,21 @@ namespace PostClient.Models.Services
 {
     internal sealed class GmailService : PostService, IService
     {
-        public void SendMessage(Account account, MimeMessage message, Action<string> exceptionHandler)
+        public Account Account { get; }
+
+        public GmailService(Account account)
+        {
+            this.Account = account;
+        }
+
+        public void SendMessage(MimeMessage message, Action<string> exceptionHandler)
         {
             SmtpClient client = new SmtpClient();
 
             try
             {
                 client.Connect("smtp.gmail.com", 465, true);
-                client.Authenticate(account.Email, account.Password);
+                client.Authenticate(Account.Email, Account.Password);
                 client.Send(message);
             }
             catch (Exception exception)
@@ -32,13 +39,13 @@ namespace PostClient.Models.Services
             }
         }
 
-        public void DeleteMessage(Account account, MailMessage message, Action<string> exceptionHandler)
+        public void DeleteMessage(MailMessage message, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();
 
             try
             {
-                EstablishConnection(client, account, "imap.gmail.com");
+                EstablishConnection(client, Account, "imap.gmail.com");
                 DeleteSpecificMessage(client, message.Uid);
             }
             catch (Exception exception)
@@ -52,13 +59,13 @@ namespace PostClient.Models.Services
             }
         }
 
-        public void FlagMessage(Account account, MailMessage message, Action<string> exceptionHandler)
+        public void FlagMessage(MailMessage message, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();
 
             try
             {
-                EstablishConnection(client, account, "imap.gmail.com");
+                EstablishConnection(client, Account, "imap.gmail.com");
                 FlagSpecificMessage(client, message.Uid, message.IsFlagged);
             }
             catch (Exception exception)
@@ -72,14 +79,14 @@ namespace PostClient.Models.Services
             }
         }
 
-        public Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler)
+        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler)
         {
             ImapClient client = new ImapClient();
             Dictionary<UniqueId, MimeMessage> messages = new Dictionary<UniqueId, MimeMessage>();
 
             try
             {
-                EstablishConnection(client, account, "imap.gmail.com");
+                EstablishConnection(client, Account, "imap.gmail.com");
                 GetMessages(client, messages, specialFolder, searchQuery);
             }
             catch (Exception exception)

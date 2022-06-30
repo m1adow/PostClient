@@ -3,8 +3,6 @@ using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml;
@@ -25,8 +23,10 @@ namespace PostClient.ViewModels
 
                 Set(ref _selectedMailMessage, value);
 
-                if (_selectedMailMessage.Body.Length > 0)
+                if (value.Body.Length > 0 && !value.IsDraft)
                     MessageBodyControlsVisibility = Visibility.Visible;
+                else if (value.IsDraft)
+                    _changeSendMessageControlsVisibility(Visibility.Visible, value);
             }
         }
 
@@ -47,12 +47,14 @@ namespace PostClient.ViewModels
         private Func<Account> _getAccount;
         private Func<MailMessage, Task<bool>> _updateFlaggedList;
         private Func<MailMessage, bool> _deleteMessageFromList;
+        private Func<Visibility, MailMessage, bool> _changeSendMessageControlsVisibility;
 
-        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList)
+        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibility)
         {
             _getAccount = getAccount;
             _updateFlaggedList = updateFlaggedList;
             _deleteMessageFromList = deleteMessageFromList;
+            _changeSendMessageControlsVisibility = changeSendMessageControlsVisibility;
 
             FlagMessageCommand = new RelayCommand(FlagMessage);
             DeleteMessageCommand = new RelayCommand(DeleteMessage);
@@ -67,10 +69,10 @@ namespace PostClient.ViewModels
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService().FlagMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new GmailService(account).FlagMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService().FlagMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new OutlookService(account).FlagMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
                     break;
             }
 
@@ -86,10 +88,10 @@ namespace PostClient.ViewModels
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService().DeleteMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new GmailService(account).DeleteMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService().DeleteMessage(account, SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new OutlookService(account).DeleteMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
                     break;
             }
 
@@ -104,6 +106,7 @@ namespace PostClient.ViewModels
             _selectedMailMessage = new MailMessage();
 
             MessageBodyControlsVisibility = Visibility.Collapsed;
+            _changeSendMessageControlsVisibility(Visibility.Collapsed, _selectedMailMessage);
         }
         #endregion
     }

@@ -4,6 +4,7 @@ using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.Windows.Input;
 using Windows.UI.Xaml;
 
@@ -32,7 +33,7 @@ namespace PostClient.ViewModels
         public string MessageReciever
         {
             get => _messageReciever;
-            set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand });
+            set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand, DraftMessageCommand });
         }
 
         private string _messageName = "New message";
@@ -61,9 +62,13 @@ namespace PostClient.ViewModels
 
         public ICommand SendMessageCommand { get; }
 
+        public ICommand DraftMessageCommand { get; }
+
         public ICommand CancelSendingMessageCommand { get; }
 
         public ICommand ShowSendingControlosCommand { get; }
+
+        public Func<Visibility, MailMessage, bool> ChangeSendMessageControlsVisibilityAndFillFieldsFunc { get; }
 
         private Account _account = new Account();
 
@@ -74,7 +79,10 @@ namespace PostClient.ViewModels
             _getAccount = getAccount;
             _account = getAccount();
 
+            ChangeSendMessageControlsVisibilityAndFillFieldsFunc = ChangeSendMessageControlsVisibilityAndFillFields;
+
             SendMessageCommand = new RelayCommand(SendMessage, IsSendMessageFieldsFilled);
+            DraftMessageCommand = new RelayCommand(DraftMessage, IsSendMessageFieldsFilled);
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
             ShowSendingControlosCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
         }
@@ -85,10 +93,10 @@ namespace PostClient.ViewModels
             switch (_account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService().SendMessage(_account, CreateMessage(), MessageDialogShower.ShowMessageDialog);
+                    new GmailService(_account).SendMessage(CreateMessage(), MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService().SendMessage(_account, CreateMessage(), MessageDialogShower.ShowMessageDialog);
+                    new OutlookService(_account).SendMessage(CreateMessage(), MessageDialogShower.ShowMessageDialog);
                     break;
             }
 
@@ -123,7 +131,27 @@ namespace PostClient.ViewModels
         private bool IsSendMessageFieldsFilled() => MessageReciever.Length > 0;
         #endregion
 
-        #region Methods for cancel sending 
+        #region Method for draft message
+        private async void DraftMessage()
+        {
+            List<MailMessage> draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
+
+            draftMessages.Add(new MailMessage
+            {
+                Name = MessageName,
+                Subject = MessageSubject,
+                Body = MessageBody,
+                From = _account.Email,
+                To = MessageReciever,
+                IsDraft = true
+            });
+
+            JSONSaverAndReaderHelper.Save(draftMessages, "DraftMessages.json");
+            ClearFields();
+        }
+        #endregion
+
+        #region Method for cancel sending 
         private void CancelSendingMessage() => SendMessageControlsVisibility = Visibility.Collapsed;
         #endregion
 
@@ -134,6 +162,21 @@ namespace PostClient.ViewModels
 
             _account = _getAccount();
             MessageSender = _account.Email;
+        }
+        #endregion
+
+        #region Method for change send controls visibility
+        private bool ChangeSendMessageControlsVisibilityAndFillFields(Visibility visibility, MailMessage message)
+        {
+            SendMessageControlsVisibility = visibility;
+
+            MessageName = message.Name;
+            MessageSubject = message.Subject;
+            MessageBody = message.Body;
+            _account.Email = message.From;
+            MessageReciever = message.To;
+
+            return true;
         }
         #endregion
     }

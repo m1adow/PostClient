@@ -8,9 +8,10 @@ namespace PostClient.Models.Infrastructure
 {
     internal interface IService
     {
-        void SendMessage(Account account, MimeMessage message, Action<string> exceptionHandler);
-        void DeleteMessage(Account account, MailMessage message, Action<string> exceptionHandler);
-        void FlagMessage(Account account, MailMessage message, Action<string> exceptionHandler);
-        Dictionary<UniqueId, MimeMessage> LoadMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler);
+        Account Account { get; }
+        void SendMessage(MimeMessage message, Action<string> exceptionHandler);
+        void DeleteMessage(MailMessage message, Action<string> exceptionHandler);
+        void FlagMessage(MailMessage message, Action<string> exceptionHandler);
+        Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler);
     }
 }

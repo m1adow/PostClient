@@ -117,8 +117,7 @@ namespace PostClient.ViewModels
 
             var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
             var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
-            var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All);
-            var draftMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Draft);
+            var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All);;
 
             var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
             _messages = allMailMessages;
@@ -128,12 +127,10 @@ namespace PostClient.ViewModels
             var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
             flaggedMailMessages.ForEach(m => m.IsFlagged = true);
 
-            var draftMailMessages = ConvertFromMimeMessageToMailMessage(draftMimeMessages);
-
             SaveMessages(allMailMessages, "AllMessages.json");
             SaveMessages(sentMailMessages, "SentMessages.json");
             SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
-            SaveMessages(draftMailMessages, "DraftMessages.json");
+            SaveMessages(new List<MailMessage>(), "DraftMessages.json"); //clear draft messages after syncing
 
             UpdateMessageCollection();
         }
@@ -145,10 +142,10 @@ namespace PostClient.ViewModels
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    mimeMessages = new GmailService().LoadMessages(account, specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new GmailService(account).LoadMessages(specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    mimeMessages = new OutlookService().LoadMessages(account, specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new OutlookService(account).LoadMessages(specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
                     break;
             }
 
