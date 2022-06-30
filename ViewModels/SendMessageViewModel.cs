@@ -152,7 +152,11 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for cancel sending 
-        private void CancelSendingMessage() => SendMessageControlsVisibility = Visibility.Collapsed;
+        private void CancelSendingMessage()
+        {
+            SendMessageControlsVisibility = Visibility.Collapsed;
+            ClearFields();
+        }
         #endregion
 
         #region Method for send command
@@ -173,7 +177,6 @@ namespace PostClient.ViewModels
             MessageName = message.Name;
             MessageSubject = message.Subject;
             MessageBody = message.Body;
-            _account.Email = message.From;
             MessageReciever = message.To;
 
             return true;

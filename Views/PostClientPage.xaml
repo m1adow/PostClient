@@ -113,13 +113,16 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="10*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0"
+                  Background="BlueViolet"
+                  >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
+                <StackPanel Grid.Column="0"
+                             Margin="10,0,0,0">
                     <TextBlock Text="Search here:"/>
                     <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ineractivity:Interaction.Behaviors>
@@ -151,6 +154,7 @@
             <ListView Margin="10"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
                       Grid.Row="1"
+                      Background="BlueViolet"
                       SelectedValue="{Binding ControlMessageViewModel.SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -164,7 +168,8 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="10*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0"
+                  Background="BlueViolet">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
