@@ -252,11 +252,25 @@
                 <TextBlock Text="Message:"
                            Grid.Row="1"
                            Margin="10,0,0,0"/>
-                <TextBox Margin="5,0,5,0"
-                         Grid.Row="2"
-                         HorizontalAlignment="Stretch"
-                         VerticalAlignment="Stretch"
-                         Text="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="3*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Content="Insert"
+                                Command="{Binding SendMessageViewModel.InsertFileCommand}"/>
+                    </Grid>
+                    <TextBox Margin="5,0,5,0"
+                             Grid.Row="1"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"
+                             Text="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
                 <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

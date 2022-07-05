@@ -5,7 +5,13 @@ using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 
 namespace PostClient.ViewModels
@@ -62,6 +68,8 @@ namespace PostClient.ViewModels
 
         public ICommand SendMessageCommand { get; }
 
+        public ICommand InsertFileCommand { get; }
+
         public ICommand DraftMessageCommand { get; }
 
         public ICommand CancelSendingMessageCommand { get; }
@@ -74,9 +82,11 @@ namespace PostClient.ViewModels
 
         private Func<Account> _getAccount;
 
-        private MailMessage _selectedMessage;
+        private MailMessage _selectedMessage = new MailMessage();
 
         private Func<MailMessage, bool> _deleteDraft;
+
+        private List<byte[]> _files = new List<byte[]>();
 
         public SendMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
         {
@@ -87,6 +97,7 @@ namespace PostClient.ViewModels
             ChangeSendMessageControlsVisibilityAndFillFieldsFunc = ChangeSendMessageControlsVisibilityAndFillFields;
 
             SendMessageCommand = new RelayCommand(SendMessage, IsSendMessageFieldsFilled);
+            InsertFileCommand = new RelayCommand(InsertFile);
             DraftMessageCommand = new RelayCommand(DraftMessage, IsSendMessageFieldsFilled);
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
             ShowSendingControlosCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
@@ -95,13 +106,15 @@ namespace PostClient.ViewModels
         #region Methods for sending message
         private void SendMessage()
         {
+            MimeMessage message = CreateMessage();
+
             switch (_account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService(_account).SendMessage(CreateMessage(), MessageDialogShower.ShowMessageDialog);
+                    new GmailService(_account).SendMessage(message, MessageDialogShower.ShowMessageDialog);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService(_account).SendMessage(CreateMessage(), MessageDialogShower.ShowMessageDialog);
+                    new OutlookService(_account).SendMessage(message, MessageDialogShower.ShowMessageDialog);
                     break;
             }
 
@@ -111,6 +124,7 @@ namespace PostClient.ViewModels
             MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
             ClearFields();
             SendMessageControlsVisibility = Visibility.Collapsed;
+            _files.Clear();
         }
 
         private MimeMessage CreateMessage()
@@ -120,10 +134,16 @@ namespace PostClient.ViewModels
             message.From.Add(new MailboxAddress(MessageName, _account.Email));
             message.To.Add(MailboxAddress.Parse(MessageReciever));
             message.Subject = MessageSubject;
-            message.Body = new TextPart()
-            {
-                Text = MessageBody
-            };
+
+            BodyBuilder builder = new BodyBuilder();
+
+            builder.TextBody = MessageBody;
+            
+            if (_files.Count > 0)
+                foreach (var file in _files)
+                    builder.Attachments.Add("attachment.txt", file);
+
+            message.Body = builder.ToMessageBody();
 
             return message;
         }
@@ -137,6 +157,39 @@ namespace PostClient.ViewModels
         }
 
         private bool IsSendMessageFieldsFilled() => MessageReciever.Length > 0;
+        #endregion
+
+        #region Methods for inserting files
+
+        private async void InsertFile()
+        {
+            byte[] bytes = await GetFileBytesAsync();
+            _files.Add(bytes);
+        }
+
+        private async Task<byte[]> GetFileBytesAsync()
+        {
+            List<byte> bytes = new List<byte>();
+
+            FileOpenPicker openPicker = new FileOpenPicker();
+            openPicker.ViewMode = PickerViewMode.Thumbnail;
+            openPicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            openPicker.FileTypeFilter.Add(".txt");
+
+            StorageFile file = await openPicker.PickSingleFileAsync();
+
+            if (file != null)
+            {
+                IBuffer buffer = await FileIO.ReadBufferAsync(file);
+                bytes = WindowsRuntimeBufferExtensions.ToArray(buffer).ToList();
+            }
+            else
+            {
+
+            }
+
+            return bytes.ToArray();
+        }
         #endregion
 
         #region Method for draft message
