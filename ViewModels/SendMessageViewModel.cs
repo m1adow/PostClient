@@ -5,7 +5,6 @@ using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -66,6 +65,14 @@ namespace PostClient.ViewModels
             set => Set(ref _messageBody, value);
         }
 
+        private string _selectedText = string.Empty;
+
+        public string SelectedText
+        {
+            get => _selectedText;
+            set => Set(ref _selectedText, value);
+        }
+
         public ICommand SendMessageCommand { get; }
 
         public ICommand InsertFileCommand { get; }
@@ -75,6 +82,12 @@ namespace PostClient.ViewModels
         public ICommand CancelSendingMessageCommand { get; }
 
         public ICommand ShowSendingControlosCommand { get; }
+
+        public ICommand BoldSelectedTextCommand { get; }
+
+        public ICommand ItalicSelectedTextCommand { get; }
+
+        public ICommand UnderlineSelectedTextCommand { get; }
 
         public Func<Visibility, MailMessage, bool> ChangeSendMessageControlsVisibilityAndFillFieldsFunc { get; }
 
@@ -86,7 +99,7 @@ namespace PostClient.ViewModels
 
         private Func<MailMessage, bool> _deleteDraft;
 
-        private List<byte[]> _files = new List<byte[]>();
+        private Dictionary<string, byte[]> _files = new Dictionary<string, byte[]>();
 
         public SendMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
         {
@@ -101,6 +114,9 @@ namespace PostClient.ViewModels
             DraftMessageCommand = new RelayCommand(DraftMessage, IsSendMessageFieldsFilled);
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
             ShowSendingControlosCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
+            BoldSelectedTextCommand = new RelayCommand(BoldSelectedText);
+            ItalicSelectedTextCommand = new RelayCommand(ItalicSelectedText);
+            UnderlineSelectedTextCommand = new RelayCommand(UnderlineSelectedText);
         }
 
         #region Methods for sending message
@@ -137,11 +153,11 @@ namespace PostClient.ViewModels
 
             BodyBuilder builder = new BodyBuilder();
 
-            builder.TextBody = MessageBody;
-            
+            builder.HtmlBody = MessageBody;
+
             if (_files.Count > 0)
                 foreach (var file in _files)
-                    builder.Attachments.Add("attachment.txt", file);
+                    builder.Attachments.Add(file.Key, file.Value);
 
             message.Body = builder.ToMessageBody();
 
@@ -163,32 +179,31 @@ namespace PostClient.ViewModels
 
         private async void InsertFile()
         {
-            byte[] bytes = await GetFileBytesAsync();
-            _files.Add(bytes);
+            var file = await GetFileBytesAsync();
+            _files.Add(file.Key, file.Value);
         }
 
-        private async Task<byte[]> GetFileBytesAsync()
+        private async Task<KeyValuePair<string, byte[]>> GetFileBytesAsync()
         {
-            List<byte> bytes = new List<byte>();
+            KeyValuePair<string, byte[]> bytes = new KeyValuePair<string, byte[]>();
 
             FileOpenPicker openPicker = new FileOpenPicker();
             openPicker.ViewMode = PickerViewMode.Thumbnail;
             openPicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
             openPicker.FileTypeFilter.Add(".txt");
+            openPicker.FileTypeFilter.Add(".png");
+            openPicker.FileTypeFilter.Add(".jpg");
+            openPicker.FileTypeFilter.Add(".jpeg");
 
             StorageFile file = await openPicker.PickSingleFileAsync();
 
             if (file != null)
             {
                 IBuffer buffer = await FileIO.ReadBufferAsync(file);
-                bytes = WindowsRuntimeBufferExtensions.ToArray(buffer).ToList();
-            }
-            else
-            {
-
+                bytes = new KeyValuePair<string, byte[]>(file.Name, WindowsRuntimeBufferExtensions.ToArray(buffer));
             }
 
-            return bytes.ToArray();
+            return bytes;
         }
         #endregion
 
@@ -202,6 +217,7 @@ namespace PostClient.ViewModels
                 Name = MessageName,
                 Subject = MessageSubject,
                 Body = MessageBody,
+                Attachments = _files,
                 From = _account.Email,
                 To = MessageReciever,
                 IsDraft = true
@@ -247,6 +263,14 @@ namespace PostClient.ViewModels
 
             return true;
         }
+        #endregion
+
+        #region Methods for styling text
+        private void BoldSelectedText() => SelectedText = $"<b>{SelectedText}</b>";
+
+        private void ItalicSelectedText() => SelectedText = $"<i>{SelectedText}</i>";
+
+        private void UnderlineSelectedText() => SelectedText = $"<u>{SelectedText}</u>";
         #endregion
     }
 }

@@ -70,8 +70,8 @@
                      Text="{Binding LoginViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock Text="Password:"
                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
-            <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
-                     Text="{Binding LoginViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <PasswordBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
+                         Password="{Binding LoginViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <CheckBox Content="Remember me"
                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                       IsChecked="{Binding LoginViewModel.IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -259,16 +259,38 @@
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="4*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button Content="Insert"
+                                Grid.Column="0"
                                 Command="{Binding SendMessageViewModel.InsertFileCommand}"/>
+                        <Grid Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    Content="B"
+                                    FontWeight="Bold"
+                                    Command="{Binding SendMessageViewModel.BoldSelectedTextCommand}"/>
+                            <Button Grid.Column="1"
+                                    Content="I"
+                                    FontStyle="Italic"
+                                    Command="{Binding SendMessageViewModel.ItalicSelectedTextCommand}"/>
+                            <Button Grid.Column="2"
+                                    Content="U"
+                                    Command="{Binding SendMessageViewModel.UnderlineSelectedTextCommand}"/>
+                        </Grid>
                     </Grid>
                     <TextBox Margin="5,0,5,0"
                              Grid.Row="1"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
                              HorizontalAlignment="Stretch"
-                             VerticalAlignment="Stretch"
+                             VerticalAlignment="Stretch"  
+                             SelectedText="{Binding SendMessageViewModel.SelectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Text="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
                 <Grid Grid.Row="3">
