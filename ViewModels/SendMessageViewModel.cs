@@ -74,10 +74,15 @@ namespace PostClient.ViewModels
 
         private Func<Account> _getAccount;
 
-        public SendMessageViewModel(Func<Account> getAccount)
+        private MailMessage _selectedMessage;
+
+        private Func<MailMessage, bool> _deleteDraft;
+
+        public SendMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
         {
             _getAccount = getAccount;
             _account = getAccount();
+            _deleteDraft = deleteDraft;
 
             ChangeSendMessageControlsVisibilityAndFillFieldsFunc = ChangeSendMessageControlsVisibilityAndFillFields;
 
@@ -99,6 +104,9 @@ namespace PostClient.ViewModels
                     new OutlookService(_account).SendMessage(CreateMessage(), MessageDialogShower.ShowMessageDialog);
                     break;
             }
+
+            if (_selectedMessage.IsDraft)
+                _deleteDraft(_selectedMessage);
 
             MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
             ClearFields();
@@ -174,10 +182,15 @@ namespace PostClient.ViewModels
         {
             SendMessageControlsVisibility = visibility;
 
-            MessageName = message.Name;
-            MessageSubject = message.Subject;
-            MessageBody = message.Body;
-            MessageReciever = message.To;
+            if (message.IsDraft)
+            {
+                MessageName = message.Name;
+                MessageSubject = message.Subject;
+                MessageBody = message.Body;
+                MessageReciever = message.To;
+            }
+
+            _selectedMessage = message;
 
             return true;
         }

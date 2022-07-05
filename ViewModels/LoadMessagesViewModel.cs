@@ -58,6 +58,8 @@ namespace PostClient.ViewModels
 
         private readonly Func<Account> _getAccount;
 
+        private string _messageFolder = string.Empty;
+
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
             _getAccount = getAccount;
@@ -81,7 +83,10 @@ namespace PostClient.ViewModels
         #region Method for load messages from local storage
         private async void LoadAllMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+            string path = "AllMessages.json";
+
+            _messageFolder = path;
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
             UpdateMessageCollection();
         }
         #endregion
@@ -89,7 +94,10 @@ namespace PostClient.ViewModels
         #region Method for load sent messages
         private async void LoadSentMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("SentMessages.json");
+            string path = "SentMessages.json";
+
+            _messageFolder = path;
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
             UpdateMessageCollection();
         }
         #endregion
@@ -97,7 +105,10 @@ namespace PostClient.ViewModels
         #region Method for load flagged messages
         private async void LoadFlaggedMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            string path = "FlaggedMessages.json";
+
+            _messageFolder = path;
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
             UpdateMessageCollection();
         }
         #endregion
@@ -105,7 +116,10 @@ namespace PostClient.ViewModels
         #region Method for load draft messages
         private async void LoadDraftMessagesFromLocalStorage()
         {
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
+            string path = "DraftMessages.json";
+
+            _messageFolder = path;
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
             UpdateMessageCollection();
         }
         #endregion
@@ -216,7 +230,7 @@ namespace PostClient.ViewModels
         {
             _messages.Remove(message);
 
-            JSONSaverAndReaderHelper.Save(_messages, "AllMessages.json");
+            JSONSaverAndReaderHelper.Save(_messages, _messageFolder);
 
             UpdateMessageCollection();
 
@@ -227,10 +241,9 @@ namespace PostClient.ViewModels
         #region Method for search message
         private async void SearchMessage()
         {
-            _messages = _messages.Where(m => m.Subject.Contains(this.SearchText)).ToList();
-
-            if (this.SearchText == "")
-                _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+            string path = "";
+            _messageFolder = path;
+            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
 
             UpdateMessageCollection();
         }

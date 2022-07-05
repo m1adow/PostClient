@@ -23,9 +23,9 @@ namespace PostClient.ViewModels
         {
             LoadedHandlerCommand = new RelayCommand(LoadedHandler);
 
-            SendMessageViewModel = new SendMessageViewModel(GetAccount);
             LoadMessagesViewModel = new LoadMessagesViewModel(GetAccount);
             LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction);
+            SendMessageViewModel = new SendMessageViewModel(GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
             ControlMessageViewModel = new ControlMessageViewModel(GetAccount, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc, SendMessageViewModel.ChangeSendMessageControlsVisibilityAndFillFieldsFunc);
         }
 

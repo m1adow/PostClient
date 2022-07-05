@@ -113,16 +113,14 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="10*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0"
-                  Background="BlueViolet"
-                  >
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0"
-                             Margin="10,0,0,0">
+                            Margin="10,0,0,0">
                     <TextBlock Text="Search here:"/>
                     <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ineractivity:Interaction.Behaviors>
