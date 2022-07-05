@@ -270,6 +270,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0"
                                     Content="B"
@@ -282,16 +283,19 @@
                             <Button Grid.Column="2"
                                     Content="U"
                                     Command="{Binding SendMessageViewModel.UnderlineSelectedTextCommand}"/>
+                            <Button Grid.Column="3"
+                                    Content="+"
+                                    Command="{Binding SendMessageViewModel.AddLineCommand}"/>
                         </Grid>
                     </Grid>
                     <TextBox Margin="5,0,5,0"
                              Grid.Row="1"
-                             AcceptsReturn="True"
                              TextWrapping="Wrap"
                              HorizontalAlignment="Stretch"
                              VerticalAlignment="Stretch"  
                              SelectedText="{Binding SendMessageViewModel.SelectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Text="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                             Text="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    </TextBox>
                 </Grid>
                 <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>

@@ -89,6 +89,8 @@ namespace PostClient.ViewModels
 
         public ICommand UnderlineSelectedTextCommand { get; }
 
+        public ICommand AddLineCommand { get; }
+
         public Func<Visibility, MailMessage, bool> ChangeSendMessageControlsVisibilityAndFillFieldsFunc { get; }
 
         private Account _account = new Account();
@@ -117,6 +119,7 @@ namespace PostClient.ViewModels
             BoldSelectedTextCommand = new RelayCommand(BoldSelectedText);
             ItalicSelectedTextCommand = new RelayCommand(ItalicSelectedText);
             UnderlineSelectedTextCommand = new RelayCommand(UnderlineSelectedText);
+            AddLineCommand = new RelayCommand(AddLine);
         }
 
         #region Methods for sending message
@@ -266,11 +269,34 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Methods for styling text
-        private void BoldSelectedText() => SelectedText = $"<b>{SelectedText}</b>";
+        private void BoldSelectedText() => AcceptStyling("b");
 
-        private void ItalicSelectedText() => SelectedText = $"<i>{SelectedText}</i>";
+        private void ItalicSelectedText() => AcceptStyling("i");
 
-        private void UnderlineSelectedText() => SelectedText = $"<u>{SelectedText}</u>";
+        private void UnderlineSelectedText() => AcceptStyling("u");
+
+        private void AcceptStyling(string tag)
+        {
+            if (SelectedText.Contains($"<{tag}>") || SelectedText.Contains($"</{tag}>"))
+            {
+                SelectedText = SelectedText.Replace($"<{tag}>", "");
+                SelectedText = SelectedText.Replace($"</{tag}>", "");
+            }
+            else
+                SelectedText = $"<{tag}>{SelectedText}</{tag}>";
+        }
+        #endregion
+
+        #region Method for adding line
+        private void AddLine()
+        {
+            string tag = "</br>";
+
+            if (SelectedText.Contains(tag))
+                SelectedText = SelectedText.Replace($"\n{tag}\n", "");
+            else
+                SelectedText += $"\n{tag}\n";           
+        }
         #endregion
     }
 }
