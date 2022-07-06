@@ -241,9 +241,7 @@ namespace PostClient.ViewModels
         #region Method for search message
         private async void SearchMessage()
         {
-            string path = "";
-            _messageFolder = path;
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
+            _messages = (await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)).Where(m => m.Subject.ToLower().Contains(_searchText.ToLower()) || m.From.ToLower().Contains(_searchText.ToLower())).ToList();
 
             UpdateMessageCollection();
         }
