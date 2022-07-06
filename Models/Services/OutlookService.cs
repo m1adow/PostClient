@@ -42,12 +42,42 @@ namespace PostClient.Models.Services
 
         public void DeleteMessage(MailMessage message, Action<string> exceptionHandler)
         {
-            throw new NotImplementedException();
+            ImapClient client = new ImapClient();
+
+            try
+            {
+                EstablishConnection(client, Account, "imap.outlook.com");
+                DeleteSpecificMessage(client, message.Uid);
+            }
+            catch (Exception exception)
+            {
+                exceptionHandler(exception.Message);
+            }
+            finally
+            {
+                client.Disconnect(true);
+                client.Dispose();
+            }
         }
 
         public void FlagMessage(MailMessage message, Action<string> exceptionHandler)
         {
-            throw new NotImplementedException();
+            ImapClient client = new ImapClient();
+
+            try
+            {
+                EstablishConnection(client, Account, "imap.outlook.com");
+                FlagSpecificMessage(client, message.Uid, message.IsFlagged);
+            }
+            catch (Exception exception)
+            {
+                exceptionHandler(exception.Message);
+            }
+            finally
+            {
+                client.Disconnect(true);
+                client.Dispose();
+            }
         }
 
         public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler)
