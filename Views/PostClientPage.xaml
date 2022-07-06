@@ -27,55 +27,55 @@
         </Grid.ColumnDefinitions>
         <StackPanel Margin="10"
                     Grid.Column="0">
-            <Button Content="Login"
+            <Button x:Uid="ButtonLogin"
                     Command="{Binding LoginViewModel.ShowLoginControlsCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-            <Button Content="New mail"
+            <Button x:Uid="ButtonNewMail"
                     Command="{Binding SendMessageViewModel.ShowSendingControlosCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-            <TextBlock Text="Folders"
+            <TextBlock x:Uid="TextBlockFolders"
                        Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-            <Button Content="Inbox"
+            <Button x:Uid="ButtonInbox"
                     Margin="10,5,0,0"
                     HorizontalAlignment="Left"
                     Width="80"
                     Height="40"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                     Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromLocalStorageCommand}"/>
-            <Button Content="Sent Mail"
+            <Button x:Uid="ButtonSentMail"
                     Margin="10,5,0,0"
                     HorizontalAlignment="Left"
                     Width="80"
                     Height="40"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                     Command="{Binding LoadMessagesViewModel.LoadSentMessagesFromLocalStorageCommand}"/>
-            <Button Content="Flagged"
+            <Button x:Uid="ButtonFlagged"
                     Margin="10,5,0,0"
                     HorizontalAlignment="Left"
                     Width="80"
                     Height="40"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                     Command="{Binding LoadMessagesViewModel.LoadFlaggedMessagesFromLocalStorageCommand}"/>
-            <Button Content="Drafts"
+            <Button x:Uid="ButtonDrafts"
                     Margin="10,5,0,0"
                     HorizontalAlignment="Left"
                     Width="80"
                     Height="40"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                     Command="{Binding LoadMessagesViewModel.LoadDraftMessagesFromLocalStorageCommand}"/>
-            <TextBlock Text="Login:"
+            <TextBlock x:Uid="TextBlockLogin"
                        Margin="0,10,0,0"
                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                      Text="{Binding LoginViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock Text="Password:"
+            <TextBlock x:Uid="TextBlockPassword"
                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             <PasswordBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                          Password="{Binding LoginViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <CheckBox Content="Remember me"
+            <CheckBox x:Uid="CheckBoxRememberMe"
                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                       IsChecked="{Binding LoginViewModel.IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock Text="Select service:"
+            <TextBlock x:Uid="TextBlockService"
                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -83,11 +83,11 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <RadioButton Grid.Column="0"
-                             Content="Gmail" 
+                             x:Uid="RadioButtonGmail"
                              IsChecked="{Binding LoginViewModel.IsGmailRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                 <RadioButton Grid.Column="1" 
-                             Content="Outlook"
+                             x:Uid="RadioButtonOutlook"
                              IsChecked="{Binding LoginViewModel.IsOutlookRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             </Grid>
@@ -98,12 +98,12 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0"
                         Margin="5"
-                        Content="OK"
+                        x:Uid="ButtonOK"
                         Command="{Binding LoginViewModel.LoginCommand}"
                         Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                 <Button Grid.Column="1"
                         Margin="5"
-                        Content="Cancel"
+                        x:Uid="ButtonCancel"
                         Command="{Binding LoginViewModel.CancelLoginControlsCommand}"
                         Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
             </Grid>
@@ -121,8 +121,10 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0"
                             Margin="10,0,0,0">
-                    <TextBlock Text="Search here:"/>
-                    <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBlock x:Uid="TextBlockSearch"
+                               Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                    <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
                         <ineractivity:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="TextChanged">
                                 <core:InvokeCommandAction Command="{Binding LoadMessagesViewModel.SearchMessageCommand}"/>
@@ -131,25 +133,28 @@
                     </TextBox>
                 </StackPanel>
                 <Button Grid.Column="1"
-                        Content="Sync"
+                        x:Uid="ButtonSync"
                         Command="{Binding LoadMessagesViewModel.LoadAllMessagesFromServerCommand}"
                         Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
                 <StackPanel Grid.Column="2"
                             Margin="10,0,0,0">
-                    <TextBlock Text="Sort"/>
-                    <ComboBox Grid.Column="2">
-                        <Button Content="A-Z"
+                    <TextBlock x:Uid="TextBlockSort"
+                               Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                    <ComboBox Grid.Column="2"
+                              Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
+                        <Button x:Uid="ButtonA-Z"
                                 Command="{Binding LoadMessagesViewModel.SortByAlphabetMessagesCommand}"/>
-                        <Button Content="Z-A"
+                        <Button x:Uid="ButtonZ-A"
                                 Command="{Binding LoadMessagesViewModel.SortByAlphabetDescendingMessagesCommand}"/>
-                        <Button Content="Newer"
+                        <Button x:Uid="ButtonNewer"
                                 Command="{Binding LoadMessagesViewModel.SortNewerMessagesCommand}"/>
-                        <Button Content="Older"
+                        <Button x:Uid="ButtonOlder"
                                 Command="{Binding LoadMessagesViewModel.SortOlderMessagesCommand}"/>
                     </ComboBox>
                 </StackPanel>
             </Grid>
             <ListView Margin="10"
+                      Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
                       Grid.Row="1"
                       Background="BlueViolet"
@@ -173,11 +178,11 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Content="Flag"
+                <Button x:Uid="ButtonFlag"
                         Grid.Column="0"
                         Command="{Binding ControlMessageViewModel.FlagMessageCommand}"
                         Visibility="{Binding ControlMessageViewModel.MessageBodyControlsVisibility}"/>
-                <Button Content="Delete"
+                <Button x:Uid="ButtonDelete"
                         Grid.Column="1"
                         Command="{Binding ControlMessageViewModel.DeleteMessageCommand}"
                         Visibility="{Binding ControlMessageViewModel.MessageBodyControlsVisibility}"/>
@@ -213,7 +218,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="8*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="From"
+                        <TextBlock x:Uid="TextBlockFrom"
                                    Margin="10,0,0,0"
                                    Grid.Column="0"
                                    Grid.Row="0"/>
@@ -221,7 +226,7 @@
                                  Grid.Column="1"
                                  Grid.Row="0"
                                  Text="{Binding SendMessageViewModel.MessageSender}"/>
-                        <TextBlock Text="To"
+                        <TextBlock x:Uid="TextBlockTo"
                                    Margin="10,0,0,0"
                                    Grid.Column="0"
                                    Grid.Row="1"/>
@@ -237,19 +242,19 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Margin="10,0,0,0"
-                                       Text="Name"/>
+                                       x:Uid="TextBlockName"/>
                             <TextBox Margin="5"
                                      Text="{Binding SendMessageViewModel.MessageName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <TextBlock Margin="10,0,0,0"
-                                       Text="Subject"/>
+                                       x:Uid="TextBlockSubject"/>
                             <TextBox Margin="5"
                                      Text="{Binding SendMessageViewModel.MessageSubject, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
-                <TextBlock Text="Message:"
+                <TextBlock x:Uid="TextBlockMessage"
                            Grid.Row="1"
                            Margin="10,0,0,0"/>
                 <Grid Grid.Row="2">
@@ -262,7 +267,7 @@
                             <ColumnDefinition Width="4*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Button Content="Insert"
+                        <Button x:Uid="ButtonInsert"
                                 Grid.Column="0"
                                 Command="{Binding SendMessageViewModel.InsertFileCommand}"/>
                         <Grid Grid.Column="1">
@@ -303,17 +308,17 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Content="Cancel"
+                    <Button x:Uid="ButtonCancel"
                             Grid.Column="0"
                             Margin="5"
                             HorizontalAlignment="Left"
                             Command="{Binding SendMessageViewModel.CancelSendingMessageCommand}"/>
-                    <Button Content="Draft"
+                    <Button x:Uid="ButtonDraft"
                             Grid.Column="1"
                             Margin="5"
                             HorizontalAlignment="Center"
                             Command="{Binding SendMessageViewModel.DraftMessageCommand}"/>
-                    <Button Content="Send"
+                    <Button x:Uid="ButtonSend"
                             Grid.Column="2"
                             Margin="5"
                             HorizontalAlignment="Right"

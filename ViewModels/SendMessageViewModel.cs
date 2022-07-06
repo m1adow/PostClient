@@ -41,7 +41,7 @@ namespace PostClient.ViewModels
             set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand, DraftMessageCommand });
         }
 
-        private string _messageName = "New message";
+        private string _messageName = "Username";
 
         public string MessageName
         {
@@ -290,7 +290,7 @@ namespace PostClient.ViewModels
         #region Method for adding line
         private void AddLine()
         {
-            string tag = "</br>";
+            string tag = "<br>";
 
             if (SelectedText.Contains(tag))
                 SelectedText = SelectedText.Replace($"\n{tag}\n", "");
