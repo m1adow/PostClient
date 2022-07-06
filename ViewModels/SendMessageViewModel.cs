@@ -251,7 +251,13 @@ namespace PostClient.ViewModels
             MessageSender = _account.Email;
         }
 
-        private void HideSendMessageControls() => SendMessageControlsVisibility = Visibility.Collapsed;
+        private void HideSendMessageControls()
+        {
+            _account = _getAccount();
+
+            if (!_selectedMessage.IsDraft)
+                SendMessageControlsVisibility = Visibility.Collapsed;
+        }
         #endregion
 
         #region Method for change send controls visibility
