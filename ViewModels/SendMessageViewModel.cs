@@ -17,14 +17,6 @@ namespace PostClient.ViewModels
 {
     internal sealed class SendMessageViewModel : ViewModelBase
     {
-        private Visibility _sendMessageControlsVisibility = Visibility.Collapsed;
-
-        public Visibility SendMessageControlsVisibility
-        {
-            get => _sendMessageControlsVisibility;
-            set => Set(ref _sendMessageControlsVisibility, value);
-        }
-
         private string _messageSender = string.Empty;
 
         public string MessageSender
@@ -73,6 +65,14 @@ namespace PostClient.ViewModels
             set => Set(ref _selectedText, value);
         }
 
+        private Visibility _sendMessageControlsVisibility = Visibility.Collapsed;
+
+        public Visibility SendMessageControlsVisibility
+        {
+            get => _sendMessageControlsVisibility;
+            set => Set(ref _sendMessageControlsVisibility, value);
+        }
+
         public ICommand SendMessageCommand { get; }
 
         public ICommand InsertFileCommand { get; }
@@ -81,7 +81,9 @@ namespace PostClient.ViewModels
 
         public ICommand CancelSendingMessageCommand { get; }
 
-        public ICommand ShowSendingControlosCommand { get; }
+        public ICommand ShowSendingControlsCommand { get; }
+
+        public ICommand HideSendingControlsCommand { get; }
 
         public ICommand BoldSelectedTextCommand { get; }
 
@@ -95,11 +97,11 @@ namespace PostClient.ViewModels
 
         private Account _account = new Account();
 
-        private Func<Account> _getAccount;
-
         private MailMessage _selectedMessage = new MailMessage();
 
-        private Func<MailMessage, bool> _deleteDraft;
+        private readonly Func<Account> _getAccount;
+
+        private readonly Func<MailMessage, bool> _deleteDraft;
 
         private Dictionary<string, byte[]> _files = new Dictionary<string, byte[]>();
 
@@ -115,7 +117,8 @@ namespace PostClient.ViewModels
             InsertFileCommand = new RelayCommand(InsertFile);
             DraftMessageCommand = new RelayCommand(DraftMessage, IsSendMessageFieldsFilled);
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
-            ShowSendingControlosCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
+            ShowSendingControlsCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
+            HideSendingControlsCommand = new RelayCommand(HideSendMessageControls);
             BoldSelectedTextCommand = new RelayCommand(BoldSelectedText);
             ItalicSelectedTextCommand = new RelayCommand(ItalicSelectedText);
             UnderlineSelectedTextCommand = new RelayCommand(UnderlineSelectedText);
@@ -239,7 +242,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for send command
+        #region Method for showing and hiding send message controls command
         private void ShowSendMessageControlsAndLoadAccount()
         {
             SendMessageControlsVisibility = Visibility.Visible;
@@ -247,6 +250,8 @@ namespace PostClient.ViewModels
             _account = _getAccount();
             MessageSender = _account.Email;
         }
+
+        private void HideSendMessageControls() => SendMessageControlsVisibility = Visibility.Collapsed;
         #endregion
 
         #region Method for change send controls visibility

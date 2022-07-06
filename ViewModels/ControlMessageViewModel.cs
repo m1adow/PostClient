@@ -24,18 +24,18 @@ namespace PostClient.ViewModels
                 Set(ref _selectedMailMessage, value);
 
                 if (value.Body.Length > 0 && !value.IsDraft)
-                    MessageBodyControlsVisibility = Visibility.Visible;
+                    MessageViewConrtolVisibility = Visibility.Visible;
                 else if (value.IsDraft)
-                    _changeSendMessageControlsVisibility(Visibility.Visible, value);
+                    _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, value);
             }
         }
 
-        private Visibility _messageBodyControlsVisibility = Visibility.Collapsed;
+        private Visibility _messageViewConrtolVisibility = Visibility.Collapsed;
 
-        public Visibility MessageBodyControlsVisibility
+        public Visibility MessageViewConrtolVisibility
         {
-            get => _messageBodyControlsVisibility;
-            set => Set(ref _messageBodyControlsVisibility, value);
+            get => _messageViewConrtolVisibility;
+            set => Set(ref _messageViewConrtolVisibility, value);
         }
 
         public ICommand FlagMessageCommand { get; }
@@ -44,21 +44,24 @@ namespace PostClient.ViewModels
 
         public ICommand CloseMessageCommand { get; }
 
-        private Func<Account> _getAccount;
-        private Func<MailMessage, Task<bool>> _updateFlaggedList;
-        private Func<MailMessage, bool> _deleteMessageFromList;
-        private Func<Visibility, MailMessage, bool> _changeSendMessageControlsVisibility;
+        public ICommand HideMessageViewCommand { get; }
 
-        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibility)
+        private readonly Func<Account> _getAccount;
+        private readonly Func<MailMessage, Task<bool>> _updateFlaggedList;
+        private readonly Func<MailMessage, bool> _deleteMessageFromList;
+        private readonly Func<Visibility, MailMessage, bool> _changeSendMessageControlsVisibilityAndMessage;
+
+        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage)
         {
             _getAccount = getAccount;
             _updateFlaggedList = updateFlaggedList;
             _deleteMessageFromList = deleteMessageFromList;
-            _changeSendMessageControlsVisibility = changeSendMessageControlsVisibility;
+            _changeSendMessageControlsVisibilityAndMessage = changeSendMessageControlsVisibilityAndMessage;
 
             FlagMessageCommand = new RelayCommand(FlagMessage);
             DeleteMessageCommand = new RelayCommand(DeleteMessage);
             CloseMessageCommand = new RelayCommand(CloseMessage);
+            HideMessageViewCommand = new RelayCommand(HideMessageView);
         }
 
         #region Methods for flag message
@@ -105,9 +108,13 @@ namespace PostClient.ViewModels
         {
             _selectedMailMessage = new MailMessage();
 
-            MessageBodyControlsVisibility = Visibility.Collapsed;
-            _changeSendMessageControlsVisibility(Visibility.Collapsed, _selectedMailMessage);
+            MessageViewConrtolVisibility = Visibility.Collapsed;
+            _changeSendMessageControlsVisibilityAndMessage(Visibility.Collapsed, _selectedMailMessage);
         }
+        #endregion
+
+        #region Method for hiding message view
+        private void HideMessageView() => MessageViewConrtolVisibility = Visibility.Collapsed;
         #endregion
     }
 }
