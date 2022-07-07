@@ -149,13 +149,17 @@
                     <ComboBox Grid.Column="2"
                               Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
                         <Button x:Uid="ButtonA-Z"
-                                Command="{Binding LoadMessagesViewModel.SortByAlphabetMessagesCommand}"/>
+                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                CommandParameter="a-z"/>
                         <Button x:Uid="ButtonZ-A"
-                                Command="{Binding LoadMessagesViewModel.SortByAlphabetDescendingMessagesCommand}"/>
+                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                CommandParameter="z-a"/>
                         <Button x:Uid="ButtonNewer"
-                                Command="{Binding LoadMessagesViewModel.SortNewerMessagesCommand}"/>
+                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                CommandParameter="newer"/>
                         <Button x:Uid="ButtonOlder"
-                                Command="{Binding LoadMessagesViewModel.SortOlderMessagesCommand}"/>
+                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                CommandParameter="older"/>
                     </ComboBox>
                 </StackPanel>
             </Grid>

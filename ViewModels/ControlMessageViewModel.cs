@@ -65,7 +65,7 @@ namespace PostClient.ViewModels
         }
 
         #region Methods for flag message
-        private void FlagMessage()
+        private void FlagMessage(object parameter)
         {
             Account account = _getAccount();
 
@@ -84,7 +84,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Methods for deleting message
-        private void DeleteMessage()
+        private void DeleteMessage(object parameter)
         {
             Account account = _getAccount();
 
@@ -99,12 +99,12 @@ namespace PostClient.ViewModels
             }
 
             _deleteMessageFromList(SelectedMailMessage);
-            CloseMessage();
+            CloseMessage(parameter);
         }
         #endregion
 
         #region Method for closing message
-        private void CloseMessage()
+        private void CloseMessage(object parameter)
         {
             _selectedMailMessage = new MailMessage();
 
@@ -114,7 +114,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for hiding message view
-        private void HideMessageView() => MessageViewConrtolVisibility = Visibility.Collapsed;
+        private void HideMessageView(object parameter) => MessageViewConrtolVisibility = Visibility.Collapsed;
         #endregion
     }
 }

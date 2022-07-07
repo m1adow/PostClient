@@ -40,17 +40,11 @@ namespace PostClient.ViewModels
 
         public ICommand SearchMessageCommand { get; }
 
-        public ICommand SortByAlphabetMessagesCommand { get; }
+        public ICommand SortMessagesCommand { get; }
 
-        public ICommand SortByAlphabetDescendingMessagesCommand { get; }
+        public Action<object> LoadMessagesFromServerAction { get; }
 
-        public ICommand SortNewerMessagesCommand { get; }
-
-        public ICommand SortOlderMessagesCommand { get; }
-
-        public Action LoadMessagesFromServerAction { get; }
-
-        public Action LoadMessagesFromLocalStorageAction { get; }
+        public Action<object> LoadMessagesFromLocalStorageAction { get; }
 
         public Func<MailMessage, Task<bool>> FlagMessageFunc { get; }
 
@@ -74,14 +68,11 @@ namespace PostClient.ViewModels
             LoadDraftMessagesFromLocalStorageCommand = new RelayCommand(LoadDraftMessagesFromLocalStorage);
             LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);
             SearchMessageCommand = new RelayCommand(SearchMessage);
-            SortByAlphabetMessagesCommand = new RelayCommand(SortByAlphabetMessages);
-            SortByAlphabetDescendingMessagesCommand = new RelayCommand(SortByAlphabetDescendingMessages);
-            SortNewerMessagesCommand = new RelayCommand(SortNewerMessages);
-            SortOlderMessagesCommand = new RelayCommand(SortOlderMessages);
+            SortMessagesCommand = new RelayCommand(SortMessages);
         }
 
         #region Method for load messages from local storage
-        private async void LoadAllMessagesFromLocalStorage()
+        private async void LoadAllMessagesFromLocalStorage(object parameter)
         {
             string path = "AllMessages.json";
 
@@ -92,7 +83,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for load sent messages
-        private async void LoadSentMessagesFromLocalStorage()
+        private async void LoadSentMessagesFromLocalStorage(object parameter)
         {
             string path = "SentMessages.json";
 
@@ -103,7 +94,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for load flagged messages
-        private async void LoadFlaggedMessagesFromLocalStorage()
+        private async void LoadFlaggedMessagesFromLocalStorage(object parameter)
         {
             string path = "FlaggedMessages.json";
 
@@ -114,7 +105,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for load draft messages
-        private async void LoadDraftMessagesFromLocalStorage()
+        private async void LoadDraftMessagesFromLocalStorage(object parameter)
         {
             string path = "DraftMessages.json";
 
@@ -125,13 +116,13 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for load messages from server
-        private void LoadAllMessagesFromServer()
+        private void LoadAllMessagesFromServer(object parameter)
         {
             Account account = _getAccount();
 
             var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
             var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
-            var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All);;
+            var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All); ;
 
             var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
             _messages = allMailMessages;
@@ -239,42 +230,31 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for search message
-        private async void SearchMessage()
+        private async void SearchMessage(object parameter)
         {
             _messages = (await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)).Where(m => m.Subject.ToLower().Contains(_searchText.ToLower()) || m.From.ToLower().Contains(_searchText.ToLower())).ToList();
-
             UpdateMessageCollection();
         }
         #endregion
 
-        #region Method for sort by alphabet messages
-        private void SortByAlphabetMessages()
+        #region Methods for sort messages 
+        private void SortMessages(object parameter)
         {
-            _messages = _messages.OrderBy(m => m.Subject).ToList();
-            UpdateMessageCollection();
-        }
-        #endregion
-
-        #region Method for sort by alphabet descending messages
-        private void SortByAlphabetDescendingMessages()
-        {
-            _messages = _messages.OrderByDescending(m => m.Subject).ToList();
-            UpdateMessageCollection();
-        }
-        #endregion
-
-        #region Method for sort newer messages
-        private void SortNewerMessages()
-        {
-            _messages = _messages.OrderByDescending(m => m.Date).ToList();
-            UpdateMessageCollection();
-        }
-        #endregion
-
-        #region Method for sort older messages
-        private void SortOlderMessages()
-        {
-            _messages = _messages.OrderBy(m => m.Date).ToList();
+            switch (parameter.ToString())
+            {
+                case "newer":
+                    _messages = _messages.OrderByDescending(m => m.Date).ToList();
+                    break;
+                case "older":
+                    _messages = _messages.OrderBy(m => m.Date).ToList();
+                    break;
+                case "a-z":
+                    _messages = _messages.OrderBy(m => m.Subject).ToList();
+                    break;
+                case "z-a":
+                    _messages = _messages.OrderByDescending(m => m.Subject).ToList();
+                    break;
+            }
             UpdateMessageCollection();
         }
         #endregion

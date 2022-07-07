@@ -72,11 +72,11 @@ namespace PostClient.ViewModels
 
         public ICommand CancelLoginControlsCommand { get; }
 
-        private readonly Action _loadMessages;
+        private readonly Action<object> _loadMessages;
 
         private readonly Action<Account> _changeAccount;
 
-        public LoginViewModel(Action<Account> changeAccount, Action loadMessages)
+        public LoginViewModel(Action<Account> changeAccount, Action<object> loadMessages)
         {
             _changeAccount = changeAccount;
             _loadMessages = loadMessages;
@@ -87,7 +87,7 @@ namespace PostClient.ViewModels
         }
 
         #region Methods for login command
-        private void LoginIntoAccount()
+        private void LoginIntoAccount(object parameter)
         {
             Account account = new Account()
             {
@@ -97,7 +97,7 @@ namespace PostClient.ViewModels
             };
            
             _changeAccount(account);
-            _loadMessages();
+            _loadMessages(parameter);
 
             account.Password = EncryptionHelper.Encrypt(this.Password);
 
@@ -105,7 +105,7 @@ namespace PostClient.ViewModels
                 JSONSaverAndReaderHelper.Save(account, "AccountCredentials.json");
 
             ClearFields();
-            HideLoginControls();
+            HideLoginControls(parameter);
             (LoginCommand as RelayCommand).OnExecuteChanged(); //for disabling login button on second time
         }
 
@@ -123,11 +123,11 @@ namespace PostClient.ViewModels
             Password = string.Empty;
         }
 
-        private bool IsLoginFieldsFilled() => Email.Length > 0 && Password.Length > 0 && (IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked);
+        private bool IsLoginFieldsFilled(object parameter) => Email.Length > 0 && Password.Length > 0 && (IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked);
         #endregion       
 
         #region Method for showing login controls command
-        private void ShowLoginControls()
+        private void ShowLoginControls(object parameter)
         {
             ManagmentButtonsVisibility = Visibility.Collapsed;
             LoginControlsVisibility = Visibility.Visible;
@@ -135,7 +135,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for showing login controls command
-        private void HideLoginControls()
+        private void HideLoginControls(object parameter)
         {
             ManagmentButtonsVisibility = Visibility.Visible;
             LoginControlsVisibility = Visibility.Collapsed;

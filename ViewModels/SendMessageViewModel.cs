@@ -126,7 +126,7 @@ namespace PostClient.ViewModels
         }
 
         #region Methods for sending message
-        private void SendMessage()
+        private void SendMessage(object parameter)
         {
             MimeMessage message = CreateMessage();
 
@@ -178,12 +178,12 @@ namespace PostClient.ViewModels
             MessageBody = "Hi world!";
         }
 
-        private bool IsSendMessageFieldsFilled() => MessageReciever.Length > 0;
+        private bool IsSendMessageFieldsFilled(object parameter) => MessageReciever.Length > 0;
         #endregion
 
         #region Methods for inserting files
 
-        private async void InsertFile()
+        private async void InsertFile(object parameter)
         {
             var file = await GetFileBytesAsync();
             _files.Add(file.Key, file.Value);
@@ -214,7 +214,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for draft message
-        private async void DraftMessage()
+        private async void DraftMessage(object parameter)
         {
             List<MailMessage> draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
 
@@ -235,7 +235,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for cancel sending 
-        private void CancelSendingMessage()
+        private void CancelSendingMessage(object parameter)
         {
             SendMessageControlsVisibility = Visibility.Collapsed;
             ClearFields();
@@ -243,7 +243,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for showing and hiding send message controls command
-        private void ShowSendMessageControlsAndLoadAccount()
+        private void ShowSendMessageControlsAndLoadAccount(object parameter)
         {
             SendMessageControlsVisibility = Visibility.Visible;
 
@@ -251,7 +251,7 @@ namespace PostClient.ViewModels
             MessageSender = _account.Email;
         }
 
-        private void HideSendMessageControls()
+        private void HideSendMessageControls(object parameter)
         {
             _account = _getAccount();
 
@@ -280,11 +280,11 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Methods for styling text
-        private void BoldSelectedText() => AcceptStyling("b");
+        private void BoldSelectedText(object parameter) => AcceptStyling("b");
 
-        private void ItalicSelectedText() => AcceptStyling("i");
+        private void ItalicSelectedText(object parameter) => AcceptStyling("i");
 
-        private void UnderlineSelectedText() => AcceptStyling("u");
+        private void UnderlineSelectedText(object parameter) => AcceptStyling("u");
 
         private void AcceptStyling(string tag)
         {
@@ -299,7 +299,7 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for adding line
-        private void AddLine()
+        private void AddLine(object parameter)
         {
             string tag = "<br>";
 
