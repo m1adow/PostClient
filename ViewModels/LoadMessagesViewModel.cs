@@ -74,9 +74,15 @@ namespace PostClient.ViewModels
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
+            LaunchTimer();
+        }
+
+        private void LaunchTimer()
+        {
             _dispatcherTimer = new DispatcherTimer();
             _dispatcherTimer.Tick += Timer_Tick;
             _dispatcherTimer.Interval = new TimeSpan(0, 10, 0);
+            _dispatcherTimer.Start();
         }
 
         private void Timer_Tick(object sender, object e) => LoadAllMessagesFromServer(new object());
@@ -126,29 +132,36 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Method for load messages from server
-        private void LoadAllMessagesFromServer(object parameter)
+        private async void LoadAllMessagesFromServer(object parameter)
         {
-            Account account = _getAccount();
+            await GetMessagesAsync();
+            UpdateMessageCollection();         
+        }
 
-            var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
-            var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
-            var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All); ;
+        private async Task GetMessagesAsync()
+        {
+            await Task.Run(() =>
+            {
+                Account account = _getAccount();
 
-            var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
-            SendNotificationsAboutNewMessages(allMailMessages);
-            _messages = allMailMessages;
+                var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
+                var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
+                var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All); ;
 
-            var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
+                var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
+                SendNotificationsAboutNewMessages(allMailMessages);
+                _messages = allMailMessages;
 
-            var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
-            flaggedMailMessages.ForEach(m => m.IsFlagged = true);
+                var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
 
-            SaveMessages(allMailMessages, "AllMessages.json");
-            SaveMessages(sentMailMessages, "SentMessages.json");
-            SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
-            SaveMessages(new List<MailMessage>(), "DraftMessages.json"); //clear draft messages after syncing
+                var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
+                flaggedMailMessages.ForEach(m => m.IsFlagged = true);
 
-            UpdateMessageCollection();
+                SaveMessages(allMailMessages, "AllMessages.json");
+                SaveMessages(sentMailMessages, "SentMessages.json");
+                SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
+                SaveMessages(new List<MailMessage>(), "DraftMessages.json"); //clear draft messages after syncing
+            });
         }
 
         private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
