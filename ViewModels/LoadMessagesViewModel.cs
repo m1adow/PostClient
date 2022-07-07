@@ -1,5 +1,6 @@
 ﻿using MailKit;
 using MailKit.Search;
+using Microsoft.Toolkit.Uwp.Notifications;
 using MimeKit;
 using PostClient.Models;
 using PostClient.Models.Services;
@@ -11,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.UI.Xaml;
 
 namespace PostClient.ViewModels
 {
@@ -54,6 +56,8 @@ namespace PostClient.ViewModels
 
         private string _messageFolder = string.Empty;
 
+        private DispatcherTimer _dispatcherTimer;
+
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
             _getAccount = getAccount;
@@ -69,7 +73,13 @@ namespace PostClient.ViewModels
             LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
+
+            _dispatcherTimer = new DispatcherTimer();
+            _dispatcherTimer.Tick += Timer_Tick;
+            _dispatcherTimer.Interval = new TimeSpan(0, 10, 0);
         }
+
+        private void Timer_Tick(object sender, object e) => LoadAllMessagesFromServer(new object());
 
         #region Method for load messages from local storage
         private async void LoadAllMessagesFromLocalStorage(object parameter)
@@ -125,6 +135,7 @@ namespace PostClient.ViewModels
             var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All); ;
 
             var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
+            SendNotificationsAboutNewMessages(allMailMessages);
             _messages = allMailMessages;
 
             var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
@@ -179,6 +190,21 @@ namespace PostClient.ViewModels
             };
 
             return message;
+        }
+
+        private void SendNotificationsAboutNewMessages(List<MailMessage> messages)
+        {
+            foreach (var message in messages)
+            {
+                if (!_messages.Contains(message))
+                {
+                    new ToastContentBuilder()
+                        .AddArgument("action", "viewConversation")
+                        .AddText($"{message.From} sent you a message")
+                        .AddText($"Check this out, {message.Subject}")
+                        .Show();
+                }
+            }
         }
 
         private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
