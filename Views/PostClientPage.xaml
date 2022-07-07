@@ -165,7 +165,7 @@
             </Grid>
             <ListView Margin="10"
                       Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                      ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay}"
+                      ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       Grid.Row="1"
                       Background="BlueViolet"
                       SelectedValue="{Binding ControlMessageViewModel.SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">

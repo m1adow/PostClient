@@ -18,7 +18,13 @@ namespace PostClient.ViewModels
 {
     internal sealed class LoadMessagesViewModel : ViewModelBase
     {
-        public ObservableCollection<MailMessage> Messages { get; } = new ObservableCollection<MailMessage>();
+        private ObservableCollection<MailMessage> _messagesCollection = new ObservableCollection<MailMessage>();
+
+        public ObservableCollection<MailMessage> Messages
+        {
+            get => _messagesCollection;
+            set => Set(ref _messagesCollection, value);
+        }
 
         private List<MailMessage> _messages = new List<MailMessage>();
 
@@ -282,19 +288,18 @@ namespace PostClient.ViewModels
             switch (parameter.ToString())
             {
                 case "newer":
-                    _messages = _messages.OrderByDescending(m => m.Date).ToList();
+                    Messages = new ObservableCollection<MailMessage>(_messages.OrderByDescending(m => m.Date));
                     break;
                 case "older":
-                    _messages = _messages.OrderBy(m => m.Date).ToList();
+                    Messages = new ObservableCollection<MailMessage>(_messages.OrderBy(m => m.Date));
                     break;
                 case "a-z":
-                    _messages = _messages.OrderBy(m => m.Subject).ToList();
+                    Messages = new ObservableCollection<MailMessage>(_messages.OrderBy(m => m.Subject));
                     break;
                 case "z-a":
-                    _messages = _messages.OrderByDescending(m => m.Subject).ToList();
+                    Messages = new ObservableCollection<MailMessage>(_messages.OrderByDescending(m => m.Subject));
                     break;
             }
-            UpdateMessageCollection();
         }
         #endregion
     }
