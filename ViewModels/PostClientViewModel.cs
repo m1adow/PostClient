@@ -52,10 +52,6 @@ namespace PostClient.ViewModels
 
         private void ChangeAccountAfterLogining(Account account) => _account = account;
 
-        private void LoadedHandler()
-        {
-            LoadAccount();
-            LoadMessagesViewModel.LoadMessagesFromLocalStorageAction();
-        }
+        private void LoadedHandler() => LoadMessagesViewModel.LoadMessagesFromLocalStorageAction();
     }
 }

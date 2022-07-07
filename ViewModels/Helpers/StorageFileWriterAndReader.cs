@@ -18,7 +18,17 @@ namespace PostClient.ViewModels.Helpers
         public static async Task<string> Read(string name)
         {
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile file = await storageFolder.GetFileAsync(name);
+            StorageFile file;
+
+            try
+            {
+                file = await storageFolder.GetFileAsync(name);
+            }
+            catch
+            {
+                file = await storageFolder.CreateFileAsync(name);
+                await FileIO.WriteTextAsync(file, "[]");
+            }
 
             string data = await FileIO.ReadTextAsync(file);
 

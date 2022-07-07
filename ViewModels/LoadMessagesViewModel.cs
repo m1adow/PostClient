@@ -182,7 +182,7 @@ namespace PostClient.ViewModels
             {
                 Uid = mimeMessage.Key.Id,
                 Subject = mimeMessage.Value.Subject,
-                Body = mimeMessage.Value.HtmlBody ?? (mimeMessage.Value.Body as TextPart).Text,
+                Body = mimeMessage.Value.HtmlBody ?? "",
                 From = mimeMessage.Value.From[0].Name,
                 Date = mimeMessage.Value.Date
             };
