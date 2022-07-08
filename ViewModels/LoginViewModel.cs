@@ -86,7 +86,7 @@ namespace PostClient.ViewModels
             CancelLoginControlsCommand = new RelayCommand(HideLoginControls);
         }
 
-        #region Methods for login command
+        #region Login
         private void LoginIntoAccount(object parameter)
         {
             Account account = new Account()
@@ -126,7 +126,7 @@ namespace PostClient.ViewModels
         private bool IsLoginFieldsFilled(object parameter) => Email.Length > 0 && Password.Length > 0 && (IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked);
         #endregion       
 
-        #region Method for showing login controls command
+        #region Showing login controls
         private void ShowLoginControls(object parameter)
         {
             ManagmentButtonsVisibility = Visibility.Collapsed;
@@ -134,7 +134,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for showing login controls command
+        #region Hiding login controls
         private void HideLoginControls(object parameter)
         {
             ManagmentButtonsVisibility = Visibility.Visible;

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.ApplicationModel.Contacts;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -85,13 +86,11 @@ namespace PostClient.ViewModels
 
         public ICommand HideSendingControlsCommand { get; }
 
-        public ICommand BoldSelectedTextCommand { get; }
-
-        public ICommand ItalicSelectedTextCommand { get; }
-
-        public ICommand UnderlineSelectedTextCommand { get; }
+        public ICommand StyleSelectedTextCommand { get; }
 
         public ICommand AddLineCommand { get; }
+
+        public ICommand ChooseContactCommand { get; }
 
         public Func<Visibility, MailMessage, bool> ChangeSendMessageControlsVisibilityAndFillFieldsFunc { get; }
 
@@ -119,13 +118,12 @@ namespace PostClient.ViewModels
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
             ShowSendingControlsCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
             HideSendingControlsCommand = new RelayCommand(HideSendMessageControls);
-            BoldSelectedTextCommand = new RelayCommand(BoldSelectedText);
-            ItalicSelectedTextCommand = new RelayCommand(ItalicSelectedText);
-            UnderlineSelectedTextCommand = new RelayCommand(UnderlineSelectedText);
+            StyleSelectedTextCommand = new RelayCommand(StyleSelectedText);
             AddLineCommand = new RelayCommand(AddLine);
+            ChooseContactCommand = new RelayCommand(ChooseContact);
         }
 
-        #region Methods for sending message
+        #region Sending message
         private void SendMessage(object parameter)
         {
             MimeMessage message = CreateMessage();
@@ -181,7 +179,7 @@ namespace PostClient.ViewModels
         private bool IsSendMessageFieldsFilled(object parameter) => MessageReciever.Length > 0;
         #endregion
 
-        #region Methods for inserting files
+        #region Inserting files
 
         private async void InsertFile(object parameter)
         {
@@ -213,7 +211,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for draft message
+        #region Draft message
         private async void DraftMessage(object parameter)
         {
             List<MailMessage> draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
@@ -234,7 +232,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for cancel sending 
+        #region Cancel sending 
         private void CancelSendingMessage(object parameter)
         {
             SendMessageControlsVisibility = Visibility.Collapsed;
@@ -242,7 +240,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for showing and hiding send message controls command
+        #region Showing and hiding send message controls
         private void ShowSendMessageControlsAndLoadAccount(object parameter)
         {
             SendMessageControlsVisibility = Visibility.Visible;
@@ -260,7 +258,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for change send controls visibility
+        #region Changing send controls visibility
         private bool ChangeSendMessageControlsVisibilityAndFillFields(Visibility visibility, MailMessage message)
         {
             SendMessageControlsVisibility = visibility;
@@ -279,15 +277,11 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Methods for styling text
-        private void BoldSelectedText(object parameter) => AcceptStyling("b");
-
-        private void ItalicSelectedText(object parameter) => AcceptStyling("i");
-
-        private void UnderlineSelectedText(object parameter) => AcceptStyling("u");
-
-        private void AcceptStyling(string tag)
+        #region Styling text
+        private void StyleSelectedText(object parameter)
         {
+            string tag = parameter.ToString();
+
             if (SelectedText.Contains($"<{tag}>") || SelectedText.Contains($"</{tag}>"))
             {
                 SelectedText = SelectedText.Replace($"<{tag}>", "");
@@ -298,7 +292,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for adding line
+        #region Adding line
         private void AddLine(object parameter)
         {
             string tag = "<br>";
@@ -307,6 +301,17 @@ namespace PostClient.ViewModels
                 SelectedText = SelectedText.Replace($"\n{tag}\n", "");
             else
                 SelectedText += $"\n{tag}\n";           
+        }
+        #endregion
+
+        #region Choosing contact
+        private async void ChooseContact(object parameter)
+        {
+            var contactPicker = new ContactPicker();
+            var contact = await contactPicker.PickContactAsync();
+
+            if (contact != null)
+                MessageReciever = contact.Emails[0].Address;
         }
         #endregion
     }

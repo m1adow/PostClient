@@ -85,7 +85,7 @@ namespace PostClient.ViewModels
         private void Timer_Tick(object sender, object e) => LoadMessagesFromServer(new object());
         #endregion
 
-        #region Method for load messages from local storage
+        #region Load messages from local storage
         private async void LoadMessagesFromLocalStorage(object parameter)
         {
             _messageFolder = parameter.ToString() + ".json";
@@ -93,14 +93,13 @@ namespace PostClient.ViewModels
         }
         #endregion   
 
-        #region Method for load messages from server
+        #region Load messages from server
         private async void LoadMessagesFromServer(object parameter)
         {
             Storyboard storyboard = parameter as Storyboard;
 
             storyboard.Begin();
             storyboard.RepeatBehavior = RepeatBehavior.Forever;
-            Messages.Clear();
             Messages = await GetMessagesAsync();
             storyboard.Stop();
         }
@@ -194,7 +193,7 @@ namespace PostClient.ViewModels
         private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
         #endregion
 
-        #region Method for flag message
+        #region Flag message
         private async Task<bool> FlagMessage(MailMessage message)
         {
             List<MailMessage> flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
@@ -218,7 +217,7 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for delete message
+        #region Delete message
         private bool DeleteMessage(MailMessage message)
         {
             Messages.Remove(message);
@@ -227,11 +226,11 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Method for search message
+        #region Search message
         private async void SearchMessage(object parameter) => Messages = new ObservableCollection<MailMessage>((await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)).Where(m => m.Subject.ToLower().Contains(_searchText.ToLower()) || m.From.ToLower().Contains(_searchText.ToLower())));
         #endregion
 
-        #region Methods for sort messages 
+        #region Sort messages 
         private void SortMessages(object parameter)
         {
             switch (parameter.ToString())

@@ -123,6 +123,9 @@
   <data name="ButtonCancel.Content" xml:space="preserve">
     <value>Відмінити</value>
   </data>
+  <data name="ButtonContact.Content" xml:space="preserve">
+    <value>Контакт</value>
+  </data>
   <data name="ButtonDelete.Content" xml:space="preserve">
     <value>Видалити</value>
   </data>

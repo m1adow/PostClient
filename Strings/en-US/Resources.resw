@@ -123,6 +123,9 @@
   <data name="ButtonCancel.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ButtonContact.Content" xml:space="preserve">
+    <value>Contact</value>
+  </data>
   <data name="ButtonDelete.Content" xml:space="preserve">
     <value>Delete</value>
   </data>
