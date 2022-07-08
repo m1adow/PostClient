@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace PostClient.ViewModels
 {
@@ -93,10 +94,21 @@ namespace PostClient.ViewModels
         #endregion   
 
         #region Method for load messages from server
-        private async void LoadMessagesFromServer(object parameter) => await GetMessagesAsync();
-
-        private async Task GetMessagesAsync()
+        private async void LoadMessagesFromServer(object parameter)
         {
+            Storyboard storyboard = parameter as Storyboard;
+
+            storyboard.Begin();
+            storyboard.RepeatBehavior = RepeatBehavior.Forever;
+            Messages.Clear();
+            Messages = await GetMessagesAsync();
+            storyboard.Stop();
+        }
+
+        private async Task<ObservableCollection<MailMessage>> GetMessagesAsync()
+        {
+            ObservableCollection<MailMessage> messages = new ObservableCollection<MailMessage>();
+
             await Task.Run(() =>
             {
                 Account account = _getAccount();
@@ -107,7 +119,7 @@ namespace PostClient.ViewModels
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
                 SendNotificationsAboutNewMessages(allMailMessages);
-                Messages = new ObservableCollection<MailMessage>(allMailMessages);
+                messages = new ObservableCollection<MailMessage>(allMailMessages);
 
                 var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
 
@@ -119,6 +131,8 @@ namespace PostClient.ViewModels
                 SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
                 SaveMessages(new List<MailMessage>(), "DraftMessages.json"); //clear draft messages after syncing
             });
+
+            return messages;
         }
 
         private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
