@@ -18,15 +18,13 @@ namespace PostClient.ViewModels
 {
     internal sealed class LoadMessagesViewModel : ViewModelBase
     {
-        private ObservableCollection<MailMessage> _messagesCollection = new ObservableCollection<MailMessage>();
+        private ObservableCollection<MailMessage> _messages = new ObservableCollection<MailMessage>();
 
         public ObservableCollection<MailMessage> Messages
         {
-            get => _messagesCollection;
-            set => Set(ref _messagesCollection, value);
+            get => _messages;
+            set => Set(ref _messages, value);
         }
-
-        private List<MailMessage> _messages = new List<MailMessage>();
 
         private string _searchText = string.Empty;
 
@@ -36,15 +34,9 @@ namespace PostClient.ViewModels
             set => Set(ref _searchText, value);
         }
 
-        public ICommand LoadAllMessagesFromLocalStorageCommand { get; }
+        public ICommand LoadMessagesFromLocalStorageCommand { get; }
 
-        public ICommand LoadSentMessagesFromLocalStorageCommand { get; }
-
-        public ICommand LoadFlaggedMessagesFromLocalStorageCommand { get; }
-
-        public ICommand LoadDraftMessagesFromLocalStorageCommand { get; }
-
-        public ICommand LoadAllMessagesFromServerCommand { get; }
+        public ICommand LoadMessagesFromServerCommand { get; }
 
         public ICommand SearchMessageCommand { get; }
 
@@ -67,22 +59,20 @@ namespace PostClient.ViewModels
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
             _getAccount = getAccount;
-            LoadMessagesFromServerAction = LoadAllMessagesFromServer;
-            LoadMessagesFromLocalStorageAction = LoadAllMessagesFromLocalStorage;
+            LoadMessagesFromServerAction = LoadMessagesFromServer;
+            LoadMessagesFromLocalStorageAction = LoadMessagesFromLocalStorage;
             FlagMessageFunc = FlagMessage;
             DeleteMessageFunc = DeleteMessage;
 
-            LoadAllMessagesFromLocalStorageCommand = new RelayCommand(LoadAllMessagesFromLocalStorage);
-            LoadSentMessagesFromLocalStorageCommand = new RelayCommand(LoadSentMessagesFromLocalStorage);
-            LoadFlaggedMessagesFromLocalStorageCommand = new RelayCommand(LoadFlaggedMessagesFromLocalStorage);
-            LoadDraftMessagesFromLocalStorageCommand = new RelayCommand(LoadDraftMessagesFromLocalStorage);
-            LoadAllMessagesFromServerCommand = new RelayCommand(LoadAllMessagesFromServer);
+            LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);         
+            LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
             LaunchTimer();
         }
 
+        #region Timer
         private void LaunchTimer()
         {
             _dispatcherTimer = new DispatcherTimer();
@@ -91,58 +81,19 @@ namespace PostClient.ViewModels
             _dispatcherTimer.Start();
         }
 
-        private void Timer_Tick(object sender, object e) => LoadAllMessagesFromServer(new object());
+        private void Timer_Tick(object sender, object e) => LoadMessagesFromServer(new object());
+        #endregion
 
         #region Method for load messages from local storage
-        private async void LoadAllMessagesFromLocalStorage(object parameter)
+        private async void LoadMessagesFromLocalStorage(object parameter)
         {
-            string path = "AllMessages.json";
-
-            _messageFolder = path;
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
-            UpdateMessageCollection();
+            _messageFolder = parameter.ToString() + ".json";
+            Messages = new ObservableCollection<MailMessage>(await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder));
         }
-        #endregion
-
-        #region Method for load sent messages
-        private async void LoadSentMessagesFromLocalStorage(object parameter)
-        {
-            string path = "SentMessages.json";
-
-            _messageFolder = path;
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
-            UpdateMessageCollection();
-        }
-        #endregion
-
-        #region Method for load flagged messages
-        private async void LoadFlaggedMessagesFromLocalStorage(object parameter)
-        {
-            string path = "FlaggedMessages.json";
-
-            _messageFolder = path;
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
-            UpdateMessageCollection();
-        }
-        #endregion
-
-        #region Method for load draft messages
-        private async void LoadDraftMessagesFromLocalStorage(object parameter)
-        {
-            string path = "DraftMessages.json";
-
-            _messageFolder = path;
-            _messages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(path);
-            UpdateMessageCollection();
-        }
-        #endregion
+        #endregion   
 
         #region Method for load messages from server
-        private async void LoadAllMessagesFromServer(object parameter)
-        {
-            await GetMessagesAsync();
-            UpdateMessageCollection();         
-        }
+        private async void LoadMessagesFromServer(object parameter) => await GetMessagesAsync();
 
         private async Task GetMessagesAsync()
         {
@@ -156,7 +107,7 @@ namespace PostClient.ViewModels
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
                 SendNotificationsAboutNewMessages(allMailMessages);
-                _messages = allMailMessages;
+                Messages = new ObservableCollection<MailMessage>(allMailMessages);
 
                 var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
 
@@ -215,7 +166,7 @@ namespace PostClient.ViewModels
         {
             foreach (var message in messages)
             {
-                if (!_messages.Contains(message))
+                if (!Messages.Contains(message))
                 {
                     new ToastContentBuilder()
                         .AddArgument("action", "viewConversation")
@@ -227,14 +178,6 @@ namespace PostClient.ViewModels
         }
 
         private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
-
-        private void UpdateMessageCollection()
-        {
-            Messages.Clear();
-
-            for (int i = 0; i < _messages.Count; i++)
-                Messages.Add(_messages[i]);
-        }
         #endregion
 
         #region Method for flag message
@@ -264,22 +207,14 @@ namespace PostClient.ViewModels
         #region Method for delete message
         private bool DeleteMessage(MailMessage message)
         {
-            _messages.Remove(message);
-
-            JSONSaverAndReaderHelper.Save(_messages, _messageFolder);
-
-            UpdateMessageCollection();
-
+            Messages.Remove(message);
+            JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
             return true;
         }
         #endregion
 
         #region Method for search message
-        private async void SearchMessage(object parameter)
-        {
-            _messages = (await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)).Where(m => m.Subject.ToLower().Contains(_searchText.ToLower()) || m.From.ToLower().Contains(_searchText.ToLower())).ToList();
-            UpdateMessageCollection();
-        }
+        private async void SearchMessage(object parameter) => Messages = new ObservableCollection<MailMessage>((await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)).Where(m => m.Subject.ToLower().Contains(_searchText.ToLower()) || m.From.ToLower().Contains(_searchText.ToLower())));
         #endregion
 
         #region Methods for sort messages 
@@ -288,16 +223,16 @@ namespace PostClient.ViewModels
             switch (parameter.ToString())
             {
                 case "newer":
-                    Messages = new ObservableCollection<MailMessage>(_messages.OrderByDescending(m => m.Date));
+                    Messages = new ObservableCollection<MailMessage>(Messages.OrderByDescending(m => m.Date));
                     break;
                 case "older":
-                    Messages = new ObservableCollection<MailMessage>(_messages.OrderBy(m => m.Date));
+                    Messages = new ObservableCollection<MailMessage>(Messages.OrderBy(m => m.Date));
                     break;
                 case "a-z":
-                    Messages = new ObservableCollection<MailMessage>(_messages.OrderBy(m => m.Subject));
+                    Messages = new ObservableCollection<MailMessage>(Messages.OrderBy(m => m.Subject));
                     break;
                 case "z-a":
-                    Messages = new ObservableCollection<MailMessage>(_messages.OrderByDescending(m => m.Subject));
+                    Messages = new ObservableCollection<MailMessage>(Messages.OrderByDescending(m => m.Subject));
                     break;
             }
         }
