@@ -100,7 +100,16 @@ namespace PostClient.ViewModels
 
             storyboard.Begin();
             storyboard.RepeatBehavior = RepeatBehavior.Forever;
-            Messages = await GetMessagesAsync();
+
+            try
+            {
+                Messages = await GetMessagesAsync();
+            }
+            catch (MailKit.Security.AuthenticationException exception)
+            {
+                MessageDialogShower.ShowMessageDialog(exception.Message);
+            }
+
             storyboard.Stop();
         }
 
@@ -108,12 +117,14 @@ namespace PostClient.ViewModels
         {
             ObservableCollection<MailMessage> messages = new ObservableCollection<MailMessage>();
             Account account = _getAccount();
+            var tempMessages = Messages;
+            Messages.Clear();
 
             await Task.Run(() =>
             {
                 var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
                 var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
-                var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All); ;
+                var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All);
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
                 SendNotificationsAboutNewMessages(allMailMessages);
