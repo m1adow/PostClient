@@ -93,16 +93,21 @@ namespace PostClient.ViewModels
             {
                 Email = this.Email,
                 Password = this.Password,
-                PostServiceName = GetServiceName()
+                PostServiceName = this.GetServiceName()
             };
-           
+
             _changeAccount(account);
             _loadMessages(parameter);
 
-            account.Password = EncryptionHelper.Encrypt(this.Password);
+            Account encryptedAccount = new Account
+            {
+                Email = this.Email,
+                Password = EncryptionHelper.Encrypt(this.Password),
+                PostServiceName = this.GetServiceName()
+            };
 
             if (IsRememberMeChecked)
-                JSONSaverAndReaderHelper.Save(account, "AccountCredentials.json");
+                JSONSaverAndReaderHelper.Save(encryptedAccount, "AccountCredentials.json");
 
             ClearFields();
             HideLoginControls(parameter);

@@ -7,7 +7,7 @@ namespace PostClient.ViewModels.Helpers
 {
     internal static class EncryptionHelper
     {
-        private static string _encryptionKey = "ko3wp5ba1wy19";
+        private static readonly string _encryptionKey = "ko3wp5ba1wy19";
 
         public static string Encrypt(string clearText)
         {
@@ -22,7 +22,6 @@ namespace PostClient.ViewModels.Helpers
                     using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
                     {
                         cs.Write(clearBytes, 0, clearBytes.Length);
-                        cs.Close();
                     }
                     clearText = Convert.ToBase64String(ms.ToArray());
                 }
@@ -45,7 +44,6 @@ namespace PostClient.ViewModels.Helpers
                     using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
                     {
                         cs.Write(cipherBytes, 0, cipherBytes.Length);
-                        cs.Close();
                     }
                     cipherText = Encoding.Unicode.GetString(ms.ToArray());
                 }

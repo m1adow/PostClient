@@ -107,11 +107,10 @@ namespace PostClient.ViewModels
         private async Task<ObservableCollection<MailMessage>> GetMessagesAsync()
         {
             ObservableCollection<MailMessage> messages = new ObservableCollection<MailMessage>();
+            Account account = _getAccount();
 
             await Task.Run(() =>
             {
-                Account account = _getAccount();
-
                 var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
                 var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
                 var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All); ;
@@ -141,10 +140,10 @@ namespace PostClient.ViewModels
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    mimeMessages = new GmailService(account).LoadMessages(specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new GmailService(account).LoadMessages(specialFolder, searchQuery);
                     break;
                 case nameof(OutlookService):
-                    mimeMessages = new OutlookService(account).LoadMessages(specialFolder, searchQuery, MessageDialogShower.ShowMessageDialog);
+                    mimeMessages = new OutlookService(account).LoadMessages(specialFolder, searchQuery);
                     break;
             }
 

@@ -118,6 +118,7 @@
                         Margin="5"
                         x:Uid="ButtonOK"
                         Command="{Binding LoginViewModel.LoginCommand}"
+                        CommandParameter="{Binding ElementName=StoryboardLoading}"
                         Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                 <Button Grid.Column="1"
                         Margin="5"

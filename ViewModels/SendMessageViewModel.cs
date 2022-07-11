@@ -131,10 +131,10 @@ namespace PostClient.ViewModels
             switch (_account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService(_account).SendMessage(message, MessageDialogShower.ShowMessageDialog);
+                    new GmailService(_account).SendMessage(message);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService(_account).SendMessage(message, MessageDialogShower.ShowMessageDialog);
+                    new OutlookService(_account).SendMessage(message);
                     break;
             }
 

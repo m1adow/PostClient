@@ -19,7 +19,7 @@ namespace PostClient.Models.Services
             this.Account = account;
         }
 
-        public void SendMessage(MimeMessage message, Action<string> exceptionHandler)
+        public void SendMessage(MimeMessage message)
         {
             SmtpClient client = new SmtpClient();
 
@@ -29,10 +29,6 @@ namespace PostClient.Models.Services
                 client.Authenticate(Account.Email, Account.Password);
                 client.Send(message);
             }
-            catch (Exception exception)
-            {
-                exceptionHandler(exception.Message);
-            }
             finally
             {
                 client.Disconnect(true);
@@ -40,7 +36,7 @@ namespace PostClient.Models.Services
             }
         }
 
-        public void DeleteMessage(MailMessage message, Action<string> exceptionHandler)
+        public void DeleteMessage(MailMessage message)
         {
             ImapClient client = new ImapClient();
 
@@ -49,10 +45,6 @@ namespace PostClient.Models.Services
                 EstablishConnection(client, Account, "imap.outlook.com");
                 DeleteSpecificMessage(client, message.Uid);
             }
-            catch (Exception exception)
-            {
-                exceptionHandler(exception.Message);
-            }
             finally
             {
                 client.Disconnect(true);
@@ -60,7 +52,7 @@ namespace PostClient.Models.Services
             }
         }
 
-        public void FlagMessage(MailMessage message, Action<string> exceptionHandler)
+        public void FlagMessage(MailMessage message)
         {
             ImapClient client = new ImapClient();
 
@@ -69,10 +61,6 @@ namespace PostClient.Models.Services
                 EstablishConnection(client, Account, "imap.outlook.com");
                 FlagSpecificMessage(client, message.Uid, message.IsFlagged);
             }
-            catch (Exception exception)
-            {
-                exceptionHandler(exception.Message);
-            }
             finally
             {
                 client.Disconnect(true);
@@ -80,7 +68,7 @@ namespace PostClient.Models.Services
             }
         }
 
-        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, Action<string> exceptionHandler)
+        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery)
         {
             ImapClient client = new ImapClient();
             Dictionary<UniqueId, MimeMessage> messages = new Dictionary<UniqueId, MimeMessage>();
@@ -89,10 +77,6 @@ namespace PostClient.Models.Services
             {
                 EstablishConnection(client, Account, "imap.outlook.com");
                 GetMessages(client, messages, specialFolder, searchQuery);
-            }
-            catch (Exception exception)
-            {
-                exceptionHandler(exception.Message);
             }
             finally
             {

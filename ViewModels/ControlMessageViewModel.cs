@@ -72,10 +72,10 @@ namespace PostClient.ViewModels
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService(account).FlagMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new GmailService(account).FlagMessage(SelectedMailMessage);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService(account).FlagMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new OutlookService(account).FlagMessage(SelectedMailMessage);
                     break;
             }
 
@@ -91,10 +91,10 @@ namespace PostClient.ViewModels
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService(account).DeleteMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new GmailService(account).DeleteMessage(SelectedMailMessage);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService(account).DeleteMessage(SelectedMailMessage, MessageDialogShower.ShowMessageDialog);
+                    new OutlookService(account).DeleteMessage(SelectedMailMessage);
                     break;
             }
 
