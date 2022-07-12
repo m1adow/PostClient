@@ -102,7 +102,7 @@ namespace PostClient.ViewModels
 
         private readonly Func<MailMessage, bool> _deleteDraft;
 
-        private Dictionary<string, byte[]> _files = new Dictionary<string, byte[]>();
+        private List<KeyValuePair<string, byte[]>> _files = new List<KeyValuePair<string, byte[]>>();
 
         public SendMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
         {
@@ -184,7 +184,7 @@ namespace PostClient.ViewModels
         private async void InsertFile(object parameter)
         {
             var file = await GetFileBytesAsync();
-            _files.Add(file.Key, file.Value);
+            _files.Add(file);
         }
 
         private async Task<KeyValuePair<string, byte[]>> GetFileBytesAsync()

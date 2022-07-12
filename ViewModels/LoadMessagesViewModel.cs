@@ -9,6 +9,7 @@ using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -178,11 +179,36 @@ namespace PostClient.ViewModels
                 Uid = mimeMessage.Key.Id,
                 Subject = mimeMessage.Value.Subject,
                 Body = mimeMessage.Value.HtmlBody ?? "",
+                Attachments = ConvertMimeAttachmentsToMailMessageAttachments(mimeMessage.Value.Attachments),
                 From = mimeMessage.Value.From[0].Name,
                 Date = mimeMessage.Value.Date
             };
 
             return message;
+        }
+
+        private List<KeyValuePair<string, byte[]>> ConvertMimeAttachmentsToMailMessageAttachments(IEnumerable<MimeEntity> attachments)
+        {
+            List<KeyValuePair<string, byte[]>> mailAttachments = new List<KeyValuePair<string, byte[]>>();
+
+            foreach (var attachment in attachments)
+            {
+                string fileName = attachment.ContentDisposition.FileName;               
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    if (attachment is MimePart part)
+                        part.Content.DecodeTo(memoryStream);
+                    else
+                        ((MessagePart)attachment).Message.WriteTo(memoryStream);
+
+                    byte[] file = memoryStream.ToArray();
+
+                    mailAttachments.Add(new KeyValuePair<string, byte[]>(fileName, file));
+                }
+            }
+
+            return mailAttachments;
         }
 
         private void SendNotificationsAboutNewMessages(List<MailMessage> messages)

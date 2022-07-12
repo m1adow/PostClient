@@ -1,18 +1,11 @@
-﻿using PostClient.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -26,14 +19,24 @@ namespace PostClient.Views.Controls
             set => SetValue(MessageBodyProperty, value);
         }
 
+        public static readonly DependencyProperty MessageBodyProperty =
+            DependencyProperty.Register(nameof(MessageBody), typeof(string), typeof(MessageBodyControl), new PropertyMetadata(null, SetText));
+
+
+        public List<KeyValuePair<string, byte[]>> Attachments
+        {
+            get => (List<KeyValuePair<string, byte[]>>)GetValue(AttachmentsProperty);
+            set => SetValue(AttachmentsProperty, value);
+        }
+
+        public static readonly DependencyProperty AttachmentsProperty =
+            DependencyProperty.Register(nameof(Attachments), typeof(List<KeyValuePair<string, byte[]>>), typeof(MessageBodyControl), new PropertyMetadata(null, AddAttachments));
+
         public MessageBodyControl()
         {
             this.InitializeComponent();
         }
-
-        public static readonly DependencyProperty MessageBodyProperty =
-            DependencyProperty.Register("MessageBody", typeof(string), typeof(MessageBodyControl), new PropertyMetadata(null, SetText));
-
+    
         private static void SetText(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MessageBodyControl control = d as MessageBodyControl;
@@ -41,6 +44,50 @@ namespace PostClient.Views.Controls
             string messageBody = e.NewValue as string ?? string.Empty;
 
             control.webView.NavigateToString(messageBody);
+        }
+
+        private static void AddAttachments(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MessageBodyControl control = d as MessageBodyControl;
+
+            var attachments = (e.NewValue as List<KeyValuePair<string, byte[]>>) ?? new List<KeyValuePair<string, byte[]>>();
+
+            control.attachmentsComboBox.Items.Clear();
+
+            if (attachments.Count == 0)
+                control.attachmentsComboBox.Visibility = Visibility.Collapsed;
+            else
+            {
+                control.attachmentsComboBox.Visibility = Visibility.Visible;
+                control.attachmentsComboBox.Items.Add("None");
+
+                foreach (var attachment in attachments)
+                {
+                    control.attachmentsComboBox.Items.Add(attachment.Key);
+                }
+            }
+        }
+
+        private async void AttachmentsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string fileName = (sender as ComboBox).SelectedItem.ToString();
+            
+            if (fileName != "None")
+            {
+                byte[] attachment = Attachments.FirstOrDefault(a => a.Key == fileName).Value;
+
+                StorageFolder storageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("Attachments", CreationCollisionOption.ReplaceExisting);
+                StorageFile file = await storageFolder.CreateFileAsync(fileName,
+                        CreationCollisionOption.ReplaceExisting);
+
+                await FileIO.WriteBytesAsync(file, attachment);
+
+                await Launcher.LaunchFileAsync(file);
+            }
+            else
+            {
+
+            }
         }
     }
 }

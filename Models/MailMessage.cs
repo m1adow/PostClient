@@ -9,7 +9,7 @@ namespace PostClient.Models
         public string Name { get; set; }
         public string Subject { get; set; }
         public string Body { get; set; }
-        public Dictionary<string, byte[]> Attachments { get; set; }
+        public List<KeyValuePair<string, byte[]>> Attachments { get; set; }
         public string From { get; set; }
         public string To { get; set; }
         public bool IsFlagged { get; set; }
@@ -22,7 +22,7 @@ namespace PostClient.Models
             Name = String.Empty;
             Subject = String.Empty;
             Body = String.Empty;
-            Attachments = new Dictionary<string, byte[]>();
+            Attachments = new List<KeyValuePair<string, byte[]>>();
             From = String.Empty;
             To = String.Empty;
             IsFlagged = false;  

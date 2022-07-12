@@ -224,6 +224,7 @@
                         Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"/>
             </Grid>
             <uc:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.SelectedMailMessage.Body}"
+                                   Attachments="{Binding ControlMessageViewModel.SelectedMailMessage.Attachments}"
                                    Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"
                                    Grid.Row="1"
                                    Margin="10"/>

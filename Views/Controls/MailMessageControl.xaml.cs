@@ -14,11 +14,17 @@ namespace PostClient.Views.Controls
             set => SetValue(SubjectProperty, value);
         }
 
+        public static readonly DependencyProperty SubjectProperty =
+            DependencyProperty.Register(nameof(Subject), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnSubjectDependencyPropertyChanged));
+
         public DateTimeOffset Date
         {
             get => (DateTimeOffset)GetValue(DateProperty);
             set => SetValue(DateProperty, value);
         }
+
+        public static readonly DependencyProperty DateProperty =
+            DependencyProperty.Register(nameof(Date), typeof(DateTimeOffset), typeof(MailMessageControl), new PropertyMetadata(null, OnDateDependencyPropertyChanged));
 
         public string From
         {
@@ -26,31 +32,33 @@ namespace PostClient.Views.Controls
             set => SetValue(FromProperty, value);
         }
 
+        public static readonly DependencyProperty FromProperty =
+            DependencyProperty.Register(nameof(From), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnFromDependencyPropertyChanged));
+
         public MailMessageControl()
         {
             this.InitializeComponent();
         }
 
-        public static readonly DependencyProperty SubjectProperty =
-            DependencyProperty.Register(nameof(Subject), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnDependencyPropertyChanged));
-        
-        public static readonly DependencyProperty DateProperty =
-            DependencyProperty.Register(nameof(Date), typeof(DateTimeOffset), typeof(MailMessageControl), new PropertyMetadata(null, OnDependencyPropertyChanged));      
-        
-        public static readonly DependencyProperty FromProperty =
-            DependencyProperty.Register(nameof(From), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnDependencyPropertyChanged));
-
-        private static void OnDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnSubjectDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MailMessageControl control = d as MailMessageControl;
 
-            if (control.subjectTextBlock.Text == string.Empty)
-                control.subjectTextBlock.Text = e.NewValue as string;
+            control.subjectTextBlock.Text = (e.NewValue as string) ?? string.Empty;
+        }
 
-            if (e.NewValue.GetType() != typeof(string))
-                control.dateTextBlock.Text = ((DateTimeOffset)e.NewValue).ToString();
+        private static void OnDateDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MailMessageControl control = d as MailMessageControl;
+
+            control.dateTextBlock.Text = (((DateTimeOffset)e.NewValue).ToString()) ?? new DateTimeOffset().ToString();
+        }
+
+        private static void OnFromDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MailMessageControl control = d as MailMessageControl;
 
             control.fromTextBlock.Text = (e.NewValue as string) ?? string.Empty;
-        } 
+        }
     }
 }
