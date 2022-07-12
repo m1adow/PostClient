@@ -190,7 +190,9 @@
                 </ineractivity:Interaction.Behaviors>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <uc:MailMessageControl MailMessage="{Binding}"/>
+                        <uc:MailMessageControl Subject="{Binding Subject}"
+                                               Date="{Binding Date}"
+                                               From="{Binding From}"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
