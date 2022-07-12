@@ -13,6 +13,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace PostClient.ViewModels
 {
@@ -142,7 +143,7 @@ namespace PostClient.ViewModels
                 _deleteDraft(_selectedMessage);
 
             MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
-            ClearFields();
+            ClearFields(parameter as ComboBox);
             SendMessageControlsVisibility = Visibility.Collapsed;
             _files.Clear();
         }
@@ -168,12 +169,13 @@ namespace PostClient.ViewModels
             return message;
         }
 
-        private void ClearFields()
+        private void ClearFields(ComboBox comboBox)
         {
             MessageReciever = string.Empty;
             MessageName = "New message";
             MessageSubject = "It's my beautiful post app";
             MessageBody = "Hi world!";
+            comboBox.Items.Clear();
         }
 
         private bool IsSendMessageFieldsFilled(object parameter) => MessageReciever.Length > 0;
@@ -185,6 +187,9 @@ namespace PostClient.ViewModels
         {
             var file = await GetFileBytesAsync();
             _files.Add(file);
+
+            ComboBox filesComboBox = parameter as ComboBox;
+            filesComboBox.Items.Add(file.Key);
         }
 
         private async Task<KeyValuePair<string, byte[]>> GetFileBytesAsync()
@@ -228,7 +233,7 @@ namespace PostClient.ViewModels
             });
 
             JSONSaverAndReaderHelper.Save(draftMessages, "DraftMessages.json");
-            ClearFields();
+            ClearFields(parameter as ComboBox);
         }
         #endregion
 
@@ -236,7 +241,7 @@ namespace PostClient.ViewModels
         private void CancelSendingMessage(object parameter)
         {
             SendMessageControlsVisibility = Visibility.Collapsed;
-            ClearFields();
+            ClearFields(parameter as ComboBox);
         }
         #endregion
 
