@@ -10,7 +10,7 @@
     xmlns:vm="using:PostClient.ViewModels"
     xmlns:uc="using:PostClient.Views.Controls"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="#67595E">
     <Page.Resources>
         <vm:PostClientViewModel x:Key="viewModel"/>
         <Storyboard x:Name="StoryboardLoading">
@@ -181,7 +181,6 @@
                       Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       Grid.Row="1"
-                      Background="BlueViolet"
                       SelectedValue="{Binding ControlMessageViewModel.SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <ineractivity:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="SelectionChanged">
@@ -203,7 +202,7 @@
                 <RowDefinition Height="10*"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0"
-                  Background="BlueViolet">
+                  Background="#A49393">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>

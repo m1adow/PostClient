@@ -2,7 +2,8 @@
     x:Class="PostClient.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:PostClient">
+    xmlns:local="using:PostClient"
+    xmlns:uc="using:PostClient.Views.Controls">
     <Application.Resources>
         <Style TargetType="Button">
             <Setter Property="Margin" Value="5,10,0,5"/>
@@ -10,7 +11,15 @@
             <Setter Property="Width" Value="150"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Background" Value="Purple"/>
+            <Setter Property="Background" Value="#E8B4B8"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="CornerRadius" Value="15"/>
+        </Style>
+        <Style TargetType="ListView">
+            <Setter Property="Background" Value="#EED6D3"/>
+        </Style>
+        <Style TargetType="uc:MailMessageControl">
+            <Setter Property="Foreground" Value="Black"/> 
         </Style>
     </Application.Resources>
 </Application>
