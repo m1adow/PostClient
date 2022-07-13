@@ -5,6 +5,7 @@ using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -145,7 +146,6 @@ namespace PostClient.ViewModels
             MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
             ClearFields(parameter as ComboBox);
             SendMessageControlsVisibility = Visibility.Collapsed;
-            _files.Clear();
         }
 
         private MimeMessage CreateMessage()
@@ -175,6 +175,7 @@ namespace PostClient.ViewModels
             MessageName = "New message";
             MessageSubject = "It's my beautiful post app";
             MessageBody = "Hi world!";
+            _files.Clear();
             comboBox.Items.Clear();
         }
 
@@ -185,16 +186,17 @@ namespace PostClient.ViewModels
 
         private async void InsertFile(object parameter)
         {
-            var file = await GetFileBytesAsync();
-            _files.Add(file);
+            var files = await GetFileBytesAsync();
+            _files = _files.Union(files).ToList();
 
             ComboBox filesComboBox = parameter as ComboBox;
-            filesComboBox.Items.Add(file.Key);
+            filesComboBox.Items.Clear();
+            _files.ForEach(f => filesComboBox.Items.Add(f.Key));
         }
 
-        private async Task<KeyValuePair<string, byte[]>> GetFileBytesAsync()
+        private async Task<List<KeyValuePair<string, byte[]>>> GetFileBytesAsync()
         {
-            KeyValuePair<string, byte[]> bytes = new KeyValuePair<string, byte[]>();
+            List<KeyValuePair<string, byte[]>> bytes = new List<KeyValuePair<string, byte[]>>();
 
             FileOpenPicker openPicker = new FileOpenPicker();
             openPicker.ViewMode = PickerViewMode.Thumbnail;
@@ -204,12 +206,15 @@ namespace PostClient.ViewModels
             openPicker.FileTypeFilter.Add(".jpg");
             openPicker.FileTypeFilter.Add(".jpeg");
 
-            StorageFile file = await openPicker.PickSingleFileAsync();
+            var files = await openPicker.PickMultipleFilesAsync();
 
-            if (file != null)
+            if (files != null)
             {
-                IBuffer buffer = await FileIO.ReadBufferAsync(file);
-                bytes = new KeyValuePair<string, byte[]>(file.Name, WindowsRuntimeBufferExtensions.ToArray(buffer));
+                foreach (var file in files)
+                {
+                    IBuffer buffer = await FileIO.ReadBufferAsync(file);
+                    bytes.Add(new KeyValuePair<string, byte[]>(file.Name, WindowsRuntimeBufferExtensions.ToArray(buffer)));
+                }
             }
 
             return bytes;
