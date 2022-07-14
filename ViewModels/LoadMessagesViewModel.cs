@@ -123,11 +123,11 @@ namespace PostClient.ViewModels
             var tempMessages = Messages;
             Messages?.Clear();
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
-                var allMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.All);
-                var flaggedMimeMessages = GetMimeMessages(account, SpecialFolder.All, SearchQuery.Flagged);
-                var sentMimeMessages = GetMimeMessages(account, SpecialFolder.Sent, SearchQuery.All);
+                var allMimeMessages = await GetMimeMessagesAsync(account, SpecialFolder.All, SearchQuery.All);
+                var flaggedMimeMessages = await GetMimeMessagesAsync(account, SpecialFolder.All, SearchQuery.Flagged);
+                var sentMimeMessages = await GetMimeMessagesAsync(account, SpecialFolder.Sent, SearchQuery.All);
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
                 SendNotificationsAboutNewMessages(allMailMessages);
@@ -147,17 +147,17 @@ namespace PostClient.ViewModels
             return messages;
         }
 
-        private Dictionary<UniqueId, MimeMessage> GetMimeMessages(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
+        private async Task<Dictionary<UniqueId, MimeMessage>> GetMimeMessagesAsync(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
         {
             Dictionary<UniqueId, MimeMessage> mimeMessages = new Dictionary<UniqueId, MimeMessage>();
 
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    mimeMessages = new GmailService(account).LoadMessages(specialFolder, searchQuery);
+                    mimeMessages = await new GmailService(account).LoadMessages(specialFolder, searchQuery);
                     break;
                 case nameof(OutlookService):
-                    mimeMessages = new OutlookService(account).LoadMessages(specialFolder, searchQuery);
+                    mimeMessages = await new OutlookService(account).LoadMessages(specialFolder, searchQuery);
                     break;
             }
 

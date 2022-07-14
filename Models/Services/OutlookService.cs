@@ -7,6 +7,7 @@ using MimeKit;
 using PostClient.Models.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PostClient.Models.Services
 {
@@ -19,68 +20,71 @@ namespace PostClient.Models.Services
             this.Account = account;
         }
 
-        public void SendMessage(MimeMessage message)
+        public async Task SendMessage(MimeMessage message)
         {
             SmtpClient client = new SmtpClient();
 
             try
             {
-                client.Connect("smtp.outlook.com", 587, SecureSocketOptions.StartTls);
-                client.Authenticate(Account.Email, Account.Password);
-                client.Send(message);
+                await Task.Run(() =>
+                {
+                    client.Connect("smtp.outlook.com", 587, SecureSocketOptions.StartTls);
+                    client.Authenticate(Account.Email, Account.Password);
+                    client.Send(message);
+                });
             }
             finally
             {
-                client.Disconnect(true);
+                await client.DisconnectAsync(true);
                 client.Dispose();
             }
         }
 
-        public void DeleteMessage(MailMessage message)
+        public async void DeleteMessage(MailMessage message)
         {
             ImapClient client = new ImapClient();
 
             try
             {
-                EstablishConnection(client, Account, "imap.outlook.com");
-                DeleteSpecificMessage(client, message.Uid);
+                await EstablishConnectionAsync(client, Account, "imap.outlook.com");
+                await DeleteSpecificMessage(client, message.Uid);
             }
             finally
             {
-                client.Disconnect(true);
+                await client.DisconnectAsync(true);
                 client.Dispose();
             }
         }
 
-        public void FlagMessage(MailMessage message)
+        public async void FlagMessage(MailMessage message)
         {
             ImapClient client = new ImapClient();
 
             try
             {
-                EstablishConnection(client, Account, "imap.outlook.com");
-                FlagSpecificMessage(client, message.Uid, message.IsFlagged);
+                await EstablishConnectionAsync(client, Account, "imap.outlook.com");
+                await FlagSpecificMessage(client, message.Uid, message.IsFlagged);
             }
             finally
             {
-                client.Disconnect(true);
+                await client.DisconnectAsync(true);
                 client.Dispose();
             }
         }
 
-        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery)
+        public async Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery)
         {
             ImapClient client = new ImapClient();
             Dictionary<UniqueId, MimeMessage> messages = new Dictionary<UniqueId, MimeMessage>();
 
             try
             {
-                EstablishConnection(client, Account, "imap.outlook.com");
-                GetMessages(client, messages, specialFolder, searchQuery);
+                await EstablishConnectionAsync(client, Account, "imap.outlook.com");
+                await GetMessagesAsync(client, messages, specialFolder, searchQuery);
             }
             finally
             {
-                client.Disconnect(true);
+                await client.DisconnectAsync(true);
                 client.Dispose();
             }
 
