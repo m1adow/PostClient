@@ -3,15 +3,17 @@ using System.Collections.Generic;
 
 namespace PostClient.Models
 {
+    #nullable enable
+
     internal sealed class MailMessage
     {
         public uint Uid { get; set; }
-        public string Name { get; set; }
-        public string Subject { get; set; }
-        public string Body { get; set; }
-        public List<KeyValuePair<string, byte[]>> Attachments { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
+        public string? Name { get; set; }
+        public string? Subject { get; set; }
+        public string? Body { get; set; }
+        public List<KeyValuePair<string, byte[]>>? Attachments { get; set; }
+        public string? From { get; set; }
+        public string? To { get; set; }
         public bool IsFlagged { get; set; }
         public bool IsDraft { get; set; }
         public DateTimeOffset Date { get; set; }
@@ -30,7 +32,7 @@ namespace PostClient.Models
             Date = DateTimeOffset.Now;
         }
 
-        public override bool Equals(object obj) => this.Uid == (obj as MailMessage).Uid;
+        public override bool Equals(object obj) => this.Uid == (obj as MailMessage)?.Uid;
 
         public override int GetHashCode() => base.GetHashCode();
     }

@@ -6,9 +6,11 @@ using Windows.UI.Xaml.Controls;
 
 namespace PostClient.Views.Controls
 {
+    #nullable enable
+
     internal sealed partial class MailMessageControl : UserControl
     {
-        public string Subject
+        public string? Subject
         {
             get => (string)GetValue(SubjectProperty);
             set => SetValue(SubjectProperty, value);
@@ -26,7 +28,7 @@ namespace PostClient.Views.Controls
         public static readonly DependencyProperty DateProperty =
             DependencyProperty.Register(nameof(Date), typeof(DateTimeOffset), typeof(MailMessageControl), new PropertyMetadata(null, OnDateDependencyPropertyChanged));
 
-        public string From
+        public string? From
         {
             get => (string)GetValue(FromProperty);
             set => SetValue(FromProperty, value);
@@ -42,21 +44,21 @@ namespace PostClient.Views.Controls
 
         private static void OnSubjectDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MailMessageControl control = d as MailMessageControl;
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
 
             control.subjectTextBlock.Text = (e.NewValue as string) ?? string.Empty;
         }
 
         private static void OnDateDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MailMessageControl control = d as MailMessageControl;
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
 
             control.dateTextBlock.Text = (((DateTimeOffset)e.NewValue).ToString()) ?? new DateTimeOffset().ToString();
         }
 
         private static void OnFromDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MailMessageControl control = d as MailMessageControl;
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
 
             control.fromTextBlock.Text = (e.NewValue as string) ?? string.Empty;
         }

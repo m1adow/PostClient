@@ -8,19 +8,21 @@ using Windows.UI.Xaml;
 
 namespace PostClient.ViewModels
 {
+    #nullable enable
+
     internal sealed class LoginViewModel : ViewModelBase
     {
-        private Visibility _managmentButtonsVisibility = Visibility.Visible;
+        private Visibility? _managmentButtonsVisibility = Visibility.Visible;
 
-        public Visibility ManagmentButtonsVisibility
+        public Visibility? ManagmentButtonsVisibility
         {
             get => _managmentButtonsVisibility;
             set => Set(ref _managmentButtonsVisibility, value);
         }
 
-        private Visibility _loginControlsVisibility = Visibility.Collapsed;
+        private Visibility? _loginControlsVisibility = Visibility.Collapsed;
 
-        public Visibility LoginControlsVisibility
+        public Visibility? LoginControlsVisibility
         {
             get => _loginControlsVisibility;
             set => Set(ref _loginControlsVisibility, value);
@@ -34,17 +36,17 @@ namespace PostClient.ViewModels
             set => Set(ref _isRememberMeChecked, value);
         }
 
-        private string _email = string.Empty;
+        private string? _email = string.Empty;
 
-        public string Email
+        public string? Email
         {
             get => _email;
             set => Set(ref _email, value, new ICommand[] { LoginCommand });
         }
 
-        private string _password = string.Empty;
+        private string? _password = string.Empty;
 
-        public string Password
+        public string? Password
         {
             get => _password;
             set => Set(ref _password, value, new ICommand[] { LoginCommand });
@@ -111,7 +113,7 @@ namespace PostClient.ViewModels
 
             ClearFields();
             HideLoginControls(parameter);
-            (LoginCommand as RelayCommand).OnExecuteChanged(); //for disabling login button on second time
+            (LoginCommand as RelayCommand)?.OnExecuteChanged(); //for disabling login button on second time
         }
 
         private string GetServiceName()
@@ -128,7 +130,7 @@ namespace PostClient.ViewModels
             Password = string.Empty;
         }
 
-        private bool IsLoginFieldsFilled(object parameter) => Email.Length > 0 && Password.Length > 0 && (IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked);
+        private bool IsLoginFieldsFilled(object parameter) => Email?.Length > 0 && Password?.Length > 0 && (IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked);
         #endregion       
 
         #region Showing login controls

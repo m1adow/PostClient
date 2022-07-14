@@ -18,59 +18,61 @@ using Windows.UI.Xaml.Controls;
 
 namespace PostClient.ViewModels
 {
+    #nullable enable
+
     internal sealed class SendMessageViewModel : ViewModelBase
     {
-        private string _messageSender = string.Empty;
+        private string? _messageSender = string.Empty;
 
-        public string MessageSender
+        public string? MessageSender
         {
             get => _messageSender;
             private set => Set(ref _messageSender, value);
         }
 
-        private string _messageReciever = string.Empty;
+        private string? _messageReciever = string.Empty;
 
-        public string MessageReciever
+        public string? MessageReciever
         {
             get => _messageReciever;
             set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand, DraftMessageCommand });
         }
 
-        private string _messageName = "Username";
+        private string? _messageName = "Username";
 
-        public string MessageName
+        public string? MessageName
         {
             get => _messageName;
             set => Set(ref _messageName, value);
         }
 
-        private string _messageSubject = "It's my beautiful post app";
+        private string? _messageSubject = "It's my beautiful post app";
 
-        public string MessageSubject
+        public string? MessageSubject
         {
             get => _messageSubject;
             set => Set(ref _messageSubject, value);
         }
 
-        private string _messageBody = "Hi world!";
+        private string? _messageBody = "Hi world!";
 
-        public string MessageBody
+        public string? MessageBody
         {
             get => _messageBody;
             set => Set(ref _messageBody, value);
         }
 
-        private string _selectedText = string.Empty;
+        private string? _selectedText = string.Empty;
 
-        public string SelectedText
+        public string? SelectedText
         {
             get => _selectedText;
             set => Set(ref _selectedText, value);
         }
 
-        private Visibility _sendMessageControlsVisibility = Visibility.Collapsed;
+        private Visibility? _sendMessageControlsVisibility = Visibility.Collapsed;
 
-        public Visibility SendMessageControlsVisibility
+        public Visibility? SendMessageControlsVisibility
         {
             get => _sendMessageControlsVisibility;
             set => Set(ref _sendMessageControlsVisibility, value);
@@ -96,15 +98,15 @@ namespace PostClient.ViewModels
 
         public Func<Visibility, MailMessage, bool> ChangeSendMessageControlsVisibilityAndFillFieldsFunc { get; }
 
-        private Account _account = new Account();
+        private Account? _account = new Account();
 
-        private MailMessage _selectedMessage = new MailMessage();
+        private MailMessage? _selectedMessage = new MailMessage();
 
         private readonly Func<Account> _getAccount;
 
         private readonly Func<MailMessage, bool> _deleteDraft;
 
-        private List<KeyValuePair<string, byte[]>> _files = new List<KeyValuePair<string, byte[]>>();
+        private List<KeyValuePair<string, byte[]>>? _files = new List<KeyValuePair<string, byte[]>>();
 
         public SendMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
         {
@@ -130,7 +132,7 @@ namespace PostClient.ViewModels
         {
             MimeMessage message = CreateMessage();
 
-            switch (_account.PostServiceName)
+            switch (_account?.PostServiceName)
             {
                 case nameof(GmailService):
                     new GmailService(_account).SendMessage(message);
@@ -144,7 +146,7 @@ namespace PostClient.ViewModels
                 _deleteDraft(_selectedMessage);
 
             MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
-            ClearFields(parameter as ComboBox);
+            ClearFields((parameter as ComboBox) ?? new ComboBox());
             SendMessageControlsVisibility = Visibility.Collapsed;
         }
 
@@ -152,7 +154,7 @@ namespace PostClient.ViewModels
         {
             MimeMessage message = new MimeMessage();
 
-            message.From.Add(new MailboxAddress(MessageName, _account.Email));
+            message.From.Add(new MailboxAddress(MessageName, _account?.Email));
             message.To.Add(MailboxAddress.Parse(MessageReciever));
             message.Subject = MessageSubject;
 
@@ -160,7 +162,7 @@ namespace PostClient.ViewModels
 
             builder.HtmlBody = MessageBody;
 
-            if (_files.Count > 0)
+            if (_files?.Count > 0)
                 foreach (var file in _files)
                     builder.Attachments.Add(file.Key, file.Value);
 
@@ -175,7 +177,7 @@ namespace PostClient.ViewModels
             MessageName = "New message";
             MessageSubject = "It's my beautiful post app";
             MessageBody = "Hi world!";
-            _files.Clear();
+            _files?.Clear();
             comboBox.Items.Clear();
         }
 
@@ -189,18 +191,21 @@ namespace PostClient.ViewModels
             var files = await GetFileBytesAsync();
             _files = _files.Union(files).ToList();
 
-            ComboBox filesComboBox = parameter as ComboBox;
+            ComboBox? filesComboBox = (parameter as ComboBox) ?? new ComboBox();
             filesComboBox.Items.Clear();
             _files.ForEach(f => filesComboBox.Items.Add(f.Key));
         }
 
         private async Task<List<KeyValuePair<string, byte[]>>> GetFileBytesAsync()
         {
-            List<KeyValuePair<string, byte[]>> bytes = new List<KeyValuePair<string, byte[]>>();
+            var bytes = new List<KeyValuePair<string, byte[]>>();
 
-            FileOpenPicker openPicker = new FileOpenPicker();
-            openPicker.ViewMode = PickerViewMode.Thumbnail;
-            openPicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            FileOpenPicker openPicker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary
+            };
+
             openPicker.FileTypeFilter.Add(".txt");
             openPicker.FileTypeFilter.Add(".png");
             openPicker.FileTypeFilter.Add(".jpg");
@@ -232,13 +237,13 @@ namespace PostClient.ViewModels
                 Subject = MessageSubject,
                 Body = MessageBody,
                 Attachments = _files,
-                From = _account.Email,
+                From = _account?.Email,
                 To = MessageReciever,
                 IsDraft = true
             });
 
             JSONSaverAndReaderHelper.Save(draftMessages, "DraftMessages.json");
-            ClearFields(parameter as ComboBox);
+            ClearFields((parameter as ComboBox) ?? new ComboBox());
         }
         #endregion
 
@@ -246,7 +251,7 @@ namespace PostClient.ViewModels
         private void CancelSendingMessage(object parameter)
         {
             SendMessageControlsVisibility = Visibility.Collapsed;
-            ClearFields(parameter as ComboBox);
+            ClearFields((parameter as ComboBox) ?? new ComboBox());
         }
         #endregion
 

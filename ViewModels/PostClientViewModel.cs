@@ -5,6 +5,8 @@ using System.Windows.Input;
 
 namespace PostClient.ViewModels
 {
+#nullable enable
+
     internal sealed class PostClientViewModel : ViewModelBase
     {
         public ICommand LoadedHandlerCommand { get; }
@@ -17,7 +19,7 @@ namespace PostClient.ViewModels
 
         public ControlMessageViewModel ControlMessageViewModel { get; }
 
-        private Account _account = new Account();
+        private Account? _account;
 
         public PostClientViewModel()
         {
@@ -31,7 +33,7 @@ namespace PostClient.ViewModels
 
         private Account GetAccount()
         {
-            if (_account.Email == null && _account.Password == null && _account.PostServiceName == null)
+            if (_account == null)
                 LoadAccount();
 
             return _account;

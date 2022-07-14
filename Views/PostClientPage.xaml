@@ -15,9 +15,9 @@
         <vm:PostClientViewModel x:Key="viewModel"/>
         <Storyboard x:Name="StoryboardLoading">
             <ColorAnimationUsingKeyFrames Storyboard.TargetName="listViewMessages" Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)">
-                <EasingColorKeyFrame KeyTime="00:00:00" Value="#FF8400FF"/>
-                <EasingColorKeyFrame KeyTime="00:00:01" Value="#FFFF00DE"/>
-                <EasingColorKeyFrame KeyTime="00:00:02" Value="#FF8400FF"/>
+                <EasingColorKeyFrame KeyTime="00:00:00" Value="#EED6D3"/>
+                <EasingColorKeyFrame KeyTime="00:00:01" Value="#E8B4B8"/>
+                <EasingColorKeyFrame KeyTime="00:00:02" Value="#EED6D3"/>
             </ColorAnimationUsingKeyFrames>
         </Storyboard>
     </Page.Resources>

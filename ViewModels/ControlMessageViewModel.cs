@@ -1,6 +1,5 @@
 ﻿using PostClient.Models;
 using PostClient.Models.Services;
-using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Threading.Tasks;
@@ -9,11 +8,13 @@ using Windows.UI.Xaml;
 
 namespace PostClient.ViewModels
 {
-    internal sealed class ControlMessageViewModel : ViewModelBase
-    {
-        private MailMessage _selectedMailMessage = new MailMessage();
+    #nullable enable
 
-        public MailMessage SelectedMailMessage
+    internal sealed class ControlMessageViewModel : ViewModelBase
+    {       
+        private MailMessage? _selectedMailMessage = new MailMessage();
+
+        public MailMessage? SelectedMailMessage
         {
             get => _selectedMailMessage;
             set
@@ -30,9 +31,9 @@ namespace PostClient.ViewModels
             }
         }
 
-        private Visibility _messageViewConrtolVisibility = Visibility.Collapsed;
+        private Visibility? _messageViewConrtolVisibility = Visibility.Collapsed;
 
-        public Visibility MessageViewConrtolVisibility
+        public Visibility? MessageViewConrtolVisibility
         {
             get => _messageViewConrtolVisibility;
             set => Set(ref _messageViewConrtolVisibility, value);
@@ -67,7 +68,7 @@ namespace PostClient.ViewModels
         #region Flag message
         private void FlagMessage(object parameter)
         {
-            Account account = _getAccount();
+            Account? account = _getAccount();
 
             switch (account.PostServiceName)
             {
@@ -86,7 +87,7 @@ namespace PostClient.ViewModels
         #region Delete message
         private void DeleteMessage(object parameter)
         {
-            Account account = _getAccount();
+            Account? account = _getAccount();
 
             switch (account.PostServiceName)
             {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Windows.Storage;
 using Windows.System;
@@ -11,9 +10,11 @@ using Windows.UI.Xaml.Controls;
 
 namespace PostClient.Views.Controls
 {
+    #nullable enable
+
     internal sealed partial class MessageBodyControl : UserControl
     {
-        public string MessageBody
+        public string? MessageBody
         {
             get => (string)GetValue(MessageBodyProperty);
             set => SetValue(MessageBodyProperty, value);
@@ -23,7 +24,7 @@ namespace PostClient.Views.Controls
             DependencyProperty.Register(nameof(MessageBody), typeof(string), typeof(MessageBodyControl), new PropertyMetadata(null, SetText));
 
 
-        public List<KeyValuePair<string, byte[]>> Attachments
+        public List<KeyValuePair<string, byte[]>>? Attachments
         {
             get => (List<KeyValuePair<string, byte[]>>)GetValue(AttachmentsProperty);
             set => SetValue(AttachmentsProperty, value);
@@ -39,16 +40,16 @@ namespace PostClient.Views.Controls
     
         private static void SetText(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MessageBodyControl control = d as MessageBodyControl;
+            MessageBodyControl? control = d as MessageBodyControl;
 
             string messageBody = e.NewValue as string ?? string.Empty;
 
-            control.webView.NavigateToString(messageBody);
+            control?.webView.NavigateToString(messageBody);
         }
 
         private static void AddAttachments(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MessageBodyControl control = d as MessageBodyControl;
+            MessageBodyControl? control = (d as MessageBodyControl) ?? new MessageBodyControl();
 
             var attachments = (e.NewValue as List<KeyValuePair<string, byte[]>>) ?? new List<KeyValuePair<string, byte[]>>();
 
@@ -62,17 +63,15 @@ namespace PostClient.Views.Controls
                 control.attachmentsComboBox.Items.Add("None");
 
                 foreach (var attachment in attachments)
-                {
                     control.attachmentsComboBox.Items.Add(attachment.Key);
-                }
             }
         }
 
         private async void AttachmentsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string fileName = (sender as ComboBox).SelectedItem.ToString();
+            string? fileName = (sender as ComboBox)?.SelectedItem?.ToString();
             
-            if (fileName != "None")
+            if (fileName != "None" && fileName != null)
             {
                 byte[] attachment = Attachments.FirstOrDefault(a => a.Key == fileName).Value;
 
@@ -83,10 +82,6 @@ namespace PostClient.Views.Controls
                 await FileIO.WriteBytesAsync(file, attachment);
 
                 await Launcher.LaunchFileAsync(file);
-            }
-            else
-            {
-
             }
         }
     }

@@ -18,19 +18,21 @@ using Windows.UI.Xaml.Media.Animation;
 
 namespace PostClient.ViewModels
 {
+    #nullable enable
+
     internal sealed class LoadMessagesViewModel : ViewModelBase
     {
-        private ObservableCollection<MailMessage> _messages = new ObservableCollection<MailMessage>();
+        private ObservableCollection<MailMessage>? _messages = new ObservableCollection<MailMessage>();
 
-        public ObservableCollection<MailMessage> Messages
+        public ObservableCollection<MailMessage>? Messages
         {
             get => _messages;
             set => Set(ref _messages, value);
         }
 
-        private string _searchText = string.Empty;
+        private string? _searchText = string.Empty;
 
-        public string SearchText
+        public string? SearchText
         {
             get => _searchText;
             set => Set(ref _searchText, value);
@@ -56,7 +58,7 @@ namespace PostClient.ViewModels
 
         private string _messageFolder = string.Empty;
 
-        private DispatcherTimer _dispatcherTimer;
+        private DispatcherTimer? _dispatcherTimer;
 
         public LoadMessagesViewModel(Func<Account> getAccount)
         {
@@ -80,7 +82,7 @@ namespace PostClient.ViewModels
             _dispatcherTimer = new DispatcherTimer();
             _dispatcherTimer.Tick += Timer_Tick;
             _dispatcherTimer.Interval = new TimeSpan(0, 10, 0);
-            _dispatcherTimer.Start();
+            _dispatcherTimer?.Start();
         }
 
         private void Timer_Tick(object sender, object e) => LoadMessagesFromServer(new object());
@@ -97,7 +99,7 @@ namespace PostClient.ViewModels
         #region Load messages from server
         private async void LoadMessagesFromServer(object parameter)
         {
-            Storyboard storyboard = parameter as Storyboard;
+            Storyboard? storyboard = (parameter as Storyboard) ?? new Storyboard();
 
             storyboard.Begin();
             storyboard.RepeatBehavior = RepeatBehavior.Forever;
@@ -117,9 +119,9 @@ namespace PostClient.ViewModels
         private async Task<ObservableCollection<MailMessage>> GetMessagesAsync()
         {
             ObservableCollection<MailMessage> messages = new ObservableCollection<MailMessage>();
-            Account account = _getAccount();
+            Account? account = _getAccount();
             var tempMessages = Messages;
-            Messages.Clear();
+            Messages?.Clear();
 
             await Task.Run(() =>
             {
@@ -167,7 +169,7 @@ namespace PostClient.ViewModels
             List<MailMessage> mailMessages = new List<MailMessage>();
 
             foreach (var mimeMessage in mimeMessages)
-                mailMessages.Add(CreateMessage(mimeMessage));
+                mailMessages?.Add(CreateMessage(mimeMessage));
 
             return mailMessages;
         }
@@ -204,7 +206,7 @@ namespace PostClient.ViewModels
 
                     byte[] file = memoryStream.ToArray();
 
-                    mailAttachments.Add(new KeyValuePair<string, byte[]>(fileName, file));
+                    mailAttachments?.Add(new KeyValuePair<string, byte[]>(fileName, file));
                 }
             }
 
@@ -239,12 +241,12 @@ namespace PostClient.ViewModels
             if (flagMessage.IsFlagged)
             {
                 flagMessage.IsFlagged = false;
-                flaggedMessages.Remove(flagMessage);
+                flaggedMessages?.Remove(flagMessage);
             }
             else
             {
                 flagMessage.IsFlagged = true;
-                flaggedMessages.Add(flagMessage);
+                flaggedMessages?.Add(flagMessage);
             }
 
             JSONSaverAndReaderHelper.Save(flaggedMessages, "FlaggedMessages.json");
@@ -256,7 +258,7 @@ namespace PostClient.ViewModels
         #region Delete message
         private bool DeleteMessage(MailMessage message)
         {
-            Messages.Remove(message);
+            Messages?.Remove(message);
             JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
             return true;
         }
