@@ -14,12 +14,10 @@ namespace PostClient.Models.Services
         {
             try
             {
-                await Task.Run(() =>
-                {
-                    client.ConnectAsync(link, 465, true);
-                    client.AuthenticateAsync(account.Email, account.Password);
-                    client.SendAsync(message);
-                });
+                await client.ConnectAsync(link, 465, true);
+                await client.AuthenticateAsync(account.Email, account.Password);
+                await client.SendAsync(message);
+
             }
             finally
             {
@@ -37,7 +35,7 @@ namespace PostClient.Models.Services
             });
         }
 
-        protected async Task<Dictionary<UniqueId, MimeMessage>> GetMessagesAsync(ImapClient client, Account account,string link, SpecialFolder specialFolder, SearchQuery searchQuery)
+        protected async Task<Dictionary<UniqueId, MimeMessage>> GetMessagesAsync(ImapClient client, Account account, string link, SpecialFolder specialFolder, SearchQuery searchQuery)
         {
             var messages = new Dictionary<UniqueId, MimeMessage>();
 

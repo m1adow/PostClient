@@ -128,17 +128,17 @@ namespace PostClient.ViewModels
         }
 
         #region Sending message
-        private void SendMessage(object parameter)
+        private async void SendMessage(object parameter)
         {
             MimeMessage message = CreateMessage();
 
             switch (_account?.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService(_account).SendMessage(message);
+                    await new GmailService(_account).SendMessage(message);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService(_account).SendMessage(message);
+                    await new OutlookService(_account).SendMessage(message);
                     break;
             }
 
@@ -158,7 +158,7 @@ namespace PostClient.ViewModels
             message.To.Add(MailboxAddress.Parse(MessageReciever));
             message.Subject = MessageSubject;
 
-            BodyBuilder builder = new BodyBuilder();
+            var builder = new BodyBuilder();
 
             builder.HtmlBody = MessageBody;
 
@@ -200,7 +200,7 @@ namespace PostClient.ViewModels
         {
             var bytes = new List<KeyValuePair<string, byte[]>>();
 
-            FileOpenPicker openPicker = new FileOpenPicker
+            var openPicker = new FileOpenPicker
             {
                 ViewMode = PickerViewMode.Thumbnail,
                 SuggestedStartLocation = PickerLocationId.PicturesLibrary
@@ -229,7 +229,7 @@ namespace PostClient.ViewModels
         #region Draft message
         private async void DraftMessage(object parameter)
         {
-            List<MailMessage> draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
+            var draftMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("DraftMessages.json");
 
             draftMessages.Add(new MailMessage
             {

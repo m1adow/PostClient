@@ -118,7 +118,7 @@ namespace PostClient.ViewModels
 
         private async Task<ObservableCollection<MailMessage>> GetMessagesAsync()
         {
-            ObservableCollection<MailMessage> messages = new ObservableCollection<MailMessage>();
+            var messages = new ObservableCollection<MailMessage>();
             Account? account = _getAccount();
             var tempMessages = Messages;
             Messages?.Clear();
@@ -149,7 +149,7 @@ namespace PostClient.ViewModels
 
         private async Task<Dictionary<UniqueId, MimeMessage>> GetMimeMessagesAsync(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
         {
-            Dictionary<UniqueId, MimeMessage> mimeMessages = new Dictionary<UniqueId, MimeMessage>();
+            var mimeMessages = new Dictionary<UniqueId, MimeMessage>();
 
             switch (account.PostServiceName)
             {
@@ -166,7 +166,7 @@ namespace PostClient.ViewModels
 
         private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<UniqueId, MimeMessage> mimeMessages)
         {
-            List<MailMessage> mailMessages = new List<MailMessage>();
+            var mailMessages = new List<MailMessage>();
 
             foreach (var mimeMessage in mimeMessages)
                 mailMessages?.Add(CreateMessage(mimeMessage));
@@ -176,7 +176,7 @@ namespace PostClient.ViewModels
 
         private MailMessage CreateMessage(KeyValuePair<UniqueId, MimeMessage> mimeMessage)
         {
-            MailMessage message = new MailMessage()
+            var message = new MailMessage
             {
                 Uid = mimeMessage.Key.Id,
                 Subject = mimeMessage.Value.Subject,
@@ -191,7 +191,7 @@ namespace PostClient.ViewModels
 
         private List<KeyValuePair<string, byte[]>> ConvertMimeAttachmentsToMailMessageAttachments(IEnumerable<MimeEntity> attachments)
         {
-            List<KeyValuePair<string, byte[]>> mailAttachments = new List<KeyValuePair<string, byte[]>>();
+            var mailAttachments = new List<KeyValuePair<string, byte[]>>();
 
             foreach (var attachment in attachments)
             {
@@ -234,7 +234,7 @@ namespace PostClient.ViewModels
         #region Flag message
         private async Task<bool> FlagMessage(MailMessage message)
         {
-            List<MailMessage> flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            var flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
 
             var flagMessage = flaggedMessages.Where(m => m.Equals(message)).FirstOrDefault() ?? message;
 
