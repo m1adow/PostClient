@@ -10,8 +10,8 @@ namespace PostClient.Models.Infrastructure
     {
         Account Account { get; }
         Task SendMessage(MimeMessage message);
-        void DeleteMessage(MailMessage message);
-        void FlagMessage(MailMessage message);
+        Task DeleteMessage(MailMessage message);
+        Task FlagMessage(MailMessage message);
         Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery);
     }
 }

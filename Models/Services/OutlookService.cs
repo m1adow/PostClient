@@ -15,80 +15,25 @@ namespace PostClient.Models.Services
     {
         public Account Account { get; }
 
+        private SmtpClient _smtpClient;
+        private ImapClient _imapClient;
+
+        private const string _smtpLink = "smtp.outlook.com";
+        private const string _imapLink = "imap.outlook.com";
+
         public OutlookService(Account account)
         {
             this.Account = account;
+            _smtpClient = new SmtpClient();
+            _imapClient = new ImapClient();
         }
 
-        public async Task SendMessage(MimeMessage message)
-        {
-            SmtpClient client = new SmtpClient();
+        public async Task SendMessage(MimeMessage message) => await SendMessage(_smtpClient, Account, _smtpLink, message);
 
-            try
-            {
-                await Task.Run(() =>
-                {
-                    client.Connect("smtp.outlook.com", 587, SecureSocketOptions.StartTls);
-                    client.Authenticate(Account.Email, Account.Password);
-                    client.Send(message);
-                });
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
-        }
+        public async Task DeleteMessage(MailMessage message) => await DeleteMessage(_imapClient, Account, _imapLink, message);
 
-        public async void DeleteMessage(MailMessage message)
-        {
-            ImapClient client = new ImapClient();
+        public async Task FlagMessage(MailMessage message) => await FlagMessage(_imapClient, Account, _imapLink, message);
 
-            try
-            {
-                await EstablishConnectionAsync(client, Account, "imap.outlook.com");
-                await DeleteSpecificMessage(client, message.Uid);
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
-        }
-
-        public async void FlagMessage(MailMessage message)
-        {
-            ImapClient client = new ImapClient();
-
-            try
-            {
-                await EstablishConnectionAsync(client, Account, "imap.outlook.com");
-                await FlagSpecificMessage(client, message.Uid, message.IsFlagged);
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
-        }
-
-        public async Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery)
-        {
-            ImapClient client = new ImapClient();
-            Dictionary<UniqueId, MimeMessage> messages = new Dictionary<UniqueId, MimeMessage>();
-
-            try
-            {
-                await EstablishConnectionAsync(client, Account, "imap.outlook.com");
-                await GetMessagesAsync(client, messages, specialFolder, searchQuery);
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
-
-            return messages;
-        }
+        public async Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery) => await GetMessagesAsync(_imapClient, Account, _imapLink, specialFolder, searchQuery);
     }
 }

@@ -1,4 +1,6 @@
-﻿using PostClient.Models;
+﻿using MailKit.Net.Imap;
+using MailKit.Net.Smtp;
+using PostClient.Models;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Infrastructure;
 using System;
@@ -66,17 +68,17 @@ namespace PostClient.ViewModels
         }
 
         #region Flag message
-        private void FlagMessage(object parameter)
+        private async void FlagMessage(object parameter)
         {
             Account? account = _getAccount();
 
             switch (account.PostServiceName)
             {
                 case nameof(GmailService):
-                    new GmailService(account).FlagMessage(SelectedMailMessage);
+                    await new GmailService(account).FlagMessage(SelectedMailMessage);
                     break;
                 case nameof(OutlookService):
-                    new OutlookService(account).FlagMessage(SelectedMailMessage);
+                    await new OutlookService(account).FlagMessage(SelectedMailMessage);
                     break;
             }
 
