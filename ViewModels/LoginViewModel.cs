@@ -1,4 +1,5 @@
 ﻿using PostClient.Models;
+using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;

@@ -26,6 +26,9 @@
             <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=LoadedHandlerCommand}"
                                       CommandParameter="AllMessages"/>
         </core:EventTriggerBehavior>
+        <core:EventTriggerBehavior EventName="Closed">
+            <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ClosedHandlerCommand}"/>
+        </core:EventTriggerBehavior>
     </ineractivity:Interaction.Behaviors>
     <Grid DataContext="{StaticResource viewModel}">
         <Grid.ColumnDefinitions>

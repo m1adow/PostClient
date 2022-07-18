@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace PostClient.Models.Infrastructure
 {
-    internal interface IService
+    internal interface IPostService
     {
         Account Account { get; }
         Task SendMessage(MimeMessage message);
         Task DeleteMessage(MailMessage message);
         Task FlagMessage(MailMessage message);
-        Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery);
+        Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery);
+        void CloseClients();
     }
 }

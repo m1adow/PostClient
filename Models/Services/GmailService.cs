@@ -11,12 +11,12 @@ namespace PostClient.Models.Services
 {
     #nullable enable
 
-    internal sealed class GmailService : PostService, IService
+    internal sealed class GmailService : PostService, IPostService
     {
         public Account Account { get; }
 
-        private SmtpClient _smtpClient;
-        private ImapClient _imapClient;
+        private readonly SmtpClient _smtpClient;
+        private readonly ImapClient _imapClient;
 
         private const string _smtpLink = "smtp.gmail.com";
         private const string _imapLink = "imap.gmail.com";
@@ -26,14 +26,18 @@ namespace PostClient.Models.Services
             this.Account = account;
             _smtpClient = new SmtpClient();
             _imapClient = new ImapClient();
+
+            EstablishConnection(_imapClient, _smtpClient, account, _imapLink, _smtpLink, 465);
         }
 
-        public async Task SendMessage(MimeMessage message) => await SendMessage(_smtpClient, Account, _smtpLink, message);
+        public async Task SendMessage(MimeMessage message) => await SendMessage(_smtpClient, message);
 
-        public async Task DeleteMessage(MailMessage message) => await DeleteMessage(_imapClient, Account, _imapLink, message);
+        public async Task DeleteMessage(MailMessage message) => await DeleteMessage(_imapClient, message);
 
-        public async Task FlagMessage(MailMessage message) => await FlagMessage(_imapClient, Account, _imapLink, message);
+        public async Task FlagMessage(MailMessage message) => await FlagMessage(_imapClient, message);
 
-        public async Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery) => await GetMessagesAsync(_imapClient, Account, _imapLink, specialFolder, searchQuery);
+        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery) => GetMessagesAsync(_imapClient, specialFolder, searchQuery);
+
+        public void CloseClients() => CloseClients(_smtpClient, _imapClient);
     }
 }

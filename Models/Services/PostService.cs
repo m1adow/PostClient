@@ -2,6 +2,7 @@
 using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Search;
+using MailKit.Security;
 using MimeKit;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,73 +11,36 @@ namespace PostClient.Models.Services
 {
     internal abstract class PostService
     {
-        protected async Task SendMessage(SmtpClient client, Account account, string link, MimeMessage message)
-        {
-            try
-            {
-                await client.ConnectAsync(link, 465, true);
-                await client.AuthenticateAsync(account.Email, account.Password);
-                await client.SendAsync(message);
+        protected async Task SendMessage(SmtpClient client, MimeMessage message) => await client.SendAsync(message);
 
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
+        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort)
+        {
+            imapClient.Connect(imapServer, 993, true);
+            imapClient.Authenticate(account.Email, account.Password);
+            smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
+            smtpClient.Authenticate(account.Email, account.Password);
         }
 
-        protected async Task EstablishConnectionAsync(ImapClient client, Account account, string imapServer)
-        {
-            await Task.Run(() =>
-            {
-                client.Connect(imapServer, 993, true);
-                client.Authenticate(account.Email, account.Password);
-            });
-        }
-
-        protected async Task<Dictionary<UniqueId, MimeMessage>> GetMessagesAsync(ImapClient client, Account account, string link, SpecialFolder specialFolder, SearchQuery searchQuery)
+        protected Dictionary<UniqueId, MimeMessage> GetMessagesAsync(ImapClient client, SpecialFolder specialFolder, SearchQuery searchQuery)
         {
             var messages = new Dictionary<UniqueId, MimeMessage>();
 
-            try
+            var folder = client.GetFolder(specialFolder);
+
+            folder.Open(FolderAccess.ReadOnly);
+
+            var uids = folder.Search(searchQuery);
+
+            for (int i = uids.Count - 1; i >= (uids.Count > 100 ? uids.Count - 100 : 0); i--)
             {
-                await EstablishConnectionAsync(client, account, link);
-
-                var folder = client.GetFolder(specialFolder);
-
-                folder.Open(FolderAccess.ReadOnly);
-
-                var uids = folder.Search(searchQuery);
-
-                for (int i = uids.Count - 1; i >= (uids.Count > 100 ? uids.Count - 100 : 0); i--)
-                {
-                    var messageMime = folder.GetMessage(uids[i]);
-                    messages.Add(uids[i], messageMime);
-                }
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
+                var messageMime = folder.GetMessage(uids[i]);
+                messages.Add(uids[i], messageMime);
             }
 
             return messages;
         }
 
-        protected async Task DeleteMessage(ImapClient client, Account account, string link, MailMessage message)
-        {
-            try
-            {
-                await EstablishConnectionAsync(client, account, link);
-                await DeleteSpecificMessage(client, message.Uid);
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
-        }
+        protected async Task DeleteMessage(ImapClient client, MailMessage message) => await DeleteSpecificMessage(client, message.Uid);
 
         protected async Task DeleteSpecificMessage(ImapClient client, uint uid)
         {
@@ -94,19 +58,7 @@ namespace PostClient.Models.Services
             });
         }
 
-        protected async Task FlagMessage(ImapClient client, Account account, string link, MailMessage message)
-        {
-            try
-            {
-                await EstablishConnectionAsync(client, account, link);
-                await FlagSpecificMessage(client, message.Uid, message.IsFlagged);
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
-        }
+        protected async Task FlagMessage(ImapClient client, MailMessage message) => await FlagSpecificMessage(client, message.Uid, message.IsFlagged);
 
         protected async Task FlagSpecificMessage(ImapClient client, uint uid, bool isFlagged)
         {
@@ -127,6 +79,14 @@ namespace PostClient.Models.Services
 
                 folder.Expunge(uids);
             });
+        }
+
+        protected async void CloseClients(SmtpClient smtpClient, ImapClient imapClient)
+        {
+            await smtpClient.DisconnectAsync(true);
+            await imapClient.DisconnectAsync(true);
+            smtpClient.Dispose();
+            imapClient.Dispose();
         }
     }
 }

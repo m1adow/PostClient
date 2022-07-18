@@ -3,6 +3,7 @@ using MailKit.Search;
 using Microsoft.Toolkit.Uwp.Notifications;
 using MimeKit;
 using PostClient.Models;
+using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
@@ -54,26 +55,30 @@ namespace PostClient.ViewModels
 
         public Func<MailMessage, bool> DeleteMessageFunc { get; }
 
-        private readonly Func<Account> _getAccount;
-
         private string _messageFolder = string.Empty;
 
         private DispatcherTimer? _dispatcherTimer;
 
-        public LoadMessagesViewModel(Func<Account> getAccount)
+        private Func<Account, IPostService> _getService;
+
+        private Func<Account> _getAccount;
+
+        public LoadMessagesViewModel(Func<Account, IPostService> getService, Func<Account> getAccount)
         {
+            _getService = getService;
             _getAccount = getAccount;
             LoadMessagesFromServerAction = LoadMessagesFromServer;
             LoadMessagesFromLocalStorageAction = LoadMessagesFromLocalStorage;
             FlagMessageFunc = FlagMessage;
             DeleteMessageFunc = DeleteMessage;
 
-            LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);         
+            LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);
             LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
             LaunchTimer();
+            _getAccount = getAccount;
         }
 
         #region Timer
@@ -119,15 +124,14 @@ namespace PostClient.ViewModels
         private async Task<ObservableCollection<MailMessage>> GetMessagesAsync()
         {
             var messages = new ObservableCollection<MailMessage>();
-            Account? account = _getAccount();
             var tempMessages = Messages;
             Messages?.Clear();
 
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
-                var allMimeMessages = await GetMimeMessagesAsync(account, SpecialFolder.All, SearchQuery.All);
-                var flaggedMimeMessages = await GetMimeMessagesAsync(account, SpecialFolder.All, SearchQuery.Flagged);
-                var sentMimeMessages = await GetMimeMessagesAsync(account, SpecialFolder.Sent, SearchQuery.All);
+                var allMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.All);
+                var flaggedMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged);
+                var sentMimeMessages = GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All);
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
                 SendNotificationsAboutNewMessages(allMailMessages);
@@ -147,22 +151,7 @@ namespace PostClient.ViewModels
             return messages;
         }
 
-        private async Task<Dictionary<UniqueId, MimeMessage>> GetMimeMessagesAsync(Account account, SpecialFolder specialFolder, SearchQuery searchQuery)
-        {
-            var mimeMessages = new Dictionary<UniqueId, MimeMessage>();
-
-            switch (account.PostServiceName)
-            {
-                case nameof(GmailService):
-                    mimeMessages = await new GmailService(account).LoadMessages(specialFolder, searchQuery);
-                    break;
-                case nameof(OutlookService):
-                    mimeMessages = await new OutlookService(account).LoadMessages(specialFolder, searchQuery);
-                    break;
-            }
-
-            return mimeMessages;
-        }
+        private Dictionary<UniqueId, MimeMessage> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery) => _getService(_getAccount()).LoadMessages(specialFolder, searchQuery);
 
         private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<UniqueId, MimeMessage> mimeMessages)
         {

@@ -1,5 +1,6 @@
 ﻿using MimeKit;
 using PostClient.Models;
+using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
@@ -98,20 +99,23 @@ namespace PostClient.ViewModels
 
         public Func<Visibility, MailMessage, bool> ChangeSendMessageControlsVisibilityAndFillFieldsFunc { get; }
 
-        private Account? _account = new Account();
+        private Account? _account;
 
         private MailMessage? _selectedMessage = new MailMessage();
 
         private readonly Func<Account> _getAccount;
 
+        private readonly Func<Account, IPostService> _getService;
+
         private readonly Func<MailMessage, bool> _deleteDraft;
 
         private List<KeyValuePair<string, byte[]>>? _files = new List<KeyValuePair<string, byte[]>>();
 
-        public SendMessageViewModel(Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
-        {
+        public SendMessageViewModel(Func<Account, IPostService> getService, Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
+        {                  
             _getAccount = getAccount;
             _account = getAccount();
+            _getService = getService;
             _deleteDraft = deleteDraft;
 
             ChangeSendMessageControlsVisibilityAndFillFieldsFunc = ChangeSendMessageControlsVisibilityAndFillFields;
@@ -132,15 +136,7 @@ namespace PostClient.ViewModels
         {
             MimeMessage message = CreateMessage();
 
-            switch (_account?.PostServiceName)
-            {
-                case nameof(GmailService):
-                    await new GmailService(_account).SendMessage(message);
-                    break;
-                case nameof(OutlookService):
-                    await new OutlookService(_account).SendMessage(message);
-                    break;
-            }
+            await _getService(_account).SendMessage(message);
 
             if (_selectedMessage.IsDraft)
                 _deleteDraft(_selectedMessage);

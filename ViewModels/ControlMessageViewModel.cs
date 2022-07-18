@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using PostClient.Models;
+using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using PostClient.ViewModels.Infrastructure;
 using System;
@@ -49,13 +50,20 @@ namespace PostClient.ViewModels
 
         public ICommand HideMessageViewCommand { get; }
 
-        private readonly Func<Account> _getAccount;
+
         private readonly Func<MailMessage, Task<bool>> _updateFlaggedList;
+
         private readonly Func<MailMessage, bool> _deleteMessageFromList;
+
         private readonly Func<Visibility, MailMessage, bool> _changeSendMessageControlsVisibilityAndMessage;
 
-        public ControlMessageViewModel(Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage)
+        private Func<Account, IPostService> _getService;
+
+        private Func<Account> _getAccount;
+
+        public ControlMessageViewModel(Func<Account, IPostService> getService, Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage)
         {
+            _getService = getService;
             _getAccount = getAccount;
             _updateFlaggedList = updateFlaggedList;
             _deleteMessageFromList = deleteMessageFromList;
@@ -70,37 +78,15 @@ namespace PostClient.ViewModels
         #region Flag message
         private async void FlagMessage(object parameter)
         {
-            Account? account = _getAccount();
-
-            switch (account.PostServiceName)
-            {
-                case nameof(GmailService):
-                    await new GmailService(account).FlagMessage(SelectedMailMessage);
-                    break;
-                case nameof(OutlookService):
-                    await new OutlookService(account).FlagMessage(SelectedMailMessage);
-                    break;
-            }
-
-            _updateFlaggedList(SelectedMailMessage);
+            await _getService(_getAccount()).FlagMessage(SelectedMailMessage);
+            await _updateFlaggedList(SelectedMailMessage);
         }
         #endregion
 
         #region Delete message
-        private void DeleteMessage(object parameter)
+        private async void DeleteMessage(object parameter)
         {
-            Account? account = _getAccount();
-
-            switch (account.PostServiceName)
-            {
-                case nameof(GmailService):
-                    new GmailService(account).DeleteMessage(SelectedMailMessage);
-                    break;
-                case nameof(OutlookService):
-                    new OutlookService(account).DeleteMessage(SelectedMailMessage);
-                    break;
-            }
-
+            await _getService(_getAccount()).DeleteMessage(SelectedMailMessage);
             _deleteMessageFromList(SelectedMailMessage);
             CloseMessage(parameter);
         }

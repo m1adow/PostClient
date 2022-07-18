@@ -122,7 +122,7 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\MailMessage.cs" />
     <Compile Include="Models\Services\GmailService.cs" />
-    <Compile Include="Models\Infrastructure\IService.cs" />
+    <Compile Include="Models\Infrastructure\IPostService.cs" />
     <Compile Include="Models\Services\OutlookService.cs" />
     <Compile Include="Models\Services\PostService.cs" />
     <Compile Include="ViewModels\ControlMessageViewModel.cs" />
@@ -213,7 +213,7 @@
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <PropertyGroup>
-  	<Nullable>enable</Nullable>
+    <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
