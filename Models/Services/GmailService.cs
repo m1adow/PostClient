@@ -32,9 +32,9 @@ namespace PostClient.Models.Services
 
         public async Task SendMessage(MimeMessage message) => await SendMessage(_smtpClient, message);
 
-        public async Task DeleteMessage(MailMessage message) => await DeleteMessage(_imapClient, message);
+        public async Task DeleteMessage(MailMessage message, SpecialFolder specialFolder, string subFolder) => await DeleteMessage(_imapClient, message, specialFolder, subFolder);
 
-        public async Task FlagMessage(MailMessage message) => await FlagMessage(_imapClient, message);
+        public async Task FlagMessage(MailMessage message, SpecialFolder specialFolder, string subFolder) => await FlagMessage(_imapClient, message, specialFolder, subFolder);
 
         public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => GetMessages(_imapClient, searchQuery, specialFolder, subFolder);
 

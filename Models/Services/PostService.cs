@@ -13,33 +13,19 @@ namespace PostClient.Models.Services
     {
         protected async Task SendMessage(SmtpClient client, MimeMessage message) => await client.SendAsync(message);
 
-        protected async void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort)
+        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort)
         {
-            await imapClient.ConnectAsync(imapServer, 993, true);
-            await imapClient.AuthenticateAsync(account.Email, account.Password);
-            await smtpClient.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.Auto);
-            await smtpClient.AuthenticateAsync(account.Email, account.Password);
+            imapClient.Connect(imapServer, 993, true);
+            imapClient.Authenticate(account.Email, account.Password);
+            smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
+            smtpClient.Authenticate(account.Email, account.Password);
         }
 
         protected Dictionary<UniqueId, MimeMessage> GetMessages(ImapClient client, SearchQuery searchQuery, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "")
         {
             var messages = new Dictionary<UniqueId, MimeMessage>();
 
-            IMailFolder folder;
-
-            if (client.Capabilities.HasFlag(ImapCapabilities.SpecialUse))
-            {
-                folder = client.GetFolder(specialFolder);
-            }
-            else if (!client.Capabilities.HasFlag(ImapCapabilities.SpecialUse) && subFolder == "")
-            {
-                folder = client.Inbox;
-            }
-            else
-            {
-                var personal = client.GetFolder(client.PersonalNamespaces[0]);
-                folder = personal.GetSubfolder(subFolder);
-            }
+            var folder = GetFolder(client, specialFolder, subFolder);
 
             folder.Open(FolderAccess.ReadOnly);
 
@@ -54,9 +40,9 @@ namespace PostClient.Models.Services
             return messages;
         }
 
-        protected async Task DeleteMessage(ImapClient client, MailMessage message, bool isOutlook = false) => await DeleteSpecificMessage(client, message.Uid, isOutlook);
+        protected async Task DeleteMessage(ImapClient client, MailMessage message, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "") => await DeleteSpecificMessage(client, specialFolder, message.Uid, subFolder);
 
-        protected async Task DeleteSpecificMessage(ImapClient client, uint uid, bool isOutlook)
+        protected async Task DeleteSpecificMessage(ImapClient client, SpecialFolder specialFolder, uint uid, string subFolder)
         {
             await Task.Run(() =>
             {
@@ -65,16 +51,16 @@ namespace PostClient.Models.Services
                     new UniqueId(uid)
                 };
 
-                var folder = isOutlook ? client.Inbox : client.GetFolder(SpecialFolder.All);
+                var folder = GetFolder(client, specialFolder, subFolder);
                 folder.Open(FolderAccess.ReadWrite);
                 folder.AddFlags(uids, MessageFlags.Deleted, true);
                 folder.Expunge(uids);
             });
         }
 
-        protected async Task FlagMessage(ImapClient client, MailMessage message, bool isOutlook = false) => await FlagSpecificMessage(client, message.Uid, message.IsFlagged, isOutlook);
+        protected async Task FlagMessage(ImapClient client, MailMessage message, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "") => await FlagSpecificMessage(client, specialFolder, message.Uid, message.IsFlagged, subFolder);
 
-        protected async Task FlagSpecificMessage(ImapClient client, uint uid, bool isFlagged, bool isOutlook)
+        protected async Task FlagSpecificMessage(ImapClient client, SpecialFolder specialFolder, uint uid, bool isFlagged, string subFolder)
         {
             await Task.Run(() =>
             {
@@ -83,7 +69,7 @@ namespace PostClient.Models.Services
                 new UniqueId(uid)
                 };
 
-                var folder = isOutlook ? client.Inbox : client.GetFolder(SpecialFolder.All);
+                var folder = GetFolder(client, specialFolder, subFolder);
                 folder.Open(FolderAccess.ReadWrite);
 
                 if (isFlagged)
@@ -101,6 +87,27 @@ namespace PostClient.Models.Services
             await imapClient.DisconnectAsync(true);
             smtpClient.Dispose();
             imapClient.Dispose();
+        }
+
+        private IMailFolder GetFolder(ImapClient client, SpecialFolder specialFolder, string subFolder)
+        {
+            IMailFolder folder;
+
+            if (client.Capabilities.HasFlag(ImapCapabilities.SpecialUse))
+            {
+                folder = client.GetFolder(specialFolder);
+            }
+            else if (!client.Capabilities.HasFlag(ImapCapabilities.SpecialUse) && subFolder == "")
+            {
+                folder = client.Inbox;
+            }
+            else
+            {
+                var personal = client.GetFolder(client.PersonalNamespaces[0]);
+                folder = personal.GetSubfolder(subFolder);
+            }
+
+            return folder;
         }
     }
 }

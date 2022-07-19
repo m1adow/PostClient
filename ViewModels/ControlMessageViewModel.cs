@@ -1,4 +1,5 @@
-﻿using MailKit.Net.Imap;
+﻿using MailKit;
+using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using PostClient.Models;
 using PostClient.Models.Infrastructure;
@@ -78,7 +79,7 @@ namespace PostClient.ViewModels
         #region Flag message
         private async void FlagMessage(object parameter)
         {
-            await _getService(_getAccount()).FlagMessage(SelectedMailMessage);
+            await _getService(_getAccount()).FlagMessage(SelectedMailMessage, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
             await _updateFlaggedList(SelectedMailMessage);
         }
         #endregion
@@ -86,7 +87,7 @@ namespace PostClient.ViewModels
         #region Delete message
         private async void DeleteMessage(object parameter)
         {
-            await _getService(_getAccount()).DeleteMessage(SelectedMailMessage);
+            await _getService(_getAccount()).DeleteMessage(SelectedMailMessage, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
             _deleteMessageFromList(SelectedMailMessage);
             CloseMessage(parameter);
         }
@@ -105,5 +106,15 @@ namespace PostClient.ViewModels
         #region Hiding message view
         private void HideMessageView(object parameter) => MessageViewConrtolVisibility = Visibility.Collapsed;
         #endregion
+
+        private SpecialFolder GetSpecialFolder(string folder)
+        {
+            return folder switch
+            {
+                "" => SpecialFolder.All,
+                "Sent" => SpecialFolder.Sent,
+                _ => throw new ArgumentException(folder)
+            };
+        }
     }
 }

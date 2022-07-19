@@ -129,7 +129,7 @@ namespace PostClient.ViewModels
             await Task.Run(() =>
             {
                 var allMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.All);
-                var flaggedMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged, "Drafts");
+                var flaggedMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged);
                 var sentMimeMessages = GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All, "Sent");
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
@@ -137,9 +137,14 @@ namespace PostClient.ViewModels
                 messages = new ObservableCollection<MailMessage>(allMailMessages);
 
                 var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
+                sentMailMessages.ForEach(m => m.Folder = "Sent");
 
                 var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
-                flaggedMailMessages.ForEach(m => m.IsFlagged = true);
+                flaggedMailMessages.ForEach(m =>
+                {
+                    m.IsFlagged = true;
+                    m.Folder = "Flagged";
+                });
 
                 SaveMessages(allMailMessages, "AllMessages.json");
                 SaveMessages(sentMailMessages, "SentMessages.json");

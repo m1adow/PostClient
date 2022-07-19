@@ -16,6 +16,7 @@ namespace PostClient.Models
         public string? To { get; set; }
         public bool IsFlagged { get; set; }
         public bool IsDraft { get; set; }
+        public string Folder { get; set; }
         public DateTimeOffset Date { get; set; }
 
         public MailMessage()
@@ -29,6 +30,7 @@ namespace PostClient.Models
             To = String.Empty;
             IsFlagged = false;  
             IsDraft = false;
+            Folder = "";
             Date = DateTimeOffset.Now;
         }
 
