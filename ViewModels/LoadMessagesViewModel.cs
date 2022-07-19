@@ -78,7 +78,6 @@ namespace PostClient.ViewModels
             SortMessagesCommand = new RelayCommand(SortMessages);
 
             LaunchTimer();
-            _getAccount = getAccount;
         }
 
         #region Timer
@@ -130,8 +129,8 @@ namespace PostClient.ViewModels
             await Task.Run(() =>
             {
                 var allMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.All);
-                var flaggedMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged);
-                var sentMimeMessages = GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All);
+                var flaggedMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged, "Drafts");
+                var sentMimeMessages = GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All, "Sent");
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
                 SendNotificationsAboutNewMessages(allMailMessages);
@@ -151,7 +150,7 @@ namespace PostClient.ViewModels
             return messages;
         }
 
-        private Dictionary<UniqueId, MimeMessage> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery) => _getService(_getAccount()).LoadMessages(specialFolder, searchQuery);
+        private Dictionary<UniqueId, MimeMessage> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => _getService(_getAccount()).LoadMessages(specialFolder, searchQuery, subFolder);
 
         private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<UniqueId, MimeMessage> mimeMessages)
         {

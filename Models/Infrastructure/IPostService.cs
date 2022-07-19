@@ -12,7 +12,7 @@ namespace PostClient.Models.Infrastructure
         Task SendMessage(MimeMessage message);
         Task DeleteMessage(MailMessage message);
         Task FlagMessage(MailMessage message);
-        Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery);
+        Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "");
         void CloseClients();
     }
 }

@@ -5,7 +5,6 @@ using System.Windows.Input;
 using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using System;
-using System.Threading.Tasks;
 
 namespace PostClient.ViewModels
 {

@@ -36,7 +36,7 @@ namespace PostClient.Models.Services
 
         public async Task FlagMessage(MailMessage message) => await FlagMessage(_imapClient, message);
 
-        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery) => GetMessagesAsync(_imapClient, specialFolder, searchQuery);
+        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => GetMessages(_imapClient, searchQuery, specialFolder, subFolder);
 
         public void CloseClients() => CloseClients(_smtpClient, _imapClient);
     }
