@@ -202,7 +202,12 @@
       <Version>2.0.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\PostClientBackground\PostClientBackground.csproj">
+      <Project>{395c5b04-fcac-4369-b354-d217e4cc646a}</Project>
+      <Name>PostClientBackground</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>

@@ -4,7 +4,6 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using MimeKit;
 using PostClient.Models;
 using PostClient.Models.Infrastructure;
-using PostClient.Models.Services;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
@@ -14,12 +13,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.ApplicationModel.Background;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace PostClient.ViewModels
 {
-    #nullable enable
+#nullable enable
 
     internal sealed class LoadMessagesViewModel : ViewModelBase
     {
@@ -57,8 +58,6 @@ namespace PostClient.ViewModels
 
         private string _messageFolder = string.Empty;
 
-        private DispatcherTimer? _dispatcherTimer;
-
         private Func<Account, IPostService> _getService;
 
         private Func<Account> _getAccount;
@@ -77,19 +76,33 @@ namespace PostClient.ViewModels
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
-            LaunchTimer();
+            RegisterBackgroundTask();
         }
 
-        #region Timer
-        private void LaunchTimer()
+        #region Background Task for updating messages
+        private void RegisterBackgroundTask()
         {
-            _dispatcherTimer = new DispatcherTimer();
-            _dispatcherTimer.Tick += Timer_Tick;
-            _dispatcherTimer.Interval = new TimeSpan(0, 10, 0);
-            _dispatcherTimer?.Start();
+            var taskName = "PostClientBackground.UpdatingMessagesBackground";
+
+            var builder = new BackgroundTaskBuilder
+            {
+                Name = taskName,
+                TaskEntryPoint = taskName
+            };
+            builder.SetTrigger(new TimeTrigger(60, false));
+
+            var taskRegistration = builder.Register();
+            taskRegistration.Completed += TaskRegistration_Completed;
         }
 
-        private void Timer_Tick(object sender, object e) => LoadMessagesFromServer(new object());
+        private async void TaskRegistration_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        {
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                async () =>
+                {
+                    Messages = await GetMessagesAsync();
+                });
+        }
         #endregion
 
         #region Load messages from local storage
@@ -133,7 +146,7 @@ namespace PostClient.ViewModels
                 var sentMimeMessages = GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All, "Sent");
 
                 var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
-                SendNotificationsAboutNewMessages(allMailMessages);
+                SendNotificationAboutNewMessages(allMailMessages, tempMessages.ToList());
                 messages = new ObservableCollection<MailMessage>(allMailMessages);
 
                 var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
@@ -188,7 +201,7 @@ namespace PostClient.ViewModels
 
             foreach (var attachment in attachments)
             {
-                string fileName = attachment.ContentDisposition.FileName;               
+                string fileName = attachment.ContentDisposition.FileName;
 
                 using (var memoryStream = new MemoryStream())
                 {
@@ -206,19 +219,14 @@ namespace PostClient.ViewModels
             return mailAttachments;
         }
 
-        private void SendNotificationsAboutNewMessages(List<MailMessage> messages)
+        private void SendNotificationAboutNewMessages(List<MailMessage> messages, List<MailMessage> originalMessages)
         {
-            foreach (var message in messages)
-            {
-                if (!Messages.Contains(message))
-                {
-                    new ToastContentBuilder()
+            if (originalMessages != messages)
+                new ToastContentBuilder()
                         .AddArgument("action", "viewConversation")
-                        .AddText($"{message.From} sent you a message")
-                        .AddText($"Check this out, {message.Subject}")
+                        .AddText($"You have recieved new messages!")
+                        .AddText($"Check this out.")
                         .Show();
-                }
-            }
         }
 
         private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);

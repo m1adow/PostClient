@@ -8,7 +8,7 @@ using System;
 
 namespace PostClient.ViewModels
 {
-#nullable enable
+    #nullable enable
 
     internal sealed class PostClientViewModel : ViewModelBase
     {
@@ -91,6 +91,6 @@ namespace PostClient.ViewModels
             LoadAccount();
         }
 
-        private void ClosedHandler(object parameter) => Service.CloseClients();
+        private void ClosedHandler(object parameter) => Service.CloseClients();     
     }
 }
