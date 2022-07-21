@@ -8,7 +8,13 @@
     mc:Ignorable="d"
     d:DesignHeight="100"
     d:DesignWidth="200">
-    <Grid>
+    <UserControl.Resources>
+        <CommandBarFlyout Placement="Right" x:Name="commandBarFlyoutFlagAndDelete">
+            <AppBarButton Icon="Flag" ToolTipService.ToolTip="Flag" x:Name="flagAppBarButton"/>
+            <AppBarButton Icon="Delete" ToolTipService.ToolTip="Delete" x:Name="deleteAppBarButton"/>
+        </CommandBarFlyout>
+    </UserControl.Resources>
+    <Grid RightTapped="Grid_RightTapped">
         <StackPanel Margin="10">
             <TextBlock x:Name="subjectTextBlock"
                        FontSize="15"
@@ -19,5 +25,7 @@
             <TextBlock x:Name="fromTextBlock"
                        FontSize="12"/>
         </StackPanel>
+        <TextBlock x:Name="idTextBlock"
+                   Visibility="Collapsed"/>
     </Grid>
 </UserControl>

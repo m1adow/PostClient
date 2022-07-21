@@ -1,9 +1,6 @@
 ﻿using MailKit;
-using MailKit.Net.Imap;
-using MailKit.Net.Smtp;
 using PostClient.Models;
 using PostClient.Models.Infrastructure;
-using PostClient.Models.Services;
 using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Threading.Tasks;
@@ -12,10 +9,10 @@ using Windows.UI.Xaml;
 
 namespace PostClient.ViewModels
 {
-    #nullable enable
+#nullable enable
 
     internal sealed class ControlMessageViewModel : ViewModelBase
-    {       
+    {
         private MailMessage? _selectedMailMessage = new MailMessage();
 
         public MailMessage? SelectedMailMessage
@@ -26,12 +23,21 @@ namespace PostClient.ViewModels
                 if (value == null)
                     value = new MailMessage();
 
-                Set(ref _selectedMailMessage, value);
+                Set(ref _selectedMailMessage, value); 
+            }
+        }
 
-                if (value.Body.Length > 0 && !value.IsDraft)
-                    MessageViewConrtolVisibility = Visibility.Visible;
-                else if (value.IsDraft)
-                    _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, value);
+        private MailMessage? _stableMailMessage = new MailMessage();
+
+        public MailMessage? StableMailMessage
+        {
+            get => _selectedMailMessage;
+            set
+            {
+                if (value == null)
+                    value = new MailMessage();
+
+                Set(ref _stableMailMessage, value);
             }
         }
 
@@ -51,6 +57,9 @@ namespace PostClient.ViewModels
 
         public ICommand HideMessageViewCommand { get; }
 
+        public ICommand ChangeSelectedMessageCommand { get; }
+
+        public ICommand ChangeToTappedStateCommand { get; }
 
         private readonly Func<MailMessage, Task<bool>> _updateFlaggedList;
 
@@ -58,14 +67,11 @@ namespace PostClient.ViewModels
 
         private readonly Func<Visibility, MailMessage, bool> _changeSendMessageControlsVisibilityAndMessage;
 
-        private Func<Account, IPostService> _getService;
+        private readonly Func<IPostService> _getService;
 
-        private Func<Account> _getAccount;
-
-        public ControlMessageViewModel(Func<Account, IPostService> getService, Func<Account> getAccount, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage)
+        public ControlMessageViewModel(Func<IPostService> getService, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage)
         {
             _getService = getService;
-            _getAccount = getAccount;
             _updateFlaggedList = updateFlaggedList;
             _deleteMessageFromList = deleteMessageFromList;
             _changeSendMessageControlsVisibilityAndMessage = changeSendMessageControlsVisibilityAndMessage;
@@ -74,12 +80,14 @@ namespace PostClient.ViewModels
             DeleteMessageCommand = new RelayCommand(DeleteMessage);
             CloseMessageCommand = new RelayCommand(CloseMessage);
             HideMessageViewCommand = new RelayCommand(HideMessageView);
+            ChangeSelectedMessageCommand = new RelayCommand(ChangeSelectedMessage);
+            ChangeToTappedStateCommand = new RelayCommand(ChangeToTappedState);
         }
 
         #region Flag message
         private async void FlagMessage(object parameter)
         {
-            await _getService(_getAccount()).FlagMessage(SelectedMailMessage, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+            await _getService().FlagMessage(SelectedMailMessage, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
             await _updateFlaggedList(SelectedMailMessage);
         }
         #endregion
@@ -87,7 +95,7 @@ namespace PostClient.ViewModels
         #region Delete message
         private async void DeleteMessage(object parameter)
         {
-            await _getService(_getAccount()).DeleteMessage(SelectedMailMessage, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+            await _getService().DeleteMessage(SelectedMailMessage, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
             _deleteMessageFromList(SelectedMailMessage);
             CloseMessage(parameter);
         }
@@ -105,6 +113,24 @@ namespace PostClient.ViewModels
 
         #region Hiding message view
         private void HideMessageView(object parameter) => MessageViewConrtolVisibility = Visibility.Collapsed;
+        #endregion
+
+        #region Change selected message
+        private void ChangeSelectedMessage(object parameter) => SelectedMailMessage = parameter as MailMessage;
+        #endregion
+
+        #region Change to tapped state
+        private void ChangeToTappedState(object parameter)
+        {
+            SelectedMailMessage = parameter as MailMessage;
+           
+            if (SelectedMailMessage.Body.Length > 0 && !SelectedMailMessage.IsDraft)
+                MessageViewConrtolVisibility = Visibility.Visible;
+            else if (SelectedMailMessage.IsDraft)
+                _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, SelectedMailMessage);
+
+            StableMailMessage = SelectedMailMessage;
+        } 
         #endregion
 
         private SpecialFolder GetSpecialFolder(string folder)

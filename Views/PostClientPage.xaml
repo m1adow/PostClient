@@ -26,9 +26,6 @@
             <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=LoadedHandlerCommand}"
                                       CommandParameter="AllMessages"/>
         </core:EventTriggerBehavior>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ClosedHandlerCommand}"/>
-        </core:EventTriggerBehavior>
     </ineractivity:Interaction.Behaviors>
     <Grid DataContext="{StaticResource viewModel}">
         <Grid.ColumnDefinitions>
@@ -159,32 +156,36 @@
                         Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
                         CommandParameter="{Binding ElementName=StoryboardLoading}"
                         Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-                <StackPanel Grid.Column="2"
-                            Margin="10,0,0,0">
-                    <TextBlock x:Uid="TextBlockSort"
-                               Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-                    <ComboBox Grid.Column="2"
-                              Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
-                        <Button x:Uid="ButtonA-Z"
-                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                CommandParameter="a-z"/>
-                        <Button x:Uid="ButtonZ-A"
-                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                CommandParameter="z-a"/>
-                        <Button x:Uid="ButtonNewer"
-                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                CommandParameter="newer"/>
-                        <Button x:Uid="ButtonOlder"
-                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                CommandParameter="older"/>
-                    </ComboBox>
-                </StackPanel>
+                <DropDownButton Grid.Column="2"
+                                x:Uid="DropDownButtonSort"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                HorizontalAlignment="Center">
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemA-Z"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="a-z"/>
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemZ-A"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="z-a"/>
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemNewer"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="newer"/>
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemOlder"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="older"/>
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
             </Grid>
-            <ListView x:Name="listViewMessages" Margin="10"
+            <ListView x:Name="listViewMessages" 
+                      CanDragItems="True"
+                      CanReorderItems="True"
+                      AllowDrop="True"
+                      Margin="10"
                       Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                       ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      Grid.Row="1"
-                      SelectedValue="{Binding ControlMessageViewModel.SelectedMailMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                      Grid.Row="1">
                 <ineractivity:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="SelectionChanged">
                         <core:InvokeCommandAction Command="{Binding SendMessageViewModel.HideSendingControlsCommand}"/>
@@ -192,9 +193,23 @@
                 </ineractivity:Interaction.Behaviors>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <uc:MailMessageControl Subject="{Binding Subject}"
+                        <uc:MailMessageControl Id="{Binding Uid}"
+                                               Subject="{Binding Subject}"
                                                Date="{Binding Date}"
-                                               From="{Binding From}"/>
+                                               From="{Binding From}"
+                                               FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
+                                               DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
+                                                              CommandParameter="{Binding}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeToTappedStateCommand}"
+                                                              CommandParameter="{Binding}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </uc:MailMessageControl>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
@@ -225,8 +240,8 @@
                         Command="{Binding ControlMessageViewModel.CloseMessageCommand}"
                         Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"/>
             </Grid>
-            <uc:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.SelectedMailMessage.Body}"
-                                   Attachments="{Binding ControlMessageViewModel.SelectedMailMessage.Attachments}"
+            <uc:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.StableMailMessage.Body}"
+                                   Attachments="{Binding ControlMessageViewModel.StableMailMessage.Attachments}"
                                    Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"
                                    Grid.Row="1"
                                    Margin="10"/>
@@ -302,8 +317,8 @@
                            Margin="10,0,0,0"/>
                 <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="3*"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="320"/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
@@ -319,7 +334,7 @@
                                   Grid.Column="1"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center">
-                            
+
                         </ComboBox>
                         <Grid Grid.Column="2">
                             <Grid.ColumnDefinitions>

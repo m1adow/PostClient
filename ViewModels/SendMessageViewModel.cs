@@ -105,13 +105,13 @@ namespace PostClient.ViewModels
 
         private readonly Func<Account> _getAccount;
 
-        private readonly Func<Account, IPostService> _getService;
+        private readonly Func<IPostService> _getService;
 
         private readonly Func<MailMessage, bool> _deleteDraft;
 
         private List<KeyValuePair<string, byte[]>>? _files = new List<KeyValuePair<string, byte[]>>();
 
-        public SendMessageViewModel(Func<Account, IPostService> getService, Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
+        public SendMessageViewModel(Func<IPostService> getService, Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
         {                  
             _getAccount = getAccount;
             _account = getAccount();
@@ -136,7 +136,7 @@ namespace PostClient.ViewModels
         {
             MimeMessage message = CreateMessage();
 
-            await _getService(_account).SendMessage(message);
+            await _getService().SendMessage(message);
 
             if (_selectedMessage.IsDraft)
                 _deleteDraft(_selectedMessage);

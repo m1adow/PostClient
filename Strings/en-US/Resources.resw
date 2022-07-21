@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonA-Z.Content" xml:space="preserve">
-    <value>A-Z</value>
-  </data>
   <data name="ButtonCancel.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -150,17 +147,11 @@
   <data name="ButtonLogin.Content" xml:space="preserve">
     <value>Login</value>
   </data>
-  <data name="ButtonNewer.Content" xml:space="preserve">
-    <value>Newer</value>
-  </data>
   <data name="ButtonNewMail.Content" xml:space="preserve">
     <value>New Mail</value>
   </data>
   <data name="ButtonOK.Content" xml:space="preserve">
     <value>OK</value>
-  </data>
-  <data name="ButtonOlder.Content" xml:space="preserve">
-    <value>Older</value>
   </data>
   <data name="ButtonSend.Content" xml:space="preserve">
     <value>Send</value>
@@ -171,11 +162,23 @@
   <data name="ButtonSync.Content" xml:space="preserve">
     <value>Sync</value>
   </data>
-  <data name="ButtonZ-A.Content" xml:space="preserve">
-    <value>Z-A</value>
-  </data>
   <data name="CheckBoxRememberMe.Content" xml:space="preserve">
     <value>Remember me</value>
+  </data>
+  <data name="DropDownButtonSort.Content" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="MenuFlyoutItemA-Z.Text" xml:space="preserve">
+    <value>A-Z</value>
+  </data>
+  <data name="MenuFlyoutItemNewer.Text" xml:space="preserve">
+    <value>Newer</value>
+  </data>
+  <data name="MenuFlyoutItemOlder.Text" xml:space="preserve">
+    <value>Older</value>
+  </data>
+  <data name="MenuFlyoutItemZ-A.Text" xml:space="preserve">
+    <value>Z-A</value>
   </data>
   <data name="RadioButtonGmail.Content" xml:space="preserve">
     <value>Gmail</value>
@@ -206,9 +209,6 @@
   </data>
   <data name="TextBlockService.Text" xml:space="preserve">
     <value>Select service</value>
-  </data>
-  <data name="TextBlockSort.Text" xml:space="preserve">
-    <value>Sort</value>
   </data>
   <data name="TextBlockSubject.Text" xml:space="preserve">
     <value>Subject</value>

@@ -44,7 +44,6 @@
         <Extension Category="windows.backgroundTasks" EntryPoint="PostClientBackground.UpdatingMessagesBackground">
           <BackgroundTasks>
             <Task Type="systemEvent"/>
-            <Task Type="timer"/>
           </BackgroundTasks>
         </Extension>
       </Extensions>

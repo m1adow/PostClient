@@ -5,6 +5,7 @@ using System.Windows.Input;
 using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using System;
+using System.Threading.Tasks;
 
 namespace PostClient.ViewModels
 {
@@ -14,8 +15,6 @@ namespace PostClient.ViewModels
     {
         public ICommand LoadedHandlerCommand { get; }
 
-        public ICommand ClosedHandlerCommand { get; }
-
         public SendMessageViewModel SendMessageViewModel { get; }
 
         public LoadMessagesViewModel LoadMessagesViewModel { get; }
@@ -24,73 +23,58 @@ namespace PostClient.ViewModels
 
         public ControlMessageViewModel ControlMessageViewModel { get; }
 
-        public IPostService? Service { get; private set; }
+        private IPostService? _service;
 
         private Account? _account;
 
         public PostClientViewModel()
         {
             LoadedHandlerCommand = new RelayCommand(LoadedHandler);
-            ClosedHandlerCommand = new RelayCommand(ClosedHandler);
 
-            LoadMessagesViewModel = new LoadMessagesViewModel(GetService, GetAccount);
+            LoadMessagesViewModel = new LoadMessagesViewModel(GetService);
             LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction);
             SendMessageViewModel = new SendMessageViewModel(GetService, GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
-            ControlMessageViewModel = new ControlMessageViewModel(GetService, GetAccount, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc, SendMessageViewModel.ChangeSendMessageControlsVisibilityAndFillFieldsFunc);
+            ControlMessageViewModel = new ControlMessageViewModel(GetService, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc, SendMessageViewModel.ChangeSendMessageControlsVisibilityAndFillFieldsFunc);
         }
 
-        private Account GetAccount()
-        {
-            if (_account == null)
-                LoadAccount();
+        private Account GetAccount() => _account;
 
-            return _account;
-        }
+        private IPostService GetService() => _service;
 
-        private async void LoadAccount()
+        private void GenerateService()
         {
-            try
+            _service = _account.PostServiceName switch
             {
-                _account = await JSONSaverAndReaderHelper.Read<Account>("AccountCredentials.json");
-                _account.Password = EncryptionHelper.Decrypt(_account.Password);
-                Service = GetService(_account);
-            }
-            catch
-            {
-                MessageDialogShower.ShowMessageDialog("You have to login");
-            }
-        }
-
-        private IPostService GetService(Account account)
-        {
-            if (Service == null)
-                Service = GenerateService(account);
-
-            return Service;
-        }
-
-        private IPostService GenerateService(Account account)
-        {
-            return account.PostServiceName switch
-            {
-                nameof(GmailService) => new GmailService(account),
-                nameof(OutlookService) => new OutlookService(account),
-                _ => throw new ArgumentNullException(account.PostServiceName)
+                nameof(GmailService) => new GmailService(_account),
+                nameof(OutlookService) => new OutlookService(_account),
+                _ => throw new ArgumentNullException(_account.PostServiceName),
             };
         }
 
         private void ChangeAccountAfterLogining(Account account)
         {
             _account = account;
-            Service = GenerateService(account);
+            GenerateService();
         }
 
-        private void LoadedHandler(object parameter)
+        private async void LoadedHandler(object parameter)
         {
+            await LoadAccount();
+            GenerateService();
             LoadMessagesViewModel.LoadMessagesFromLocalStorageAction(parameter);
-            LoadAccount();
         }
 
-        private void ClosedHandler(object parameter) => Service.CloseClients();     
+        private async Task LoadAccount()
+        {
+            try
+            {
+                _account = await JSONSaverAndReaderHelper.Read<Account>("AccountCredentials.json");
+                _account.Password = EncryptionHelper.Decrypt(_account.Password);
+            }
+            catch
+            {
+                MessageDialogShower.ShowMessageDialog("You have to login");
+            }
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -10,6 +12,15 @@ namespace PostClient.Views.Controls
 
     internal sealed partial class MailMessageControl : UserControl
     {
+        public string? Id
+        {
+            get => (string)GetValue(IdProperty);
+            set => SetValue(IdProperty, value);
+        }
+
+        public static readonly DependencyProperty IdProperty =
+           DependencyProperty.Register(nameof(Id), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnIdDependencyPropertyChanged));
+
         public string? Subject
         {
             get => (string)GetValue(SubjectProperty);
@@ -37,9 +48,35 @@ namespace PostClient.Views.Controls
         public static readonly DependencyProperty FromProperty =
             DependencyProperty.Register(nameof(From), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnFromDependencyPropertyChanged));
 
+        public ICommand FlagCommand
+        {
+            get => (ICommand)GetValue(FlagCommandProperty);
+            set => SetValue(FlagCommandProperty, value);
+        }
+
+        public static readonly DependencyProperty FlagCommandProperty =
+            DependencyProperty.Register(nameof(FlagCommand), typeof(ICommand), typeof(MailMessageControl), new PropertyMetadata(null, OnFlagCommandDependencyPropertyChanged));
+
+        public ICommand DeleteCommand
+        {
+            get => (ICommand)GetValue(DeleteCommandProperty);
+            set => SetValue(DeleteCommandProperty, value);
+        }
+
+        public static readonly DependencyProperty DeleteCommandProperty =
+            DependencyProperty.Register(nameof(DeleteCommand), typeof(ICommand), typeof(MailMessageControl), new PropertyMetadata(null, OnDeleteCommandDependencyPropertyChanged));
+
+
         public MailMessageControl()
         {
             this.InitializeComponent();
+        }
+
+        private static void OnIdDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
+
+            control.idTextBlock.Text = (e.NewValue as string) ?? string.Empty;
         }
 
         private static void OnSubjectDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -61,6 +98,25 @@ namespace PostClient.Views.Controls
             MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
 
             control.fromTextBlock.Text = (e.NewValue as string) ?? string.Empty;
+        }    
+
+        private static void OnFlagCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
+
+            control.flagAppBarButton.Command = e.NewValue as ICommand;
+        }
+
+        private static void OnDeleteCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
+
+            control.deleteAppBarButton.Command = e.NewValue as ICommand;
+        }
+
+        private void Grid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            commandBarFlyoutFlagAndDelete.ShowAt(sender as Grid, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard });
         }
     }
 }

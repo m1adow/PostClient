@@ -6,6 +6,7 @@ using PostClient.Models;
 using PostClient.Models.Infrastructure;
 using PostClient.ViewModels.Helpers;
 using PostClient.ViewModels.Infrastructure;
+using PostClientBackground;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,7 +16,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel.Background;
 using Windows.UI.Core;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace PostClient.ViewModels
@@ -58,14 +58,13 @@ namespace PostClient.ViewModels
 
         private string _messageFolder = string.Empty;
 
-        private Func<Account, IPostService> _getService;
+        private readonly Func<IPostService> _getService;
 
-        private Func<Account> _getAccount;
+        private IBackgroundTaskRegistration? backgroundTask;
 
-        public LoadMessagesViewModel(Func<Account, IPostService> getService, Func<Account> getAccount)
+        public LoadMessagesViewModel(Func<IPostService> getService)
         {
             _getService = getService;
-            _getAccount = getAccount;
             LoadMessagesFromServerAction = LoadMessagesFromServer;
             LoadMessagesFromLocalStorageAction = LoadMessagesFromLocalStorage;
             FlagMessageFunc = FlagMessage;
@@ -76,26 +75,11 @@ namespace PostClient.ViewModels
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
-            RegisterBackgroundTask();
+            //backgroundTask = UpdatingMessagesBackground.Register();
+            //backgroundTask.Completed += BackgroundTask_Completed;
         }
 
-        #region Background Task for updating messages
-        private void RegisterBackgroundTask()
-        {
-            var taskName = "PostClientBackground.UpdatingMessagesBackground";
-
-            var builder = new BackgroundTaskBuilder
-            {
-                Name = taskName,
-                TaskEntryPoint = taskName
-            };
-            builder.SetTrigger(new TimeTrigger(60, false));
-
-            var taskRegistration = builder.Register();
-            taskRegistration.Completed += TaskRegistration_Completed;
-        }
-
-        private async void TaskRegistration_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        private async void BackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                 async () =>
@@ -103,7 +87,6 @@ namespace PostClient.ViewModels
                     Messages = await GetMessagesAsync();
                 });
         }
-        #endregion
 
         #region Load messages from local storage
         private async void LoadMessagesFromLocalStorage(object parameter)
@@ -168,7 +151,7 @@ namespace PostClient.ViewModels
             return messages;
         }
 
-        private Dictionary<UniqueId, MimeMessage> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => _getService(_getAccount()).LoadMessages(specialFolder, searchQuery, subFolder);
+        private Dictionary<UniqueId, MimeMessage> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => _getService().LoadMessages(specialFolder, searchQuery, subFolder);
 
         private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<UniqueId, MimeMessage> mimeMessages)
         {

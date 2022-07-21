@@ -13,15 +13,12 @@ namespace PostClient.Models.Services
     {
         protected async Task SendMessage(SmtpClient client, MimeMessage message) => await client.SendAsync(message);
 
-        protected async void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort)
+        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort)
         {
-            await Task.Run(() =>
-            {
-                imapClient.Connect(imapServer, 993, true);
-                imapClient.Authenticate(account.Email, account.Password);
-                smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
-                smtpClient.Authenticate(account.Email, account.Password);
-            });
+            imapClient.Connect(imapServer, 993, true);
+            imapClient.Authenticate(account.Email, account.Password);
+            smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
+            smtpClient.Authenticate(account.Email, account.Password);
         }
 
         protected Dictionary<UniqueId, MimeMessage> GetMessages(ImapClient client, SearchQuery searchQuery, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "")
@@ -69,7 +66,7 @@ namespace PostClient.Models.Services
             {
                 IList<UniqueId> uids = new List<UniqueId>()
                 {
-                new UniqueId(uid)
+                    new UniqueId(uid)
                 };
 
                 var folder = GetFolder(client, specialFolder, subFolder);

@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonA-Z.Content" xml:space="preserve">
-    <value>А-Я</value>
-  </data>
   <data name="ButtonCancel.Content" xml:space="preserve">
     <value>Відмінити</value>
   </data>
@@ -150,17 +147,11 @@
   <data name="ButtonLogin.Content" xml:space="preserve">
     <value>Вхід</value>
   </data>
-  <data name="ButtonNewer.Content" xml:space="preserve">
-    <value>Новіші</value>
-  </data>
   <data name="ButtonNewMail.Content" xml:space="preserve">
     <value>Нове повідомлення</value>
   </data>
   <data name="ButtonOK.Content" xml:space="preserve">
     <value>ОК</value>
-  </data>
-  <data name="ButtonOlder.Content" xml:space="preserve">
-    <value>Старіші</value>
   </data>
   <data name="ButtonSend.Content" xml:space="preserve">
     <value>Відправити</value>
@@ -171,11 +162,23 @@
   <data name="ButtonSync.Content" xml:space="preserve">
     <value>Сінхронізувати </value>
   </data>
-  <data name="ButtonZ-A.Content" xml:space="preserve">
-    <value>Я-А</value>
-  </data>
   <data name="CheckBoxRememberMe.Content" xml:space="preserve">
     <value>Запам'ятати мене</value>
+  </data>
+  <data name="DropDownButtonSort.Content" xml:space="preserve">
+    <value>Сортувати</value>
+  </data>
+  <data name="MenuFlyoutItemA-Z.Text" xml:space="preserve">
+    <value>А-Я</value>
+  </data>
+  <data name="MenuFlyoutItemNewer.Text" xml:space="preserve">
+    <value>Новіші</value>
+  </data>
+  <data name="MenuFlyoutItemOlder.Text" xml:space="preserve">
+    <value>Старіші</value>
+  </data>
+  <data name="MenuFlyoutItemZ-A.Text" xml:space="preserve">
+    <value>Я-А</value>
   </data>
   <data name="RadioButtonGmail.Content" xml:space="preserve">
     <value>Gmail</value>
@@ -206,9 +209,6 @@
   </data>
   <data name="TextBlockService.Text" xml:space="preserve">
     <value>Виберіть сервіс</value>
-  </data>
-  <data name="TextBlockSort.Text" xml:space="preserve">
-    <value>Сортирувати</value>
   </data>
   <data name="TextBlockSubject.Text" xml:space="preserve">
     <value>Тема</value>
