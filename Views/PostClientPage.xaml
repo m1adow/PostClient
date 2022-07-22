@@ -193,7 +193,8 @@
                 </ineractivity:Interaction.Behaviors>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <uc:MailMessageControl Subject="{Binding Subject}"
+                        <uc:MailMessageControl Id="{Binding Uid}"
+                                               Subject="{Binding Subject}"
                                                Date="{Binding Date}"
                                                From="{Binding From}"
                                                FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
