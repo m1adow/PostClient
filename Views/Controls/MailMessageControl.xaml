@@ -15,17 +15,32 @@
         </CommandBarFlyout>
     </UserControl.Resources>
     <Grid RightTapped="Grid_RightTapped">
-        <StackPanel Margin="10">
-            <TextBlock x:Name="subjectTextBlock"
+        <SwipeControl HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+            <SwipeControl.LeftItems>
+                <SwipeItems Mode="Reveal">
+                    <SwipeItem Text="Flag">
+                        <SwipeItem.IconSource>
+                            <SymbolIconSource Symbol="Flag"/>
+                        </SwipeItem.IconSource>
+                    </SwipeItem>
+                    <SwipeItem Text="Delete">
+                        <SwipeItem.IconSource>
+                            <SymbolIconSource Symbol="Delete"/>
+                        </SwipeItem.IconSource>
+                    </SwipeItem>
+                </SwipeItems>
+            </SwipeControl.LeftItems>
+            <StackPanel Margin="10">
+                <TextBlock x:Name="subjectTextBlock"
                        FontSize="15"
                        FontWeight="Bold"/>
-            <TextBlock x:Name="dateTextBlock" 
+                <TextBlock x:Name="dateTextBlock" 
                        Margin="20,0,0,0"
                        FontSize="10"/>
-            <TextBlock x:Name="fromTextBlock"
+                <TextBlock x:Name="fromTextBlock"
                        FontSize="12"/>
-        </StackPanel>
-        <TextBlock x:Name="idTextBlock"
-                   Visibility="Collapsed"/>
+            </StackPanel>
+        </SwipeControl>
     </Grid>
 </UserControl>

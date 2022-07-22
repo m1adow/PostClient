@@ -38,6 +38,11 @@ namespace PostClient.ViewModels
                     value = new MailMessage();
 
                 Set(ref _stableMailMessage, value);
+
+                if (value.Body.Length > 0 && !value.IsDraft)
+                    MessageViewConrtolVisibility = Visibility.Visible;
+                else if (value.IsDraft)
+                    _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, value);
             }
         }
 
@@ -122,13 +127,7 @@ namespace PostClient.ViewModels
         #region Change to tapped state
         private void ChangeToTappedState(object parameter)
         {
-            SelectedMailMessage = parameter as MailMessage;
-           
-            if (SelectedMailMessage.Body.Length > 0 && !SelectedMailMessage.IsDraft)
-                MessageViewConrtolVisibility = Visibility.Visible;
-            else if (SelectedMailMessage.IsDraft)
-                _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, SelectedMailMessage);
-
+            SelectedMailMessage = parameter as MailMessage;         
             StableMailMessage = SelectedMailMessage;
         } 
         #endregion
