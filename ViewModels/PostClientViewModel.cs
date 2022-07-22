@@ -43,12 +43,15 @@ namespace PostClient.ViewModels
 
         private void GenerateService()
         {
-            _service = _account.PostServiceName switch
+            if (_account != null)
             {
-                nameof(GmailService) => new GmailService(_account),
-                nameof(OutlookService) => new OutlookService(_account),
-                _ => throw new ArgumentNullException(_account.PostServiceName),
-            };
+                _service = _account.PostServiceName switch
+                {
+                    nameof(GmailService) => new GmailService(_account),
+                    nameof(OutlookService) => new OutlookService(_account),
+                    _ => throw new ArgumentNullException(_account.PostServiceName),
+                };
+            }
         }
 
         private void ChangeAccountAfterLogining(Account account)

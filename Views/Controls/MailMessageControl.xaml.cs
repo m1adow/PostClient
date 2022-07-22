@@ -12,15 +12,6 @@ namespace PostClient.Views.Controls
 
     internal sealed partial class MailMessageControl : UserControl
     {
-        public string? Id
-        {
-            get => (string)GetValue(IdProperty);
-            set => SetValue(IdProperty, value);
-        }
-
-        public static readonly DependencyProperty IdProperty =
-           DependencyProperty.Register(nameof(Id), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnIdDependencyPropertyChanged));
-
         public string? Subject
         {
             get => (string)GetValue(SubjectProperty);
@@ -72,13 +63,6 @@ namespace PostClient.Views.Controls
             this.InitializeComponent();
         }
 
-        private static void OnIdDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
-
-            control.idTextBlock.Text = (e.NewValue as string) ?? string.Empty;
-        }
-
         private static void OnSubjectDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
@@ -118,5 +102,9 @@ namespace PostClient.Views.Controls
         {
             commandBarFlyoutFlagAndDelete.ShowAt(sender as Grid, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard });
         }
+
+        private void SwipeItemFlag_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args) => FlagCommand.Execute(new object());
+
+        private void SwipeItemDelete_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args) => DeleteCommand.Execute(new object());
     }
 }

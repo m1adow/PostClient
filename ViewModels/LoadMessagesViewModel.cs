@@ -75,8 +75,8 @@ namespace PostClient.ViewModels
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
-            //backgroundTask = UpdatingMessagesBackground.Register();
-            //backgroundTask.Completed += BackgroundTask_Completed;
+            backgroundTask = UpdatingMessagesBackground.Register();
+            backgroundTask.Completed += BackgroundTask_Completed;
         }
 
         private async void BackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
