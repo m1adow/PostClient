@@ -37,7 +37,18 @@
                     Grid.Column="0">
             <Button x:Uid="ButtonLogin"
                     Command="{Binding LoginViewModel.ShowLoginControlsCommand}"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                    Visibility="{Binding LoginButtonVisibility}"/>
+            <TextBlock Text="Email:"
+                       Visibility="{Binding AccountControlsVisibility}"/>
+            <TextBlock Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Visibility="{Binding AccountControlsVisibility}"/>
+            <TextBlock Text="Service:"
+                       Visibility="{Binding AccountControlsVisibility}"/>
+            <TextBlock Text="{Binding Service, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Visibility="{Binding AccountControlsVisibility}"/>
+            <Button Content="Logout"
+                    Visibility="{Binding AccountControlsVisibility}"
+                    Command="{Binding LogoutCommand}"/>
             <Button x:Uid="ButtonNewMail"
                     Command="{Binding SendMessageViewModel.ShowSendingControlsCommand}"
                     Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">

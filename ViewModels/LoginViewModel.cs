@@ -79,7 +79,9 @@ namespace PostClient.ViewModels
 
         private readonly Action<Account> _changeAccount;
 
-        public LoginViewModel(Action<Account> changeAccount, Action<object> loadMessages)
+        private Visibility? _loginButtonVisibility;
+
+        public LoginViewModel(Action<Account> changeAccount, Action<object> loadMessages, Visibility? loginButtonVisibility)
         {
             _changeAccount = changeAccount;
             _loadMessages = loadMessages;
@@ -87,6 +89,7 @@ namespace PostClient.ViewModels
             LoginCommand = new RelayCommand(LoginIntoAccount, IsLoginFieldsFilled);
             ShowLoginControlsCommand = new RelayCommand(ShowLoginControls);
             CancelLoginControlsCommand = new RelayCommand(HideLoginControls);
+            _loginButtonVisibility = loginButtonVisibility;
         }
 
         #region Login
@@ -145,6 +148,7 @@ namespace PostClient.ViewModels
         private void ShowLoginControls(object parameter)
         {
             ManagmentButtonsVisibility = Visibility.Collapsed;
+            _loginButtonVisibility = Visibility.Collapsed;
             LoginControlsVisibility = Visibility.Visible;
         }
         #endregion
