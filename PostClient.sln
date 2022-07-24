@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostClient", "PostClient.csproj", "{9D9D5FD3-4C4C-4A50-B406-0E0F409FE11D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostClientBackground", "..\PostClientBackground\PostClientBackground.csproj", "{395C5B04-FCAC-4369-B354-D217E4CC646A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostClientBackground", "PostClientBackground\PostClientBackground.csproj", "{395C5B04-FCAC-4369-B354-D217E4CC646A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

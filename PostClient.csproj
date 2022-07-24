@@ -208,6 +208,12 @@
   <ItemGroup>
     <PRIResource Include="Strings\uk-ua\Resources.resw" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="PostClientBackground\PostClientBackground.csproj">
+      <Project>{395c5b04-fcac-4369-b354-d217e4cc646a}</Project>
+      <Name>PostClientBackground</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

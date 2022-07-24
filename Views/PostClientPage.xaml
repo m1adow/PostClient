@@ -33,7 +33,7 @@
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Margin="10"
+        <StackPanel Margin="10,10,10,10"
                     Grid.Column="0">
             <Button x:Uid="ButtonLogin"
                     Command="{Binding LoginViewModel.ShowLoginControlsCommand}"

@@ -9,7 +9,7 @@ using Windows.UI.Xaml;
 
 namespace PostClient.ViewModels
 {
-    #nullable enable
+#nullable enable
 
     internal sealed class LoginViewModel : ViewModelBase
     {
@@ -92,29 +92,36 @@ namespace PostClient.ViewModels
         #region Login
         private void LoginIntoAccount(object parameter)
         {
-            Account account = new Account()
+            try
             {
-                Email = this.Email,
-                Password = this.Password,
-                PostServiceName = this.GetServiceName()
-            };
+                Account account = new Account()
+                {
+                    Email = this.Email,
+                    Password = this.Password,
+                    PostServiceName = this.GetServiceName()
+                };
 
-            _changeAccount(account);
-            _loadMessages(parameter);
+                _changeAccount(account);
+                _loadMessages(parameter);
 
-            Account encryptedAccount = new Account
+                Account encryptedAccount = new Account
+                {
+                    Email = this.Email,
+                    Password = EncryptionHelper.Encrypt(this.Password),
+                    PostServiceName = this.GetServiceName()
+                };
+
+                if (IsRememberMeChecked)
+                    JSONSaverAndReaderHelper.Save(encryptedAccount, "AccountCredentials.json");
+
+                ClearFields();
+                HideLoginControls(parameter);
+                (LoginCommand as RelayCommand)?.OnExecuteChanged(); //for disabling login button on second time
+            }
+            catch (MailKit.Security.AuthenticationException exception)
             {
-                Email = this.Email,
-                Password = EncryptionHelper.Encrypt(this.Password),
-                PostServiceName = this.GetServiceName()
-            };
-
-            if (IsRememberMeChecked)
-                JSONSaverAndReaderHelper.Save(encryptedAccount, "AccountCredentials.json");
-
-            ClearFields();
-            HideLoginControls(parameter);
-            (LoginCommand as RelayCommand)?.OnExecuteChanged(); //for disabling login button on second time
+                MessageDialogShower.ShowMessageDialog(exception.Message);
+            }
         }
 
         private string GetServiceName()

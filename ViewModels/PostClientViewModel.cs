@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PostClient.ViewModels
 {
-    #nullable enable
+#nullable enable
 
     internal sealed class PostClientViewModel : ViewModelBase
     {

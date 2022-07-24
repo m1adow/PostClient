@@ -108,11 +108,12 @@ namespace PostClient.ViewModels
             {
                 Messages = await GetMessagesAsync();
             }
-            catch (MailKit.Security.AuthenticationException exception)
+            catch (Exception exception)
             {
                 MessageDialogShower.ShowMessageDialog(exception.Message);
             }
 
+            MessageDialogShower.ShowMessageDialog("Messages was downloaded");
             storyboard.Stop();
         }
 
