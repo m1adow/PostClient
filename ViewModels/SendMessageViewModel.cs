@@ -141,7 +141,12 @@ namespace PostClient.ViewModels
                 _deleteDraft(_selectedMessage);
 
             MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
-            ClearFields((parameter as ComboBox) ?? new ComboBox());
+
+            var comboBox = parameter as ComboBox;
+
+            if (comboBox != null)
+                ClearFields(comboBox);
+
             SendMessageControlsVisibility = Visibility.Collapsed;
         }
 

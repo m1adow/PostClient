@@ -99,10 +99,13 @@ namespace PostClient.ViewModels
         #region Load messages from server
         private async void LoadMessagesFromServer(object parameter)
         {
-            Storyboard? storyboard = (parameter as Storyboard) ?? new Storyboard();
+            Storyboard? storyboard = parameter as Storyboard;
 
-            storyboard.Begin();
-            storyboard.RepeatBehavior = RepeatBehavior.Forever;
+            if (storyboard != null)
+            {
+                storyboard.Begin();
+                storyboard.RepeatBehavior = RepeatBehavior.Forever;
+            }
 
             try
             {
@@ -115,7 +118,7 @@ namespace PostClient.ViewModels
             }
 
             MessageDialogShower.ShowMessageDialog("Messages was downloaded");
-            storyboard.Stop();
+            storyboard?.Stop();
         }
 
         private async Task<ObservableCollection<MailMessage>> GetMessagesAsync()

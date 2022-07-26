@@ -99,8 +99,8 @@ namespace PostClient.ViewModels
         private void ChangeAccountAfterLogining(Account account)
         {
             _account = account;
-            AccountControlsVisibility = Visibility.Visible;
             GenerateService();
+            AccountControlsVisibility = Visibility.Visible;
         }
 
         private async void LoadedHandler(object parameter)
