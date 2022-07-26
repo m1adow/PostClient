@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace PostClient.ViewModels.Infrastructure
 {
-    internal abstract class ViewModelBase : INotifyPropertyChanged
+    public abstract class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

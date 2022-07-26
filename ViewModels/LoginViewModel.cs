@@ -1,7 +1,6 @@
 ﻿using PostClient.Models;
-using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
-using PostClient.ViewModels.Helpers;
+using PostClient.Models.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Windows.Input;
@@ -11,7 +10,7 @@ namespace PostClient.ViewModels
 {
 #nullable enable
 
-    internal sealed class LoginViewModel : ViewModelBase
+    public sealed class LoginViewModel : ViewModelBase
     {
         private Visibility? _managmentButtonsVisibility = Visibility.Visible;
 

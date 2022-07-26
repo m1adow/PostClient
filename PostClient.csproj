@@ -126,10 +126,10 @@
     <Compile Include="Models\Services\OutlookService.cs" />
     <Compile Include="Models\Services\PostService.cs" />
     <Compile Include="ViewModels\ControlMessageViewModel.cs" />
-    <Compile Include="ViewModels\Helpers\EncryptionHelper.cs" />
-    <Compile Include="ViewModels\Helpers\JSONSaverAndReaderHelper.cs" />
-    <Compile Include="ViewModels\Helpers\MessageDialogShower.cs" />
-    <Compile Include="ViewModels\Helpers\StorageFileWriterAndReader.cs" />
+    <Compile Include="Models\Helpers\EncryptionHelper.cs" />
+    <Compile Include="Models\Helpers\JSONSaverAndReaderHelper.cs" />
+    <Compile Include="Models\Helpers\MessageDialogShower.cs" />
+    <Compile Include="Models\Helpers\StorageFileWriterAndReader.cs" />
     <Compile Include="ViewModels\Infrastructure\RelayCommand.cs" />
     <Compile Include="ViewModels\LoadMessagesViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />

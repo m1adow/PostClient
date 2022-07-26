@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace PostClient.ViewModels.Helpers
+namespace PostClient.Models.Helpers
 {
-    internal static class JSONSaverAndReaderHelper
+    public static class JSONSaverAndReaderHelper
     {
         public static void Save<T>(T objectForSerialization, string name)
         {

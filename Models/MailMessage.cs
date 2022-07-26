@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace PostClient.Models
 {
-    #nullable enable
+#nullable enable
 
-    internal sealed class MailMessage
+    public sealed class MailMessage
     {
         public uint Uid { get; set; }
         public string? Name { get; set; }

@@ -11,7 +11,7 @@ namespace PostClient.ViewModels
 {
 #nullable enable
 
-    internal sealed class ControlMessageViewModel : ViewModelBase
+    public sealed class ControlMessageViewModel : ViewModelBase
     {
         private MailMessage? _selectedMailMessage = new MailMessage();
 

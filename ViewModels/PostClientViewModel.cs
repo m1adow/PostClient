@@ -1,6 +1,6 @@
 ﻿using PostClient.ViewModels.Infrastructure;
 using PostClient.Models;
-using PostClient.ViewModels.Helpers;
+using PostClient.Models.Helpers;
 using System.Windows.Input;
 using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
@@ -13,7 +13,7 @@ namespace PostClient.ViewModels
 {
 #nullable enable
 
-    internal sealed class PostClientViewModel : ViewModelBase
+    public sealed class PostClientViewModel : ViewModelBase
     {
         private Visibility? _accountControlsVisibility = Visibility.Collapsed;
 
@@ -80,7 +80,7 @@ namespace PostClient.ViewModels
 
         private void GenerateService()
         {
-            if (_account != null)
+            if (_account != null && _account.Email != null && _account.Password != null)
             {
                 _postService = _account.PostServiceName switch
                 {
@@ -115,6 +115,8 @@ namespace PostClient.ViewModels
             try
             {
                 _account = await JSONSaverAndReaderHelper.Read<Account>("AccountCredentials.json");
+                if (_account.Email == null || _account.Password == null)
+                    throw new Exception();
                 _account.Password = EncryptionHelper.Decrypt(_account.Password);
             }
             catch

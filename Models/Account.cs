@@ -1,8 +1,8 @@
 ﻿namespace PostClient.Models
 {
-    #nullable enable
+#nullable enable
 
-    internal sealed class Account
+    public sealed class Account
     {
         public string? Email { get; set; }
         public string? Password { get; set; }

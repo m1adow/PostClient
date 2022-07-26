@@ -11,7 +11,7 @@ namespace PostClient.Models.Services
 {
 #nullable enable
 
-    internal sealed class GmailService : PostService, IPostService
+    public sealed class GmailService : PostService, IPostService
     {
         public Account Account { get; }
 

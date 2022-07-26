@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PostClient.Models.Services
 {
-    internal abstract class PostService
+    public abstract class PostService
     {
         protected async Task SendMessage(SmtpClient client, MimeMessage message) => await client.SendAsync(message);
 

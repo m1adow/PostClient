@@ -3,9 +3,9 @@ using System.Text;
 using System.Security.Cryptography;
 using System;
 
-namespace PostClient.ViewModels.Helpers
+namespace PostClient.Models.Helpers
 {
-    internal static class EncryptionHelper
+    public static class EncryptionHelper
     {
         private static readonly string _encryptionKey = "ko3wp5ba1wy19";
 

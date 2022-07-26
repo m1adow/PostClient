@@ -2,9 +2,9 @@
 using System;
 using System.Threading.Tasks;
 
-namespace PostClient.ViewModels.Helpers
+namespace PostClient.Models.Helpers
 {
-    internal static class StorageFileWriterAndReader
+    public static class StorageFileWriterAndReader
     {
         public static async void Write(string name, string data)
         {

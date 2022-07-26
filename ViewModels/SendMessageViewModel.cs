@@ -1,8 +1,7 @@
 ﻿using MimeKit;
 using PostClient.Models;
 using PostClient.Models.Infrastructure;
-using PostClient.Models.Services;
-using PostClient.ViewModels.Helpers;
+using PostClient.Models.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -19,9 +18,9 @@ using Windows.UI.Xaml.Controls;
 
 namespace PostClient.ViewModels
 {
-    #nullable enable
+#nullable enable
 
-    internal sealed class SendMessageViewModel : ViewModelBase
+    public sealed class SendMessageViewModel : ViewModelBase
     {
         private string? _messageSender = string.Empty;
 

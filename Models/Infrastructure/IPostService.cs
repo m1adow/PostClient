@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PostClient.Models.Infrastructure
 {
-    internal interface IPostService
+    public interface IPostService
     {
         Account Account { get; }
         Task SendMessage(MimeMessage message);

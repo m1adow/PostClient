@@ -1,9 +1,9 @@
 ﻿using System;
 using Windows.UI.Popups;
 
-namespace PostClient.ViewModels.Helpers
+namespace PostClient.Models.Helpers
 {
-    internal static class MessageDialogShower
+    public static class MessageDialogShower
     {
         public static async void ShowMessageDialog(string message)
         {

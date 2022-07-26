@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PostClient.Models.Services
 {
-    internal sealed class OutlookService : PostService, IPostService
+    public sealed class OutlookService : PostService, IPostService
     {
         public Account Account { get; }
 

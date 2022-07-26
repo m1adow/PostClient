@@ -4,7 +4,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using MimeKit;
 using PostClient.Models;
 using PostClient.Models.Infrastructure;
-using PostClient.ViewModels.Helpers;
+using PostClient.Models.Helpers;
 using PostClient.ViewModels.Infrastructure;
 using PostClientBackground;
 using System;
@@ -22,7 +22,7 @@ namespace PostClient.ViewModels
 {
 #nullable enable
 
-    internal sealed class LoadMessagesViewModel : ViewModelBase
+    public sealed class LoadMessagesViewModel : ViewModelBase
     {
         private ObservableCollection<MailMessage>? _messages = new ObservableCollection<MailMessage>();
 
@@ -107,6 +107,7 @@ namespace PostClient.ViewModels
             try
             {
                 Messages = await GetMessagesAsync();
+                _messageFolder = "AllMessages.json";
             }
             catch (Exception exception)
             {
