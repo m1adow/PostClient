@@ -4,6 +4,7 @@ using MailKit.Net.Smtp;
 using MailKit.Search;
 using MailKit.Security;
 using MimeKit;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,31 +12,45 @@ namespace PostClient.Models.Services
 {
     public abstract class PostService
     {
-        protected async Task SendMessage(SmtpClient client, MimeMessage message) => await client.SendAsync(message);
-
-        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort)
+        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort, Action<string> excpetionHandler)
         {
-            imapClient.Connect(imapServer, 993, true);
-            imapClient.Authenticate(account.Email, account.Password);
-            smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
-            smtpClient.Authenticate(account.Email, account.Password);
+            try
+            {
+                imapClient.Connect(imapServer, 993, true);
+                imapClient.Authenticate(account.Email, account.Password);
+                smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
+                smtpClient.Authenticate(account.Email, account.Password);
+            }
+            catch (Exception exception)
+            {
+                excpetionHandler(exception.Message);
+            }
         }
 
-        protected Dictionary<UniqueId, MimeMessage> GetMessages(ImapClient client, SearchQuery searchQuery, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "")
+        protected async Task SendMessage(SmtpClient client, MimeMessage message, Action<string> exceptionHandler)
+        {
+            try
+            {
+                await client.SendAsync(message);
+            }
+            catch (Exception exception)
+            {
+                exceptionHandler(exception.Message);
+            }
+        }
+
+        protected async Task<Dictionary<UniqueId, MimeMessage>> GetMessages(ImapClient client, SearchQuery searchQuery, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "")
         {
             var messages = new Dictionary<UniqueId, MimeMessage>();
 
             var folder = GetFolder(client, specialFolder, subFolder);
 
-            folder.Open(FolderAccess.ReadOnly);
+            await folder.OpenAsync(FolderAccess.ReadOnly);
 
-            var uids = folder.Search(searchQuery);
+            var uids = await folder.SearchAsync(searchQuery);
 
             for (int i = uids.Count - 1; i >= (uids.Count > 100 ? uids.Count - 100 : 0); i--)
-            {
-                var messageMime = folder.GetMessage(uids[i]);
-                messages.Add(uids[i], messageMime);
-            }
+                messages.Add(uids[i], await folder.GetMessageAsync(uids[i]));
 
             return messages;
         }

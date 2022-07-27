@@ -4,6 +4,7 @@ using MailKit.Net.Smtp;
 using MailKit.Search;
 using MimeKit;
 using PostClient.Models.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,31 +22,33 @@ namespace PostClient.Models.Services
         private const string _smtpLink = "smtp.gmail.com";
         private const string _imapLink = "imap.gmail.com";
 
+        private readonly Action<string> _exceptionHandler;
         private bool _isImapClientEngaged;
 
-        public GmailService(Account account)
+        public GmailService(Account account, Action<string> exceptionHandler)
         {
             this.Account = account;
             _smtpClient = new SmtpClient();
             _imapClient = new ImapClient();
+            _exceptionHandler = exceptionHandler;
 
-            EstablishConnection(_imapClient, _smtpClient, account, _imapLink, _smtpLink, 465);
+            EstablishConnection(_imapClient, _smtpClient, account, _imapLink, _smtpLink, 465, _exceptionHandler);
         }
 
-        public async Task SendMessage(MimeMessage message) => await SendMessage(_smtpClient, message);
+        public async Task SendMessage(MimeMessage message) => await SendMessage(_smtpClient, message, _exceptionHandler);
 
         public async Task DeleteMessage(MailMessage message, SpecialFolder specialFolder, string subFolder) => await DeleteMessage(_imapClient, message, specialFolder, subFolder);
 
         public async Task FlagMessage(MailMessage message, SpecialFolder specialFolder, string subFolder) => await FlagMessage(_imapClient, message, specialFolder, subFolder);
 
-        public Dictionary<UniqueId, MimeMessage> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "")
+        public async Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "")
         {
             var result = new Dictionary<UniqueId, MimeMessage>();
 
             if (!_isImapClientEngaged)
             {
                 _isImapClientEngaged = true;
-                result = GetMessages(_imapClient, searchQuery, specialFolder, subFolder); 
+                result = await GetMessages(_imapClient, searchQuery, specialFolder, subFolder); 
                 _isImapClientEngaged = false;
             }
             else

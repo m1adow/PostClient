@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostClient", "PostClient.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostClientBackground", "PostClientBackground\PostClientBackground.csproj", "{395C5B04-FCAC-4369-B354-D217E4CC646A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostClientUnitTestProject", "..\PostClientUnitTestProject\PostClientUnitTestProject.csproj", "{73559D62-1DB8-42F8-B690-FE1B69BC2AC3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostClientUnitTestProject", "PostClientUnitTestProject\PostClientUnitTestProject.csproj", "{73559D62-1DB8-42F8-B690-FE1B69BC2AC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

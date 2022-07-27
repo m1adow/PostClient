@@ -7,8 +7,12 @@ namespace PostClient.Models.Helpers
     {
         public static async void ShowMessageDialog(string message)
         {
-            var messageDialog = new MessageDialog(message);
-            await messageDialog.ShowAsync();
+            try
+            {
+                var messageDialog = new MessageDialog(message);
+                await messageDialog.ShowAsync();
+            }
+            catch { }
         }
     }
 }

@@ -84,8 +84,8 @@ namespace PostClient.ViewModels
             {
                 _postService = _account.PostServiceName switch
                 {
-                    nameof(GmailService) => new GmailService(_account),
-                    nameof(OutlookService) => new OutlookService(_account),
+                    nameof(GmailService) => new GmailService(_account, MessageDialogShower.ShowMessageDialog),
+                    nameof(OutlookService) => new OutlookService(_account, MessageDialogShower.ShowMessageDialog),
                     _ => throw new ArgumentNullException(_account.PostServiceName),
                 };
 

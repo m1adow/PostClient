@@ -22,7 +22,7 @@ namespace PostClient.ViewModels
 {
 #nullable enable
 
-    public sealed class LoadMessagesViewModel : ViewModelBase
+    public class LoadMessagesViewModel : ViewModelBase
     {
         private ObservableCollection<MailMessage>? _messages = new ObservableCollection<MailMessage>();
 
@@ -60,7 +60,7 @@ namespace PostClient.ViewModels
 
         private readonly Func<IPostService> _getService;
 
-        private IBackgroundTaskRegistration? backgroundTask;
+        private IBackgroundTaskRegistration? _backgroundTask;
 
         public LoadMessagesViewModel(Func<IPostService> getService)
         {
@@ -75,8 +75,8 @@ namespace PostClient.ViewModels
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
-            //backgroundTask = UpdatingMessagesBackground.Register();
-            //backgroundTask.Completed += BackgroundTask_Completed;
+            _backgroundTask = UpdatingMessagesBackground.Register();
+            _backgroundTask.Completed += BackgroundTask_Completed;
         }
 
         private async void BackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
@@ -127,36 +127,33 @@ namespace PostClient.ViewModels
             var tempMessages = Messages;
             Messages?.Clear();
 
-            await Task.Run(() =>
+            var allMimeMessages = await GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.All);
+            var flaggedMimeMessages = await GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged);
+            var sentMimeMessages = await GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All, "Sent");
+
+            var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
+            SendNotificationAboutNewMessages(allMailMessages, tempMessages.ToList());
+            messages = new ObservableCollection<MailMessage>(allMailMessages);
+
+            var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
+            sentMailMessages.ForEach(m => m.Folder = "Sent");
+
+            var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
+            flaggedMailMessages.ForEach(m =>
             {
-                var allMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.All);
-                var flaggedMimeMessages = GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged);
-                var sentMimeMessages = GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All, "Sent");
-
-                var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
-                SendNotificationAboutNewMessages(allMailMessages, tempMessages.ToList());
-                messages = new ObservableCollection<MailMessage>(allMailMessages);
-
-                var sentMailMessages = ConvertFromMimeMessageToMailMessage(sentMimeMessages);
-                sentMailMessages.ForEach(m => m.Folder = "Sent");
-
-                var flaggedMailMessages = ConvertFromMimeMessageToMailMessage(flaggedMimeMessages);
-                flaggedMailMessages.ForEach(m =>
-                {
-                    m.IsFlagged = true;
-                    m.Folder = "Flagged";
-                });
-
-                SaveMessages(allMailMessages, "AllMessages.json");
-                SaveMessages(sentMailMessages, "SentMessages.json");
-                SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
-                SaveMessages(new List<MailMessage>(), "DraftMessages.json"); //clear draft messages after syncing
+                m.IsFlagged = true;
+                m.Folder = "Flagged";
             });
+
+            SaveMessages(allMailMessages, "AllMessages.json");
+            SaveMessages(sentMailMessages, "SentMessages.json");
+            SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
+            SaveMessages(new List<MailMessage>(), "DraftMessages.json"); //clear draft messages after syncing
 
             return messages;
         }
 
-        private Dictionary<UniqueId, MimeMessage> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => _getService().LoadMessages(specialFolder, searchQuery, subFolder);
+        private async Task<Dictionary<UniqueId, MimeMessage>> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => await _getService().LoadMessages(specialFolder, searchQuery, subFolder);
 
         private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<UniqueId, MimeMessage> mimeMessages)
         {
