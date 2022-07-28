@@ -59,41 +59,35 @@ namespace PostClient.Models.Services
 
         protected async Task DeleteSpecificMessage(ImapClient client, SpecialFolder specialFolder, uint uid, string subFolder)
         {
-            await Task.Run(() =>
+            IList<UniqueId> uids = new List<UniqueId>()
             {
-                IList<UniqueId> uids = new List<UniqueId>()
-                {
                     new UniqueId(uid)
-                };
+            };
 
-                var folder = GetFolder(client, specialFolder, subFolder);
-                folder.Open(FolderAccess.ReadWrite);
-                folder.AddFlags(uids, MessageFlags.Deleted, true);
-                folder.Expunge(uids);
-            });
+            var folder = GetFolder(client, specialFolder, subFolder);
+            await folder.OpenAsync(FolderAccess.ReadWrite);
+            await folder.AddFlagsAsync(uids, MessageFlags.Deleted, true);
+            await folder.ExpungeAsync(uids);
         }
 
         protected async Task FlagMessage(ImapClient client, MailMessage message, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "") => await FlagSpecificMessage(client, specialFolder, message.Uid, message.IsFlagged, subFolder);
 
         protected async Task FlagSpecificMessage(ImapClient client, SpecialFolder specialFolder, uint uid, bool isFlagged, string subFolder)
         {
-            await Task.Run(() =>
+            IList<UniqueId> uids = new List<UniqueId>()
             {
-                IList<UniqueId> uids = new List<UniqueId>()
-                {
-                    new UniqueId(uid)
-                };
+                new UniqueId(uid)
+            };
 
-                var folder = GetFolder(client, specialFolder, subFolder);
-                folder.Open(FolderAccess.ReadWrite);
+            var folder = GetFolder(client, specialFolder, subFolder);
+            await folder.OpenAsync(FolderAccess.ReadWrite);
 
-                if (isFlagged)
-                    folder.RemoveFlags(uids, MessageFlags.Flagged, true);
-                else
-                    folder.AddFlags(uids, MessageFlags.Flagged, true);
+            if (isFlagged)
+                await folder.RemoveFlagsAsync(uids, MessageFlags.Flagged, true);
+            else
+                await folder.AddFlagsAsync(uids, MessageFlags.Flagged, true);
 
-                folder.Expunge(uids);
-            });
+            await folder.ExpungeAsync(uids);
         }
 
         protected async void CloseClients(SmtpClient smtpClient, ImapClient imapClient)

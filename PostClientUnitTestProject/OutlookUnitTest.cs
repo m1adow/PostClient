@@ -38,25 +38,64 @@ namespace PostClientUnitTestProject
             sendingViewModel.MessageBody = "TestBody";
 
             sendingViewModel.SendMessageCommand.Execute(new object());
+            await Task.Delay(4000);
             var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
 
             Assert.IsTrue(messages.Any(m => m.Value.Subject == subject));
+
+            foreach (var uid in messages.Keys)
+                await _loadingService.DeleteMessage(new MailMessage { Uid = uid.Id }, MailKit.SpecialFolder.All, "");
         }
 
         [TestMethod]
         public async Task LoadMessagesTest()
         {
-            var from = new List<MailboxAddress>() { new MailboxAddress(_sendingAccount.Email, _sendingAccount.Email) };
-            var to = new List<MailboxAddress>() { MailboxAddress.Parse(_receivingAccount.Email) };
-            var subject = "TestSubject";
-            var body = (new BodyBuilder() { HtmlBody = "TestBody"}).ToMessageBody();
-
-            for (int i = 0; i < 5; i++)
-                await _sendingService.SendMessage(new MimeMessage(from, to, subject, body));
-
+            await _sendingService.SendMessage(CreateMessage("LoadMessagesTest"));
+            await Task.Delay(4000);
             var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
 
-            Assert.IsTrue(messages.Count >= 5);
+            Assert.IsTrue(messages.Count >= 1);
+
+            foreach (var uid in messages.Keys)
+                await _loadingService.DeleteMessage(new MailMessage { Uid = uid.Id }, MailKit.SpecialFolder.All, "");
+        }
+
+        [TestMethod]
+        public async Task FlagMessageTest()
+        {
+            await _sendingService.SendMessage(CreateMessage("FlagMessage"));
+            await Task.Delay(4000);
+            var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
+            var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "FlagMessage").Key.Id };
+
+            await _loadingService.FlagMessage(mailMessage, MailKit.SpecialFolder.All, "");
+            var flaggedMessages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.Flagged);
+
+            Assert.IsTrue(flaggedMessages.Any(f => f.Key.Id == mailMessage.Uid));
+            await _loadingService.DeleteMessage(mailMessage, MailKit.SpecialFolder.All, "");
+        }
+
+        [TestMethod]
+        public async Task DeleteMessageTest()
+        {
+            await _sendingService.SendMessage(CreateMessage("DeleteMessage"));
+            await Task.Delay(4000);
+            var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
+            var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "DeleteMessage").Key.Id };
+
+            await _loadingService.DeleteMessage(mailMessage, MailKit.SpecialFolder.All, "");
+            await Task.Delay(4000);
+
+            Assert.IsTrue((await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All)).Values.Count == 0);
+        }
+
+        private MimeMessage CreateMessage(string subject)
+        {
+            var from = new List<MailboxAddress>() { new MailboxAddress(_sendingAccount.Email, _sendingAccount.Email) };
+            var to = new List<MailboxAddress>() { MailboxAddress.Parse(_receivingAccount.Email) };
+            var body = (new BodyBuilder() { HtmlBody = "TestBody" }).ToMessageBody();
+
+            return new MimeMessage(from, to, subject, body);
         }
     }
 }
