@@ -15,6 +15,9 @@
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="CornerRadius" Value="15"/>
         </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
         <Style TargetType="ListView">
             <Setter Property="Background" Value="#bde0fe"/>
         </Style>

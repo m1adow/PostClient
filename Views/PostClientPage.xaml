@@ -15,9 +15,9 @@
         <vm:PostClientViewModel x:Key="viewModel"/>
         <Storyboard x:Name="StoryboardLoading">
             <ColorAnimationUsingKeyFrames Storyboard.TargetName="listViewMessages" Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)">
-                <EasingColorKeyFrame KeyTime="00:00:00" Value="#EED6D3"/>
-                <EasingColorKeyFrame KeyTime="00:00:01" Value="#E8B4B8"/>
-                <EasingColorKeyFrame KeyTime="00:00:02" Value="#EED6D3"/>
+                <EasingColorKeyFrame KeyTime="00:00:00" Value="#bde0fe"/>
+                <EasingColorKeyFrame KeyTime="00:00:01" Value="#cdb4db"/>
+                <EasingColorKeyFrame KeyTime="00:00:02" Value="#bde0fe"/>
             </ColorAnimationUsingKeyFrames>
         </Storyboard>
     </Page.Resources>
@@ -47,6 +47,7 @@
                     <MenuBar Grid.Row="0"
                              Background="#cdb4db">
                         <MenuBarItem Title="Account"
+                                     Margin="0,-10,0,0"
                                      VerticalAlignment="Center"
                                      HorizontalAlignment="Center" Width="192">
                             <MenuFlyoutItem x:Uid="MenuFlyoutItemLogin"
@@ -74,9 +75,28 @@
                                     <core:InvokeCommandAction Command="{Binding ControlMessageViewModel.HideMessageViewCommand}"/>
                                 </core:EventTriggerBehavior>
                             </ineractivity:Interaction.Behaviors>
+                            <RelativePanel>
+                                <SymbolIcon Symbol="Add"
+                                            x:Name="addIcon"
+                                            HorizontalAlignment="Left"/>
+                                <TextBlock x:Uid="TextBlockNewMail"
+                                           RelativePanel.RightOf="addIcon"
+                                           Margin="10,2,0,0"/>
+                            </RelativePanel>
                         </Button>
-                        <TextBlock x:Uid="TextBlockFolders"
-                                   Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+                            <SymbolIcon Grid.Column="0"
+                                        Symbol="Folder"
+                                        Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                            <TextBlock Grid.Column="1"
+                                       x:Uid="TextBlockFolders"
+                                       Foreground="White"
+                                       Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                        </Grid>
                         <Button x:Uid="ButtonInbox"
                                 Margin="10,5,0,0"
                                 HorizontalAlignment="Left"
@@ -186,7 +206,16 @@
                             x:Uid="ButtonSync"
                             Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
                             CommandParameter="{Binding ElementName=StoryboardLoading}"
-                            Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                            Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
+                        <RelativePanel>
+                            <SymbolIcon Symbol="Refresh"
+                                            x:Name="refreshIcon"
+                                            HorizontalAlignment="Left"/>
+                            <TextBlock x:Uid="TextBlockSync"
+                                           RelativePanel.RightOf="refreshIcon"
+                                           Margin="10,2,0,0"/>
+                        </RelativePanel>
+                    </Button>
                     <DropDownButton Grid.Column="2"
                                     Foreground="Black"
                                     x:Uid="DropDownButtonSort"
@@ -225,22 +254,36 @@
                     </ineractivity:Interaction.Behaviors>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <uc:MailMessageControl Subject="{Binding Subject}"
-                                                   Date="{Binding Date}"
-                                                   From="{Binding From}"
-                                                   FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
-                                                   DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
-                                <ineractivity:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="PointerEntered">
-                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="5*"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Grid.Column="0"
+                                         Width ="32"
+                                         Height="32"
+                                         Margin="6"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Center"
+                                         Fill="{ThemeResource SystemControlBackgroundBaseMediumBrush}"/>
+                                <uc:MailMessageControl Grid.Column="1"
+                                                       Subject="{Binding Subject}"
+                                                       Date="{Binding Date}"
+                                                       From="{Binding From}"
+                                                       FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
+                                                       DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
+                                    <ineractivity:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="PointerEntered">
+                                            <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
                                                                   CommandParameter="{Binding}"/>
-                                    </core:EventTriggerBehavior>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeToTappedStateCommand}"
+                                        </core:EventTriggerBehavior>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeToTappedStateCommand}"
                                                                   CommandParameter="{Binding}"/>
-                                    </core:EventTriggerBehavior>
-                                </ineractivity:Interaction.Behaviors>
-                            </uc:MailMessageControl>
+                                        </core:EventTriggerBehavior>
+                                    </ineractivity:Interaction.Behaviors>
+                                </uc:MailMessageControl>
+                            </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

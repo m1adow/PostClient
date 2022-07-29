@@ -144,9 +144,6 @@
   <data name="ButtonInsert.Content" xml:space="preserve">
     <value>Вставити</value>
   </data>
-  <data name="ButtonNewMail.Content" xml:space="preserve">
-    <value>Нове повідомлення</value>
-  </data>
   <data name="ButtonOK.Content" xml:space="preserve">
     <value>ОК</value>
   </data>
@@ -155,9 +152,6 @@
   </data>
   <data name="ButtonSentMail.Content" xml:space="preserve">
     <value>Відправленні</value>
-  </data>
-  <data name="ButtonSync.Content" xml:space="preserve">
-    <value>Сінхронізувати </value>
   </data>
   <data name="CheckBoxRememberMe.Content" xml:space="preserve">
     <value>Запам'ятати мене</value>
@@ -210,6 +204,9 @@
   <data name="TextBlockName.Text" xml:space="preserve">
     <value>Ім'я</value>
   </data>
+  <data name="TextBlockNewMail.Text" xml:space="preserve">
+    <value>Нове повідомлення</value>
+  </data>
   <data name="TextBlockPassword.Text" xml:space="preserve">
     <value>Пароль</value>
   </data>
@@ -224,6 +221,9 @@
   </data>
   <data name="TextBlockSubject.Text" xml:space="preserve">
     <value>Тема</value>
+  </data>
+  <data name="TextBlockSync.Text" xml:space="preserve">
+    <value>Сінхронізувати </value>
   </data>
   <data name="TextBlockTo.Text" xml:space="preserve">
     <value>Кому</value>
