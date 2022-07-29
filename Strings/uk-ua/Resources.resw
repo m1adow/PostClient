@@ -144,9 +144,6 @@
   <data name="ButtonInsert.Content" xml:space="preserve">
     <value>Вставити</value>
   </data>
-  <data name="ButtonLogin.Content" xml:space="preserve">
-    <value>Вхід</value>
-  </data>
   <data name="ButtonNewMail.Content" xml:space="preserve">
     <value>Нове повідомлення</value>
   </data>
@@ -171,6 +168,15 @@
   <data name="MenuFlyoutItemA-Z.Text" xml:space="preserve">
     <value>А-Я</value>
   </data>
+  <data name="MenuFlyoutItemInformation.Text" xml:space="preserve">
+    <value>Інформація </value>
+  </data>
+  <data name="MenuFlyoutItemLogin.Text" xml:space="preserve">
+    <value>Увійти</value>
+  </data>
+  <data name="MenuFlyoutItemLogout.Text" xml:space="preserve">
+    <value>Вийти</value>
+  </data>
   <data name="MenuFlyoutItemNewer.Text" xml:space="preserve">
     <value>Новіші</value>
   </data>
@@ -185,6 +191,9 @@
   </data>
   <data name="RadioButtonOutlook.Content" xml:space="preserve">
     <value>Outlook</value>
+  </data>
+  <data name="TextBlockEmail.Text" xml:space="preserve">
+    <value>Ел.Пошта</value>
   </data>
   <data name="TextBlockFolders.Text" xml:space="preserve">
     <value>Папки</value>
@@ -210,10 +219,16 @@
   <data name="TextBlockService.Text" xml:space="preserve">
     <value>Виберіть сервіс</value>
   </data>
+  <data name="TextBlockServiceAccount.Text" xml:space="preserve">
+    <value>Сервіс</value>
+  </data>
   <data name="TextBlockSubject.Text" xml:space="preserve">
     <value>Тема</value>
   </data>
   <data name="TextBlockTo.Text" xml:space="preserve">
     <value>Кому</value>
+  </data>
+  <data name="TextBoxSearch.PlaceholderText" xml:space="preserve">
+    <value>Шукати тут</value>
   </data>
 </root>

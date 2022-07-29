@@ -14,42 +14,8 @@ namespace PostClient.ViewModels
 #nullable enable
 
     public sealed class PostClientViewModel : ViewModelBase
-    {
-        private Visibility? _accountControlsVisibility = Visibility.Collapsed;
-
-        public Visibility? AccountControlsVisibility
-        {
-            get => _accountControlsVisibility;
-            set => Set(ref _accountControlsVisibility, value);
-        }
-
-        private Visibility? _loginButtonVisibility = Visibility.Visible;
-
-        public Visibility? LoginButtonVisibility
-        {
-            get => _loginButtonVisibility;
-            set => Set(ref _loginButtonVisibility, value);
-        }
-
-        private string? _email = string.Empty;
-
-        public string? Email
-        {
-            get => _email;
-            set => Set(ref _email, value);
-        }
-
-        private string? _service = string.Empty;
-
-        public string? Service
-        {
-            get => _service;
-            set => Set(ref _service, value);
-        }
-
+    {       
         public ICommand LoadedHandlerCommand { get; }
-
-        public ICommand LogoutCommand { get; }
 
         public SendMessageViewModel SendMessageViewModel { get; }
 
@@ -59,6 +25,8 @@ namespace PostClient.ViewModels
 
         public ControlMessageViewModel ControlMessageViewModel { get; }
 
+        public AccountViewModel AccountViewModel { get; }
+
         private IPostService? _postService;
 
         private Account? _account;
@@ -66,15 +34,17 @@ namespace PostClient.ViewModels
         public PostClientViewModel()
         {
             LoadedHandlerCommand = new RelayCommand(LoadedHandler);
-            LogoutCommand = new RelayCommand(Logout);
 
             LoadMessagesViewModel = new LoadMessagesViewModel(GetService);
-            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction, LoginButtonVisibility);
+            AccountViewModel = new AccountViewModel(SetAccount);
+            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction, AccountViewModel.LoginButtonVisibility, AccountViewModel.AccountControlsVisibility, AccountViewModel.UpdateAccountControlsAction);
             SendMessageViewModel = new SendMessageViewModel(GetService, GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
             ControlMessageViewModel = new ControlMessageViewModel(GetService, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc, SendMessageViewModel.ChangeSendMessageControlsVisibilityAndFillFieldsFunc);
         }
 
         private Account GetAccount() => _account;
+
+        private void SetAccount(Account account) => _account = account;
 
         private IPostService GetService() => _postService;
 
@@ -89,10 +59,7 @@ namespace PostClient.ViewModels
                     _ => throw new ArgumentNullException(_account.PostServiceName),
                 };
 
-                AccountControlsVisibility = Visibility.Visible;
-                LoginButtonVisibility = Visibility.Collapsed;
-                _account.Email.TakeWhile(a => a != '@').ToList().ForEach(x => Email += x);
-                Service = _account.PostServiceName.Replace("Service", "");
+                AccountViewModel.UpdateAccountControlsAction(_account);
             }
         }
 
@@ -100,7 +67,6 @@ namespace PostClient.ViewModels
         {
             _account = account;
             GenerateService();
-            AccountControlsVisibility = Visibility.Visible;
         }
 
         private async void LoadedHandler(object parameter)
@@ -123,15 +89,6 @@ namespace PostClient.ViewModels
             {
                 MessageDialogShower.ShowMessageDialog("You have to login");
             }
-        }
-
-        private void Logout(object parameter)
-        {
-            AccountControlsVisibility = Visibility.Collapsed;
-            LoginButtonVisibility = Visibility.Visible;
-
-            _account = new Account();
-            JSONSaverAndReaderHelper.Save(_account, "AccountCredentials.json");
         }
     }
 }

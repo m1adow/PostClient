@@ -11,15 +11,15 @@
             <Setter Property="Width" Value="150"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Background" Value="#E8B4B8"/>
+            <Setter Property="Background" Value="#ffafcc"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="CornerRadius" Value="15"/>
         </Style>
         <Style TargetType="ListView">
-            <Setter Property="Background" Value="#EED6D3"/>
+            <Setter Property="Background" Value="#bde0fe"/>
         </Style>
         <Style TargetType="uc:MailMessageControl">
-            <Setter Property="Foreground" Value="Black"/> 
+            <Setter Property="Foreground" Value="Black"/>
         </Style>
     </Application.Resources>
 </Application>

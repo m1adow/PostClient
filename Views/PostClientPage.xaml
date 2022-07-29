@@ -10,7 +10,7 @@
     xmlns:vm="using:PostClient.ViewModels"
     xmlns:uc="using:PostClient.Views.Controls"
     mc:Ignorable="d"
-    Background="#67595E">
+    Background="#ffc8dd">
     <Page.Resources>
         <vm:PostClientViewModel x:Key="viewModel"/>
         <Storyboard x:Name="StoryboardLoading">
@@ -29,208 +29,230 @@
     </ineractivity:Interaction.Behaviors>
     <Grid DataContext="{StaticResource viewModel}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="6*"/>
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Margin="10,10,10,10"
-                    Grid.Column="0">
-            <Button x:Uid="ButtonLogin"
-                    Command="{Binding LoginViewModel.ShowLoginControlsCommand}"
-                    Visibility="{Binding LoginButtonVisibility}"/>
-            <TextBlock Text="Email:"
-                       Visibility="{Binding AccountControlsVisibility}"/>
-            <TextBlock Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       Visibility="{Binding AccountControlsVisibility}"/>
-            <TextBlock Text="Service:"
-                       Visibility="{Binding AccountControlsVisibility}"/>
-            <TextBlock Text="{Binding Service, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                       Visibility="{Binding AccountControlsVisibility}"/>
-            <Button Content="Logout"
-                    Visibility="{Binding AccountControlsVisibility}"
-                    Command="{Binding LogoutCommand}"/>
-            <Button x:Uid="ButtonNewMail"
-                    Command="{Binding SendMessageViewModel.ShowSendingControlsCommand}"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
-                <ineractivity:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                        <core:InvokeCommandAction Command="{Binding ControlMessageViewModel.HideMessageViewCommand}"/>
-                    </core:EventTriggerBehavior>
-                </ineractivity:Interaction.Behaviors>
-            </Button>
-            <TextBlock x:Uid="TextBlockFolders"
-                       Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-            <Button x:Uid="ButtonInbox"
-                    Margin="10,5,0,0"
-                    HorizontalAlignment="Left"
-                    Width="80"
-                    Height="40"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                    Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                    CommandParameter="AllMessages"/>
-            <Button x:Uid="ButtonSentMail"
-                    Margin="10,5,0,0"
-                    HorizontalAlignment="Left"
-                    Width="80"
-                    Height="40"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                    Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                    CommandParameter="SentMessages"/>
-            <Button x:Uid="ButtonFlagged"
-                    Margin="10,5,0,0"
-                    HorizontalAlignment="Left"
-                    Width="80"
-                    Height="40"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                    Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                    CommandParameter="FlaggedMessages"/>
-            <Button x:Uid="ButtonDrafts"
-                    Margin="10,5,0,0"
-                    HorizontalAlignment="Left"
-                    Width="80"
-                    Height="40"
-                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                    Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                    CommandParameter="DraftMessages"/>
-            <TextBlock x:Uid="TextBlockLogin"
-                       Margin="0,10,0,0"
-                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
-            <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
-                     Text="{Binding LoginViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock x:Uid="TextBlockPassword"
-                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
-            <PasswordBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
-                         Password="{Binding LoginViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <CheckBox x:Uid="CheckBoxRememberMe"
-                      Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
-                      IsChecked="{Binding LoginViewModel.IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock x:Uid="TextBlockService"
-                       Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+        <SplitView Grid.Column="0"
+                   PaneBackground="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+                   IsPaneOpen="True" 
+                   OpenPaneLength="192" 
+                   CompactPaneLength="128" 
+                   DisplayMode="Inline">
+            <SplitView.Pane>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="15*"/>
+                    </Grid.RowDefinitions>
+                    <MenuBar Grid.Row="0"
+                             Background="#cdb4db">
+                        <MenuBarItem Title="Account"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center" Width="192">
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemLogin"
+                                            Icon="Contact"
+                                            Command="{Binding LoginViewModel.ShowLoginControlsCommand}"
+                                            Visibility="{Binding AccountViewModel.LoginButtonVisibility}"/>
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemInformation"
+                                            Icon="ShowResults"
+                                            Command="{Binding AccountViewModel.ShowAccountInfoCommand}"
+                                            Visibility="{Binding AccountViewModel.AccountControlsVisibility}"/>
+                            <MenuFlyoutSeparator/>
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemLogout"
+                                            Icon="Cancel"
+                                            Command="{Binding AccountViewModel.LogoutCommand}"
+                                            Visibility="{Binding AccountViewModel.AccountControlsVisibility}"/>
+                        </MenuBarItem>
+                    </MenuBar>
+                    <StackPanel Margin="10"
+                                Grid.Row="1">
+                        <Button x:Uid="ButtonNewMail"
+                                Command="{Binding SendMessageViewModel.ShowSendingControlsCommand}"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Click">
+                                    <core:InvokeCommandAction Command="{Binding ControlMessageViewModel.HideMessageViewCommand}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </Button>
+                        <TextBlock x:Uid="TextBlockFolders"
+                                   Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                        <Button x:Uid="ButtonInbox"
+                                Margin="10,5,0,0"
+                                HorizontalAlignment="Left"
+                                Width="80"
+                                Height="40"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
+                                CommandParameter="AllMessages"/>
+                        <Button x:Uid="ButtonSentMail"
+                                Margin="10,5,0,0"
+                                HorizontalAlignment="Left"
+                                Width="80"
+                                Height="40"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
+                                CommandParameter="SentMessages"/>
+                        <Button x:Uid="ButtonFlagged"
+                                Margin="10,5,0,0"
+                                HorizontalAlignment="Left"
+                                Width="80"
+                                Height="40"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
+                                CommandParameter="FlaggedMessages"/>
+                        <Button x:Uid="ButtonDrafts"
+                                Margin="10,5,0,0"
+                                HorizontalAlignment="Left"
+                                Width="80"
+                                Height="40"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
+                                CommandParameter="DraftMessages"/>
+                        <TextBlock x:Uid="TextBlockLogin"
+                                   Margin="0,10,0,0"
+                                   Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                        <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
+                                 Text="{Binding LoginViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock x:Uid="TextBlockPassword"
+                                   Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                        <PasswordBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
+                                     Password="{Binding LoginViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <CheckBox x:Uid="CheckBoxRememberMe"
+                                  Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
+                                  IsChecked="{Binding LoginViewModel.IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock x:Uid="TextBlockService"
+                                   Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Grid.Column="0"
+                                         x:Uid="RadioButtonGmail"
+                                         IsChecked="{Binding LoginViewModel.IsGmailRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                            <RadioButton Grid.Column="1" 
+                                         x:Uid="RadioButtonOutlook"
+                                         IsChecked="{Binding LoginViewModel.IsOutlookRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    Margin="5"
+                                    x:Uid="ButtonOK"
+                                    Command="{Binding LoginViewModel.LoginCommand}"
+                                    CommandParameter="{Binding ElementName=StoryboardLoading}"
+                                    Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                            <Button Grid.Column="1"
+                                    Margin="5"
+                                    x:Uid="ButtonCancel"
+                                    Command="{Binding LoginViewModel.CancelLoginControlsCommand}"
+                                    Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </SplitView.Pane>
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <RadioButton Grid.Column="0"
-                             x:Uid="RadioButtonGmail"
-                             IsChecked="{Binding LoginViewModel.IsGmailRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
-                <RadioButton Grid.Column="1" 
-                             x:Uid="RadioButtonOutlook"
-                             IsChecked="{Binding LoginViewModel.IsOutlookRadioButtonChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="10*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0"
+                                Margin="10,0,0,0">
+                        <TextBlock x:Uid="TextBlockSearch"
+                                   Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                        <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                 x:Uid="TextBoxSearch">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="TextChanged">
+                                    <core:InvokeCommandAction Command="{Binding LoadMessagesViewModel.SearchMessageCommand}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </TextBox>
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            x:Uid="ButtonSync"
+                            Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
+                            CommandParameter="{Binding ElementName=StoryboardLoading}"
+                            Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                    <DropDownButton Grid.Column="2"
+                                    Foreground="Black"
+                                    x:Uid="DropDownButtonSort"
+                                    Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                    HorizontalAlignment="Center">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <MenuFlyoutItem x:Uid="MenuFlyoutItemA-Z"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="a-z"/>
+                                <MenuFlyoutItem x:Uid="MenuFlyoutItemZ-A"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="z-a"/>
+                                <MenuFlyoutItem x:Uid="MenuFlyoutItemNewer"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="newer"/>
+                                <MenuFlyoutItem x:Uid="MenuFlyoutItemOlder"
+                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
+                                                CommandParameter="older"/>
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                </Grid>
+                <ListView x:Name="listViewMessages" 
+                          CanDragItems="True"
+                          CanReorderItems="True"
+                          AllowDrop="True"
+                          Margin="10"
+                          Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                          ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          Grid.Row="1">
+                    <ineractivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="SelectionChanged">
+                            <core:InvokeCommandAction Command="{Binding SendMessageViewModel.HideSendingControlsCommand}"/>
+                        </core:EventTriggerBehavior>
+                    </ineractivity:Interaction.Behaviors>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <uc:MailMessageControl Subject="{Binding Subject}"
+                                                   Date="{Binding Date}"
+                                                   From="{Binding From}"
+                                                   FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
+                                                   DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
+                                <ineractivity:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="PointerEntered">
+                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
+                                                                  CommandParameter="{Binding}"/>
+                                    </core:EventTriggerBehavior>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeToTappedStateCommand}"
+                                                                  CommandParameter="{Binding}"/>
+                                    </core:EventTriggerBehavior>
+                                </ineractivity:Interaction.Behaviors>
+                            </uc:MailMessageControl>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0"
-                        Margin="5"
-                        x:Uid="ButtonOK"
-                        Command="{Binding LoginViewModel.LoginCommand}"
-                        CommandParameter="{Binding ElementName=StoryboardLoading}"
-                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
-                <Button Grid.Column="1"
-                        Margin="5"
-                        x:Uid="ButtonCancel"
-                        Command="{Binding LoginViewModel.CancelLoginControlsCommand}"
-                        Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
-            </Grid>
-        </StackPanel>
+        </SplitView>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="10*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0"
-                            Margin="10,0,0,0">
-                    <TextBlock x:Uid="TextBlockSearch"
-                               Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-                    <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
-                        <ineractivity:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="TextChanged">
-                                <core:InvokeCommandAction Command="{Binding LoadMessagesViewModel.SearchMessageCommand}"/>
-                            </core:EventTriggerBehavior>
-                        </ineractivity:Interaction.Behaviors>
-                    </TextBox>
-                </StackPanel>
-                <Button Grid.Column="1"
-                        x:Uid="ButtonSync"
-                        Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
-                        CommandParameter="{Binding ElementName=StoryboardLoading}"
-                        Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
-                <DropDownButton Grid.Column="2"
-                                x:Uid="DropDownButtonSort"
-                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                                HorizontalAlignment="Center">
-                    <DropDownButton.Flyout>
-                        <MenuFlyout Placement="Bottom">
-                            <MenuFlyoutItem x:Uid="MenuFlyoutItemA-Z"
-                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                                CommandParameter="a-z"/>
-                            <MenuFlyoutItem x:Uid="MenuFlyoutItemZ-A"
-                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                                CommandParameter="z-a"/>
-                            <MenuFlyoutItem x:Uid="MenuFlyoutItemNewer"
-                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                                CommandParameter="newer"/>
-                            <MenuFlyoutItem x:Uid="MenuFlyoutItemOlder"
-                                                Command="{Binding LoadMessagesViewModel.SortMessagesCommand}"
-                                                CommandParameter="older"/>
-                        </MenuFlyout>
-                    </DropDownButton.Flyout>
-                </DropDownButton>
-            </Grid>
-            <ListView x:Name="listViewMessages" 
-                      CanDragItems="True"
-                      CanReorderItems="True"
-                      AllowDrop="True"
-                      Margin="10"
-                      Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                      ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                      Grid.Row="1">
-                <ineractivity:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="SelectionChanged">
-                        <core:InvokeCommandAction Command="{Binding SendMessageViewModel.HideSendingControlsCommand}"/>
-                    </core:EventTriggerBehavior>
-                </ineractivity:Interaction.Behaviors>
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <uc:MailMessageControl Subject="{Binding Subject}"
-                                               Date="{Binding Date}"
-                                               From="{Binding From}"
-                                               FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
-                                               DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
-                            <ineractivity:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="PointerEntered">
-                                    <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
-                                                              CommandParameter="{Binding}"/>
-                                </core:EventTriggerBehavior>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeToTappedStateCommand}"
-                                                              CommandParameter="{Binding}"/>
-                                </core:EventTriggerBehavior>
-                            </ineractivity:Interaction.Behaviors>
-                        </uc:MailMessageControl>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Grid>
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="10*"/>
-            </Grid.RowDefinitions>
             <Grid Grid.Row="0"
-                  Background="#A49393">
+                  Background="#cdb4db">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>

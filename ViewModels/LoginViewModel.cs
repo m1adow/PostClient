@@ -78,12 +78,17 @@ namespace PostClient.ViewModels
 
         private readonly Action<Account> _changeAccount;
 
+        private readonly Action<Account> _updateAccountControls;
+
         private Visibility? _loginButtonVisibility;
 
-        public LoginViewModel(Action<Account> changeAccount, Action<object> loadMessages, Visibility? loginButtonVisibility)
+        private Visibility? _accountControlsVisibility;
+
+        public LoginViewModel(Action<Account> changeAccount, Action<object> loadMessages, Visibility? loginButtonVisibility, Visibility? accountControlsVisibility, Action<Account> updateAccountControls)
         {
             _changeAccount = changeAccount;
             _loadMessages = loadMessages;
+            _updateAccountControls = updateAccountControls;
 
             LoginCommand = new RelayCommand(LoginIntoAccount, IsLoginFieldsFilled);
             ShowLoginControlsCommand = new RelayCommand(ShowLoginControls);
@@ -105,6 +110,7 @@ namespace PostClient.ViewModels
 
                 _changeAccount(account);
                 _loadMessages(parameter);
+                _updateAccountControls(account);
 
                 Account encryptedAccount = new Account
                 {
