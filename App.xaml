@@ -24,5 +24,8 @@
         <Style TargetType="uc:MailMessageControl">
             <Setter Property="Foreground" Value="Black"/>
         </Style>
+        <Style TargetType="AppBarButton">
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
     </Application.Resources>
 </Application>

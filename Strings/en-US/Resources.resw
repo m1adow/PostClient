@@ -117,38 +117,38 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonCancel.Content" xml:space="preserve">
+  <data name="AppBarButtonCancel.Label" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="ButtonContact.Content" xml:space="preserve">
+  <data name="AppBarButtonContact.Label" xml:space="preserve">
     <value>Contact</value>
   </data>
-  <data name="ButtonDelete.Content" xml:space="preserve">
+  <data name="AppBarButtonDelete.Label" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="ButtonDraft.Content" xml:space="preserve">
+  <data name="AppBarButtonDraft.Label" xml:space="preserve">
     <value>Draft</value>
+  </data>
+  <data name="AppBarButtonFlag.Label" xml:space="preserve">
+    <value>Flag</value>
+  </data>
+  <data name="AppBarButtonInsert.Label" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="AppBarButtonSend.Label" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="AppBarButtonSync.Label" xml:space="preserve">
+    <value>Sync</value>
   </data>
   <data name="ButtonDrafts.Content" xml:space="preserve">
     <value>Drafts</value>
-  </data>
-  <data name="ButtonFlag.Content" xml:space="preserve">
-    <value>Flag</value>
   </data>
   <data name="ButtonFlagged.Content" xml:space="preserve">
     <value>Flagged</value>
   </data>
   <data name="ButtonInbox.Content" xml:space="preserve">
     <value>Inbox</value>
-  </data>
-  <data name="ButtonInsert.Content" xml:space="preserve">
-    <value>Insert</value>
-  </data>
-  <data name="ButtonOK.Content" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="ButtonSend.Content" xml:space="preserve">
-    <value>Send</value>
   </data>
   <data name="ButtonSentMail.Content" xml:space="preserve">
     <value>Sent Mail</value>
@@ -158,6 +158,9 @@
   </data>
   <data name="DropDownButtonSort.Content" xml:space="preserve">
     <value>Sort</value>
+  </data>
+  <data name="MenuBarItemAccount.Title" xml:space="preserve">
+    <value>Account</value>
   </data>
   <data name="MenuFlyoutItemA-Z.Text" xml:space="preserve">
     <value>A-Z</value>
@@ -221,9 +224,6 @@
   </data>
   <data name="TextBlockSubject.Text" xml:space="preserve">
     <value>Subject</value>
-  </data>
-  <data name="TextBlockSync.Text" xml:space="preserve">
-    <value>Sync</value>
   </data>
   <data name="TextBlockTo.Text" xml:space="preserve">
     <value>To</value>

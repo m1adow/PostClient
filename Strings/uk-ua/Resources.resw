@@ -117,38 +117,38 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonCancel.Content" xml:space="preserve">
+  <data name="AppBarButtonCancel.Label" xml:space="preserve">
     <value>Відмінити</value>
   </data>
-  <data name="ButtonContact.Content" xml:space="preserve">
+  <data name="AppBarButtonContact.Label" xml:space="preserve">
     <value>Контакт</value>
   </data>
-  <data name="ButtonDelete.Content" xml:space="preserve">
+  <data name="AppBarButtonDelete.Label" xml:space="preserve">
     <value>Видалити</value>
   </data>
-  <data name="ButtonDraft.Content" xml:space="preserve">
+  <data name="AppBarButtonDraft.Label" xml:space="preserve">
     <value>Чернувати</value>
+  </data>
+  <data name="AppBarButtonFlag.Content" xml:space="preserve">
+    <value>Помітити</value>
+  </data>
+  <data name="AppBarButtonInsert.Label" xml:space="preserve">
+    <value>Вставити</value>
+  </data>
+  <data name="AppBarButtonSend.Label" xml:space="preserve">
+    <value>Відправити</value>
+  </data>
+  <data name="AppBarButtonSync.Label" xml:space="preserve">
+    <value>Сінхронізувати </value>
   </data>
   <data name="ButtonDrafts.Content" xml:space="preserve">
     <value>Чернетки</value>
-  </data>
-  <data name="ButtonFlag.Content" xml:space="preserve">
-    <value>Помітити</value>
   </data>
   <data name="ButtonFlagged.Content" xml:space="preserve">
     <value>Поміченні</value>
   </data>
   <data name="ButtonInbox.Content" xml:space="preserve">
     <value>Усі</value>
-  </data>
-  <data name="ButtonInsert.Content" xml:space="preserve">
-    <value>Вставити</value>
-  </data>
-  <data name="ButtonOK.Content" xml:space="preserve">
-    <value>ОК</value>
-  </data>
-  <data name="ButtonSend.Content" xml:space="preserve">
-    <value>Відправити</value>
   </data>
   <data name="ButtonSentMail.Content" xml:space="preserve">
     <value>Відправленні</value>
@@ -158,6 +158,9 @@
   </data>
   <data name="DropDownButtonSort.Content" xml:space="preserve">
     <value>Сортувати</value>
+  </data>
+  <data name="MenuBarItemAccount.Title" xml:space="preserve">
+    <value>Аккаунт</value>
   </data>
   <data name="MenuFlyoutItemA-Z.Text" xml:space="preserve">
     <value>А-Я</value>
@@ -221,9 +224,6 @@
   </data>
   <data name="TextBlockSubject.Text" xml:space="preserve">
     <value>Тема</value>
-  </data>
-  <data name="TextBlockSync.Text" xml:space="preserve">
-    <value>Сінхронізувати </value>
   </data>
   <data name="TextBlockTo.Text" xml:space="preserve">
     <value>Кому</value>
