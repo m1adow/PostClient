@@ -130,11 +130,13 @@
                                 Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
                                 CommandParameter="DraftMessages"/>
                         <TextBlock x:Uid="TextBlockLogin"
+                                   Foreground="White"
                                    Margin="0,10,0,0"
                                    Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                         <TextBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                                  Text="{Binding LoginViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBlock x:Uid="TextBlockPassword"
+                                   Foreground="White"
                                    Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                         <PasswordBox Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                                      Password="{Binding LoginViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -142,6 +144,7 @@
                                   Visibility="{Binding LoginViewModel.LoginControlsVisibility}"
                                   IsChecked="{Binding LoginViewModel.IsRememberMeChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <TextBlock x:Uid="TextBlockService"
+                                   Foreground="White"
                                    Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -162,17 +165,21 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    Margin="5"
-                                    x:Uid="ButtonOK"
-                                    Command="{Binding LoginViewModel.LoginCommand}"
-                                    CommandParameter="{Binding ElementName=StoryboardLoading}"
-                                    Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
-                            <Button Grid.Column="1"
-                                    Margin="5"
-                                    x:Uid="ButtonCancel"
-                                    Command="{Binding LoginViewModel.CancelLoginControlsCommand}"
-                                    Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                            <AppBarButton Grid.Column="0"
+                                          Foreground="White"
+                                          Icon="Accept"
+                                          x:Uid="AppBarButtonOK"
+                                          Margin="5"                                   
+                                          Command="{Binding LoginViewModel.LoginCommand}"
+                                          CommandParameter="{Binding ElementName=StoryboardLoading}"
+                                          Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
+                            <AppBarButton Grid.Column="1"
+                                          Foreground="White"
+                                          Icon="Cancel"
+                                          x:Uid="AppBarButtonCancel"
+                                          Margin="5"
+                                          Command="{Binding LoginViewModel.CancelLoginControlsCommand}"
+                                          Visibility="{Binding LoginViewModel.LoginControlsVisibility}"/>
                         </Grid>
                     </StackPanel>
                 </Grid>
@@ -211,7 +218,7 @@
                                   VerticalAlignment="Center">
                         </AppBarButton>
                         <DropDownButton Foreground="Black"
-                                        x:Uid="DropDownButtonSort"
+                                        x:Uid="DropDownButtonSort"                                      
                                         Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
