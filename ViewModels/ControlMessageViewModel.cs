@@ -42,6 +42,8 @@ namespace PostClient.ViewModels
 
         public ICommand DeleteMessageCommand { get; }
 
+        public ICommand ArchiveMessageCommand { get; }
+
         public ICommand CloseMessageCommand { get; }
 
         public ICommand HideMessageViewCommand { get; }
@@ -58,16 +60,20 @@ namespace PostClient.ViewModels
 
         private readonly Func<IPostService> _getService;
 
-        public ControlMessageViewModel(Func<IPostService> getService, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage)
+        private readonly Action<MailMessage> _archiveMessageAction;
+
+        public ControlMessageViewModel(Func<IPostService> getService, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage, Action<MailMessage> archiveMessageAction)
         {
             _getService = getService;
             _updateFlaggedList = updateFlaggedList;
             _deleteMessageFromList = deleteMessageFromList;
             _changeSendMessageControlsVisibilityAndMessage = changeSendMessageControlsVisibilityAndMessage;
+            _archiveMessageAction = archiveMessageAction;
 
             FlagMessageCommand = new RelayCommand(FlagMessage);
             DeleteMessageCommand = new RelayCommand(DeleteMessage);
             CloseMessageCommand = new RelayCommand(CloseMessage);
+            ArchiveMessageCommand = new RelayCommand(ArchiveMessage);
             HideMessageViewCommand = new RelayCommand(HideMessageView);
             ChangeMessageOnRightTapCommand = new RelayCommand(ChangeMessageOnRightTap);
             ChangeMessageOnTapCommand = new RelayCommand(ChangeMessageOnTap);
@@ -88,6 +94,10 @@ namespace PostClient.ViewModels
             _deleteMessageFromList(SelectedMailMessage);
             CloseMessage(parameter);
         }
+        #endregion
+
+        #region Archive message
+        private void ArchiveMessage(object parameter) => _archiveMessageAction(SelectedMailMessage);
         #endregion
 
         #region Closing message

@@ -129,6 +129,14 @@
                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                                 Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
                                 CommandParameter="DraftMessages"/>
+                        <Button x:Uid="ButtonArchive"
+                                Margin="10,5,0,0"
+                                HorizontalAlignment="Left"
+                                Width="80"
+                                Height="40"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
+                                CommandParameter="ArchiveMessages"/>
                         <TextBlock x:Uid="TextBlockLogin"
                                    Foreground="White"
                                    Margin="0,10,0,0"
@@ -262,12 +270,9 @@
                                                    From="{Binding From}"
                                                    IsFlagged="{Binding IsFlagged}"
                                                    FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
-                                                   DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
+                                                   DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}"
+                                                   ArchiveCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ArchiveMessageCommand}">
                                 <ineractivity:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="PointerEntered">
-                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
-                                                                  CommandParameter="{Binding}"/>
-                                    </core:EventTriggerBehavior>
                                     <core:EventTriggerBehavior EventName="Tapped">
                                         <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeMessageOnTapCommand}"
                                                                   CommandParameter="{Binding}"/>
@@ -292,6 +297,9 @@
                   Background="#cdb4db">
                 <CommandBar Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}">
                     <CommandBar.PrimaryCommands>
+                        <AppBarButton Icon="Save" 
+                                      x:Uid="AppBarButtonArchive"
+                                      Command="{Binding ControlMessageViewModel.ArchiveMessageCommand}"/>
                         <AppBarButton Icon="Flag" 
                                       x:Uid="AppBarButtonFlag"
                                       Command="{Binding ControlMessageViewModel.FlagMessageCommand}"/>

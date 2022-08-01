@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppBarButtonArchive.Label" xml:space="preserve">
+    <value>Archive</value>
+  </data>
   <data name="AppBarButtonCancel.Label" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -143,6 +146,9 @@
   </data>
   <data name="AppBarButtonSync.Label" xml:space="preserve">
     <value>Sync</value>
+  </data>
+  <data name="ButtonArchive.Content" xml:space="preserve">
+    <value>Archive</value>
   </data>
   <data name="ButtonDrafts.Content" xml:space="preserve">
     <value>Drafts</value>

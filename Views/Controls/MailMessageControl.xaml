@@ -10,6 +10,7 @@
     d:DesignWidth="200">
     <UserControl.Resources>
         <CommandBarFlyout Placement="Right" x:Name="CommandBarFlyoutFlagAndDelete">
+            <AppBarButton Icon="Save" ToolTipService.ToolTip="Archive" x:Name="ArchiveAppBarButton"/>
             <AppBarButton Icon="Flag" ToolTipService.ToolTip="Flag" x:Name="FlagAppBarButton"/>
             <AppBarButton Icon="Delete" ToolTipService.ToolTip="Delete" x:Name="DeleteAppBarButton"/>
         </CommandBarFlyout>
@@ -33,6 +34,16 @@
                     </SwipeItem>
                 </SwipeItems>
             </SwipeControl.LeftItems>
+            <SwipeControl.RightItems>
+                <SwipeItems Mode="Execute">
+                    <SwipeItem Text="Archive"
+                           Invoked="SwipeItemArchive_Invoked">
+                        <SwipeItem.IconSource>
+                            <SymbolIconSource Symbol="Save"/>
+                        </SwipeItem.IconSource>
+                    </SwipeItem>
+                </SwipeItems>
+            </SwipeControl.RightItems>
             <StackPanel Orientation="Horizontal">
                 <Ellipse x:Name="MessageEllipse"
                          Width ="32"

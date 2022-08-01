@@ -56,6 +56,8 @@ namespace PostClient.ViewModels
 
         public Func<MailMessage, bool> DeleteMessageFunc { get; }
 
+        public Action<MailMessage> ArchiveMessageAction { get; }
+
         private string _messageFolder = string.Empty;
 
         private readonly Func<IPostService> _getService;
@@ -69,6 +71,7 @@ namespace PostClient.ViewModels
             LoadMessagesFromLocalStorageAction = LoadMessagesFromLocalStorage;
             FlagMessageFunc = FlagMessage;
             DeleteMessageFunc = DeleteMessage;
+            ArchiveMessageAction = ArchiveMessage;
 
             LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);
             LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
@@ -260,6 +263,17 @@ namespace PostClient.ViewModels
             Messages?.Remove(message);
             JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
             return true;
+        }
+        #endregion
+
+        #region Archive message
+        private async void ArchiveMessage(MailMessage message)
+        {
+            var archiveMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("ArchiveMessages.json");
+            archiveMessages.Add(message);
+            JSONSaverAndReaderHelper.Save(archiveMessages, "ArchiveMessages.json");
+
+            DeleteMessage(message);
         }
         #endregion
 
