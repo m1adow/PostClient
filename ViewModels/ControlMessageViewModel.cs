@@ -5,7 +5,10 @@ using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.UI;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
 
 namespace PostClient.ViewModels
 {
@@ -27,20 +30,6 @@ namespace PostClient.ViewModels
             }
         }
 
-        private MailMessage? _stableMailMessage = new MailMessage();
-
-        public MailMessage? StableMailMessage
-        {
-            get => _selectedMailMessage;
-            set
-            {
-                if (value == null)
-                    value = new MailMessage();
-
-                Set(ref _stableMailMessage, value);
-            }
-        }
-
         private Visibility? _messageViewConrtolVisibility = Visibility.Collapsed;
 
         public Visibility? MessageViewConrtolVisibility
@@ -57,9 +46,9 @@ namespace PostClient.ViewModels
 
         public ICommand HideMessageViewCommand { get; }
 
-        public ICommand ChangeSelectedMessageCommand { get; }
+        public ICommand ChangeMessageOnRightTapCommand { get; }
 
-        public ICommand ChangeToTappedStateCommand { get; }
+        public ICommand ChangeMessageOnTapCommand { get; }
 
         private readonly Func<MailMessage, Task<bool>> _updateFlaggedList;
 
@@ -80,8 +69,8 @@ namespace PostClient.ViewModels
             DeleteMessageCommand = new RelayCommand(DeleteMessage);
             CloseMessageCommand = new RelayCommand(CloseMessage);
             HideMessageViewCommand = new RelayCommand(HideMessageView);
-            ChangeSelectedMessageCommand = new RelayCommand(ChangeSelectedMessage);
-            ChangeToTappedStateCommand = new RelayCommand(ChangeToTappedState);
+            ChangeMessageOnRightTapCommand = new RelayCommand(ChangeMessageOnRightTap);
+            ChangeMessageOnTapCommand = new RelayCommand(ChangeMessageOnTap);
         }
 
         #region Flag message
@@ -115,12 +104,12 @@ namespace PostClient.ViewModels
         private void HideMessageView(object parameter) => MessageViewConrtolVisibility = Visibility.Collapsed;
         #endregion
 
-        #region Change selected message
-        private void ChangeSelectedMessage(object parameter) => SelectedMailMessage = parameter as MailMessage;
+        #region Change message on right tap
+        private void ChangeMessageOnRightTap(object parameter) => SelectedMailMessage = parameter as MailMessage;
         #endregion
 
-        #region Change to tapped state
-        private void ChangeToTappedState(object parameter)
+        #region Change message on tap
+        private void ChangeMessageOnTap(object parameter)
         {
             SelectedMailMessage = parameter as MailMessage;
            
@@ -128,9 +117,7 @@ namespace PostClient.ViewModels
                 MessageViewConrtolVisibility = Visibility.Visible;
             else if (SelectedMailMessage.IsDraft)
                 _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, SelectedMailMessage);
-
-            StableMailMessage = SelectedMailMessage;
-        } 
+        }
         #endregion
 
         private SpecialFolder GetSpecialFolder(string folder)
@@ -139,6 +126,7 @@ namespace PostClient.ViewModels
             {
                 "" => SpecialFolder.All,
                 "Sent" => SpecialFolder.Sent,
+                "Flagged" => SpecialFolder.All,
                 _ => throw new ArgumentException(folder)
             };
         }

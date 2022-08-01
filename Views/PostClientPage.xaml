@@ -256,36 +256,28 @@
                     </ineractivity:Interaction.Behaviors>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="5*"/>
-                                </Grid.ColumnDefinitions>
-                                <Ellipse Grid.Column="0"
-                                         Width ="32"
-                                         Height="32"
-                                         Margin="6"
-                                         VerticalAlignment="Center"
-                                         HorizontalAlignment="Center"
-                                         Fill="{ThemeResource SystemControlBackgroundBaseMediumBrush}"/>
-                                <uc:MailMessageControl Grid.Column="1"
-                                                       Subject="{Binding Subject}"
-                                                       Date="{Binding Date}"
-                                                       From="{Binding From}"
-                                                       FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
-                                                       DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
-                                    <ineractivity:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="PointerEntered">
-                                            <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
+                            <uc:MailMessageControl Grid.Column="1"
+                                                   Subject="{Binding Subject}"
+                                                   Date="{Binding Date}"
+                                                   From="{Binding From}"
+                                                   IsFlagged="{Binding IsFlagged}"
+                                                   FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
+                                                   DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}">
+                                <ineractivity:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="PointerEntered">
+                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeSelectedMessageCommand}"
                                                                   CommandParameter="{Binding}"/>
-                                        </core:EventTriggerBehavior>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeToTappedStateCommand}"
+                                    </core:EventTriggerBehavior>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeMessageOnTapCommand}"
                                                                   CommandParameter="{Binding}"/>
-                                        </core:EventTriggerBehavior>
-                                    </ineractivity:Interaction.Behaviors>
-                                </uc:MailMessageControl>
-                            </Grid>
+                                    </core:EventTriggerBehavior>
+                                    <core:EventTriggerBehavior EventName="RightTapped">
+                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeMessageOnRightTapCommand}"
+                                                                  CommandParameter="{Binding}"/>
+                                    </core:EventTriggerBehavior>
+                                </ineractivity:Interaction.Behaviors>
+                            </uc:MailMessageControl>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
@@ -312,8 +304,8 @@
                     </CommandBar.PrimaryCommands>
                 </CommandBar>
             </Grid>
-            <uc:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.StableMailMessage.Body}"
-                                   Attachments="{Binding ControlMessageViewModel.StableMailMessage.Attachments}"
+            <uc:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.SelectedMailMessage.Body}"
+                                   Attachments="{Binding ControlMessageViewModel.SelectedMailMessage.Attachments}"
                                    Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"
                                    Grid.Row="1"
                                    Margin="10"/>

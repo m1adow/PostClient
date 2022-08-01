@@ -9,9 +9,9 @@
     d:DesignHeight="100"
     d:DesignWidth="200">
     <UserControl.Resources>
-        <CommandBarFlyout Placement="Right" x:Name="commandBarFlyoutFlagAndDelete">
-            <AppBarButton Icon="Flag" ToolTipService.ToolTip="Flag" x:Name="flagAppBarButton"/>
-            <AppBarButton Icon="Delete" ToolTipService.ToolTip="Delete" x:Name="deleteAppBarButton"/>
+        <CommandBarFlyout Placement="Right" x:Name="CommandBarFlyoutFlagAndDelete">
+            <AppBarButton Icon="Flag" ToolTipService.ToolTip="Flag" x:Name="FlagAppBarButton"/>
+            <AppBarButton Icon="Delete" ToolTipService.ToolTip="Delete" x:Name="DeleteAppBarButton"/>
         </CommandBarFlyout>
     </UserControl.Resources>
     <Grid RightTapped="Grid_RightTapped">
@@ -33,15 +33,23 @@
                     </SwipeItem>
                 </SwipeItems>
             </SwipeControl.LeftItems>
-            <StackPanel Margin="10">
-                <TextBlock x:Name="subjectTextBlock"
-                       FontSize="15"
-                       FontWeight="Bold"/>
-                <TextBlock x:Name="dateTextBlock" 
-                       Margin="20,0,0,0"
-                       FontSize="10"/>
-                <TextBlock x:Name="fromTextBlock"
-                       FontSize="12"/>
+            <StackPanel Orientation="Horizontal">
+                <Ellipse x:Name="MessageEllipse"
+                         Width ="32"
+                         Height="32"
+                         Margin="6"
+                         VerticalAlignment="Center"
+                         HorizontalAlignment="Center"/>
+                <StackPanel Margin="10">
+                    <TextBlock x:Name="SubjectTextBlock"
+                               FontSize="15"
+                               FontWeight="Bold"/>
+                    <TextBlock x:Name="DateTextBlock" 
+                               Margin="20,0,0,0"
+                               FontSize="10"/>
+                    <TextBlock x:Name="FromTextBlock"
+                               FontSize="12"/>
+                </StackPanel>
             </StackPanel>
         </SwipeControl>
     </Grid>

@@ -220,7 +220,7 @@ namespace PostClient.ViewModels
         #region Flag message
         private async Task<bool> FlagMessage(MailMessage message)
         {
-            var flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
+            var flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");     
 
             var flagMessage = flaggedMessages.Where(m => m.Equals(message)).FirstOrDefault() ?? message;
 
@@ -235,9 +235,22 @@ namespace PostClient.ViewModels
                 flaggedMessages?.Add(flagMessage);
             }
 
+            var allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, flagMessage, ref allMessages));
+
             JSONSaverAndReaderHelper.Save(flaggedMessages, "FlaggedMessages.json");
+            JSONSaverAndReaderHelper.Save(allMessages, "AllMessages.json");
 
             return true;
+        }
+
+        private List<MailMessage> ReplaceMessageInCollection(MailMessage message, MailMessage messageForReplace, ref List<MailMessage> messages)
+        {
+            for (int i = 0; i < messages.Count; i++)
+                if (messages[i].Equals(message))
+                    messages[i] = messageForReplace;
+
+            return messages;
         }
         #endregion
 
