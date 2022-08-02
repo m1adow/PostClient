@@ -43,8 +43,8 @@ namespace PostClientUnitTestProject
 
             Assert.IsTrue(messages.Any(m => m.Value.Subject == subject));
 
-            foreach (var uid in messages.Keys)
-                await _loadingService.DeleteMessage(new MailMessage { Uid = uid.Id }, MailKit.SpecialFolder.All, "");
+            foreach (var message in messages)
+                await _loadingService.FlagMessage(new MailMessage { Uid = message.Key.UniqueId.Id }, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
         }
 
         [TestMethod]
@@ -56,8 +56,8 @@ namespace PostClientUnitTestProject
 
             Assert.IsTrue(messages.Count >= 1);
 
-            foreach (var uid in messages.Keys)
-                await _loadingService.DeleteMessage(new MailMessage { Uid = uid.Id }, MailKit.SpecialFolder.All, "");
+            foreach (var message in messages)
+                await _loadingService.FlagMessage(new MailMessage { Uid = message.Key.UniqueId.Id }, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
         }
 
         [TestMethod]
@@ -66,13 +66,13 @@ namespace PostClientUnitTestProject
             await _sendingService.SendMessage(CreateMessage("FlagMessage"));
             await Task.Delay(4000);
             var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
-            var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "FlagMessage").Key.Id };
+            var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "FlagMessage").Key.UniqueId.Id };
 
-            await _loadingService.FlagMessage(mailMessage, MailKit.SpecialFolder.All, "");
+            await _loadingService.FlagMessage(mailMessage, MailKit.MessageFlags.Flagged, MailKit.SpecialFolder.All, "");
             var flaggedMessages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.Flagged);
 
-            Assert.IsTrue(flaggedMessages.Any(f => f.Key.Id == mailMessage.Uid));
-            await _loadingService.DeleteMessage(mailMessage, MailKit.SpecialFolder.All, "");
+            Assert.IsTrue(flaggedMessages.Any(f => f.Key.UniqueId.Id == mailMessage.Uid));
+            await _loadingService.FlagMessage(mailMessage, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
         }
 
         [TestMethod]
@@ -81,9 +81,9 @@ namespace PostClientUnitTestProject
             await _sendingService.SendMessage(CreateMessage("DeleteMessage"));
             await Task.Delay(4000);
             var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
-            var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "DeleteMessage").Key.Id };
+            var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "DeleteMessage").Key.UniqueId.Id };
 
-            await _loadingService.DeleteMessage(mailMessage, MailKit.SpecialFolder.All, "");
+            await _loadingService.FlagMessage(mailMessage, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
             await Task.Delay(4000);
 
             Assert.IsTrue((await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All)).Values.Count == 0);
