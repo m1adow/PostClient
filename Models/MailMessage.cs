@@ -14,6 +14,7 @@ namespace PostClient.Models
         public List<KeyValuePair<string, byte[]>>? Attachments { get; set; }
         public string? From { get; set; }
         public string? To { get; set; }
+        public bool IsSeen { get; set; }
         public bool IsFlagged { get; set; }
         public bool IsDraft { get; set; }
         public string Folder { get; set; }
@@ -28,6 +29,7 @@ namespace PostClient.Models
             Attachments = new List<KeyValuePair<string, byte[]>>();
             From = String.Empty;
             To = String.Empty;
+            IsSeen = false;
             IsFlagged = false;  
             IsDraft = false;
             Folder = "";

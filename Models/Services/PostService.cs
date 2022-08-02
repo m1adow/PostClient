@@ -6,6 +6,7 @@ using MailKit.Security;
 using MimeKit;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PostClient.Models.Services
@@ -39,63 +40,45 @@ namespace PostClient.Models.Services
             }
         }
 
-        protected async Task<Dictionary<UniqueId, MimeMessage>> GetMessages(ImapClient client, SearchQuery searchQuery, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "")
+        protected async Task<Dictionary<IMessageSummary, MimeMessage>> GetMessages(ImapClient client, SearchQuery searchQuery, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "")
         {
-            var messages = new Dictionary<UniqueId, MimeMessage>();
+            var messages = new Dictionary<IMessageSummary, MimeMessage>();
 
             var folder = GetFolder(client, specialFolder, subFolder);
 
             await folder.OpenAsync(FolderAccess.ReadOnly);
 
-            var uids = await folder.SearchAsync(searchQuery);
+            var uids = (await folder.SearchAsync(searchQuery)).Reverse().ToList();
 
-            for (int i = uids.Count - 1; i >= (uids.Count > 100 ? uids.Count - 100 : 0); i--)
-                messages.Add(uids[i], await folder.GetMessageAsync(uids[i]));
+            var items = (await folder.FetchAsync(uids, MessageSummaryItems.All)).Reverse().ToList();
+
+            for (int i = 0; i < (items.Count > 100 ? 100 : items.Count); i++)
+                messages.Add(items[i], await folder.GetMessageAsync(uids[i]));
 
             return messages;
         }
 
-        protected async Task DeleteMessage(ImapClient client, MailMessage message, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "") => await DeleteSpecificMessage(client, specialFolder, message.Uid, subFolder);
-
-        protected async Task DeleteSpecificMessage(ImapClient client, SpecialFolder specialFolder, uint uid, string subFolder)
+        protected async Task AddFlagToMessage(ImapClient client, MailMessage message, MessageFlags messageFlags, SpecialFolder specialFolder, string subFolder)
         {
             IList<UniqueId> uids = new List<UniqueId>()
             {
-                    new UniqueId(uid)
+                    new UniqueId(message.Uid)
             };
 
             var folder = GetFolder(client, specialFolder, subFolder);
             await folder.OpenAsync(FolderAccess.ReadWrite);
-            await folder.AddFlagsAsync(uids, MessageFlags.Deleted, true);
-            await folder.ExpungeAsync(uids);
-        }
-
-        protected async Task FlagMessage(ImapClient client, MailMessage message, SpecialFolder specialFolder = SpecialFolder.All, string subFolder = "") => await FlagSpecificMessage(client, specialFolder, message.Uid, message.IsFlagged, subFolder);
-
-        protected async Task FlagSpecificMessage(ImapClient client, SpecialFolder specialFolder, uint uid, bool isFlagged, string subFolder)
-        {
-            IList<UniqueId> uids = new List<UniqueId>()
+            
+            if (messageFlags == MessageFlags.Flagged || messageFlags == MessageFlags.Seen)
             {
-                new UniqueId(uid)
-            };
-
-            var folder = GetFolder(client, specialFolder, subFolder);
-            await folder.OpenAsync(FolderAccess.ReadWrite);
-
-            if (isFlagged)
-                await folder.RemoveFlagsAsync(uids, MessageFlags.Flagged, true);
+                if (message.IsFlagged || message.IsSeen)
+                    await folder.RemoveFlagsAsync(uids, messageFlags, true);
+                else
+                    await folder.AddFlagsAsync(uids, messageFlags, true);
+            }
             else
-                await folder.AddFlagsAsync(uids, MessageFlags.Flagged, true);
+                await folder.AddFlagsAsync(uids, messageFlags, true);
 
             await folder.ExpungeAsync(uids);
-        }
-
-        protected async void CloseClients(SmtpClient smtpClient, ImapClient imapClient)
-        {
-            await smtpClient.DisconnectAsync(true);
-            await imapClient.DisconnectAsync(true);
-            smtpClient.Dispose();
-            imapClient.Dispose();
         }
 
         private IMailFolder GetFolder(ImapClient client, SpecialFolder specialFolder, string subFolder)
@@ -117,6 +100,14 @@ namespace PostClient.Models.Services
             }
 
             return folder;
+        }
+
+        protected async void CloseClients(SmtpClient smtpClient, ImapClient imapClient)
+        {
+            await smtpClient.DisconnectAsync(true);
+            await imapClient.DisconnectAsync(true);
+            smtpClient.Dispose();
+            imapClient.Dispose();
         }
     }
 }

@@ -58,6 +58,8 @@ namespace PostClient.ViewModels
 
         public Action<MailMessage> ArchiveMessageAction { get; }
 
+        public Action<MailMessage, MailMessage> UpdateMessagesAction { get; }
+
         private string _messageFolder = string.Empty;
 
         private readonly Func<IPostService> _getService;
@@ -72,6 +74,7 @@ namespace PostClient.ViewModels
             FlagMessageFunc = FlagMessage;
             DeleteMessageFunc = DeleteMessage;
             ArchiveMessageAction = ArchiveMessage;
+            UpdateMessagesAction = UpdateMessages;
 
             LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);
             LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
@@ -156,28 +159,29 @@ namespace PostClient.ViewModels
             return messages;
         }
 
-        private async Task<Dictionary<UniqueId, MimeMessage>> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => await _getService().LoadMessages(specialFolder, searchQuery, subFolder);
+        private async Task<Dictionary<IMessageSummary, MimeMessage>> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => await _getService().LoadMessages(specialFolder, searchQuery, subFolder);
 
-        private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<UniqueId, MimeMessage> mimeMessages)
+        private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<IMessageSummary, MimeMessage> messages)
         {
             var mailMessages = new List<MailMessage>();
 
-            foreach (var mimeMessage in mimeMessages)
+            foreach (var mimeMessage in messages)
                 mailMessages?.Add(CreateMessage(mimeMessage));
 
             return mailMessages;
         }
 
-        private MailMessage CreateMessage(KeyValuePair<UniqueId, MimeMessage> mimeMessage)
+        private MailMessage CreateMessage(KeyValuePair<IMessageSummary, MimeMessage> mimeMessage)
         {
             var message = new MailMessage
             {
-                Uid = mimeMessage.Key.Id,
+                Uid = mimeMessage.Key.UniqueId.Id,
                 Subject = mimeMessage.Value.Subject,
                 Body = mimeMessage.Value.HtmlBody ?? "",
                 Attachments = ConvertMimeAttachmentsToMailMessageAttachments(mimeMessage.Value.Attachments),
                 From = mimeMessage.Value.From[0].Name,
-                Date = mimeMessage.Value.Date
+                Date = mimeMessage.Value.Date,
+                IsSeen = mimeMessage.Key.Flags.Value.HasFlag(MessageFlags.Seen)
             };
 
             return message;
@@ -239,21 +243,12 @@ namespace PostClient.ViewModels
             }
 
             var allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
-            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, flagMessage, ref allMessages));
+            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, flagMessage, allMessages));
 
             JSONSaverAndReaderHelper.Save(flaggedMessages, "FlaggedMessages.json");
             JSONSaverAndReaderHelper.Save(allMessages, "AllMessages.json");
 
             return true;
-        }
-
-        private List<MailMessage> ReplaceMessageInCollection(MailMessage message, MailMessage messageForReplace, ref List<MailMessage> messages)
-        {
-            for (int i = 0; i < messages.Count; i++)
-                if (messages[i].Equals(message))
-                    messages[i] = messageForReplace;
-
-            return messages;
         }
         #endregion
 
@@ -301,5 +296,20 @@ namespace PostClient.ViewModels
             }
         }
         #endregion
+
+        private async void UpdateMessages(MailMessage message, MailMessage messageForReplace)
+        {
+            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, messageForReplace, await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)));
+            JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
+        }
+
+        private List<MailMessage> ReplaceMessageInCollection(MailMessage message, MailMessage messageForReplace, List<MailMessage> messages)
+        {
+            for (int i = 0; i < messages.Count; i++)
+                if (messages[i].Equals(message))
+                    messages[i] = messageForReplace;
+
+            return messages;
+        }
     }
 }

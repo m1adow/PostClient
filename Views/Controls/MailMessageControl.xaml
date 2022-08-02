@@ -10,6 +10,7 @@
     d:DesignWidth="200">
     <UserControl.Resources>
         <CommandBarFlyout Placement="Right" x:Name="CommandBarFlyoutFlagAndDelete">
+            <AppBarButton Icon="Mail" ToolTipService.ToolTip="Unseen" x:Name="UnseenAppBarButton"/>
             <AppBarButton Icon="Save" ToolTipService.ToolTip="Archive" x:Name="ArchiveAppBarButton"/>
             <AppBarButton Icon="Flag" ToolTipService.ToolTip="Flag" x:Name="FlagAppBarButton"/>
             <AppBarButton Icon="Delete" ToolTipService.ToolTip="Delete" x:Name="DeleteAppBarButton"/>
@@ -20,6 +21,12 @@
                       VerticalAlignment="Center">
             <SwipeControl.LeftItems>
                 <SwipeItems Mode="Reveal">
+                    <SwipeItem Text="Unseen"
+                               Invoked="SwipeItemUnseen_Invoked">
+                        <SwipeItem.IconSource>
+                            <SymbolIconSource Symbol="Mail"/>
+                        </SwipeItem.IconSource>
+                    </SwipeItem>
                     <SwipeItem Text="Flag"
                                Invoked="SwipeItemFlag_Invoked">
                         <SwipeItem.IconSource>
@@ -53,8 +60,7 @@
                          HorizontalAlignment="Center"/>
                 <StackPanel Margin="10">
                     <TextBlock x:Name="SubjectTextBlock"
-                               FontSize="15"
-                               FontWeight="Bold"/>
+                               FontSize="15"/>
                     <TextBlock x:Name="DateTextBlock" 
                                Margin="20,0,0,0"
                                FontSize="10"/>

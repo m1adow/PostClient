@@ -10,9 +10,8 @@ namespace PostClient.Models.Infrastructure
     {
         Account Account { get; }
         Task SendMessage(MimeMessage message);
-        Task DeleteMessage(MailMessage message, SpecialFolder specialFolder, string subFolder);
-        Task FlagMessage(MailMessage message, SpecialFolder specialFolder, string subFolder);
-        Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "");
+        Task FlagMessage(MailMessage message, MessageFlags messageFlags, SpecialFolder specialFolder, string subFolder);
+        Task<Dictionary<IMessageSummary, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "");
         void CloseClients();
     }
 }

@@ -147,6 +147,9 @@
   <data name="AppBarButtonSync.Label" xml:space="preserve">
     <value>Sync</value>
   </data>
+  <data name="AppBarButtonUnseen.Label" xml:space="preserve">
+    <value>Unseen</value>
+  </data>
   <data name="ButtonArchive.Content" xml:space="preserve">
     <value>Archive</value>
   </data>

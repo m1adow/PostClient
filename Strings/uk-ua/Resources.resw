@@ -147,6 +147,9 @@
   <data name="AppBarButtonSync.Label" xml:space="preserve">
     <value>Сінхронізувати </value>
   </data>
+  <data name="AppBarButtonUnseen.Label" xml:space="preserve">
+    <value>Непрочитані</value>
+  </data>
   <data name="ButtonArchive.Content" xml:space="preserve">
     <value>Архивовані </value>
   </data>

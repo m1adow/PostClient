@@ -268,10 +268,12 @@
                                                    Subject="{Binding Subject}"
                                                    Date="{Binding Date}"
                                                    From="{Binding From}"
+                                                   IsSeen="{Binding IsSeen}"
                                                    IsFlagged="{Binding IsFlagged}"
                                                    FlagCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.FlagMessageCommand}"
                                                    DeleteCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.DeleteMessageCommand}"
-                                                   ArchiveCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ArchiveMessageCommand}">
+                                                   ArchiveCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ArchiveMessageCommand}"
+                                                   UnseenCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.UnseenMessageCommand}">
                                 <ineractivity:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="Tapped">
                                         <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeMessageOnTapCommand}"
@@ -297,6 +299,9 @@
                   Background="#cdb4db">
                 <CommandBar Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}">
                     <CommandBar.PrimaryCommands>
+                        <AppBarButton Icon="Mail" 
+                                      x:Uid="AppBarButtonUnseen"
+                                      Command="{Binding ControlMessageViewModel.UnseenMessageCommand}"/>
                         <AppBarButton Icon="Save" 
                                       x:Uid="AppBarButtonArchive"
                                       Command="{Binding ControlMessageViewModel.ArchiveMessageCommand}"/>

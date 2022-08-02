@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 using Windows.UI;
+using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -41,6 +42,15 @@ namespace PostClient.Views.Controls
         public static readonly DependencyProperty FromProperty =
             DependencyProperty.Register(nameof(From), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnFromDependencyPropertyChanged));
 
+        public string? IsSeen
+        {
+            get => (string)GetValue(IsSeenProperty);
+            set => SetValue(IsSeenProperty, value);
+        }
+
+        public static readonly DependencyProperty IsSeenProperty =
+            DependencyProperty.Register(nameof(IsSeen), typeof(string), typeof(MailMessageControl), new PropertyMetadata(null, OnIsSeenDependencyPropertyChanged));
+
         public string? IsFlagged
         {
             get => (string)GetValue(IsFlaggedProperty);
@@ -76,6 +86,15 @@ namespace PostClient.Views.Controls
 
         public static readonly DependencyProperty ArchiveCommandProperty =
             DependencyProperty.Register(nameof(ArchiveCommand), typeof(ICommand), typeof(MailMessageControl), new PropertyMetadata(null, OnArchiveCommandDependencyPropertyChanged));
+
+        public ICommand UnseenCommand
+        {
+            get => (ICommand)GetValue(UnseenCommandProperty);
+            set => SetValue(UnseenCommandProperty, value);
+        }
+
+        public static readonly DependencyProperty UnseenCommandProperty =
+            DependencyProperty.Register(nameof(UnseenCommand), typeof(ICommand), typeof(MailMessageControl), new PropertyMetadata(null, OnUnseenCommandDependencyPropertyChanged));
 
         public MailMessageControl()
         {
@@ -115,6 +134,26 @@ namespace PostClient.Views.Controls
                 control.MessageEllipse.Fill = new SolidColorBrush(Color.FromArgb(255, 233, 196, 106));
         }
 
+        private static void OnIsSeenDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
+
+            var isSeen = (e.NewValue as string) ?? string.Empty;
+
+            if (isSeen == "False")
+            {
+                control.SubjectTextBlock.FontWeight = FontWeights.Bold;
+                control.FromTextBlock.Foreground = new SolidColorBrush(Color.FromArgb(255, 131, 56, 236));
+                control.FromTextBlock.FontWeight = FontWeights.Bold;
+            }
+            else
+            {
+                control.SubjectTextBlock.FontWeight = FontWeights.Normal;
+                control.FromTextBlock.Foreground = new SolidColorBrush(Colors.Black);
+                control.FromTextBlock.FontWeight = FontWeights.Normal;
+            }
+        }
+
         private static void OnFlagCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
@@ -136,7 +175,16 @@ namespace PostClient.Views.Controls
             control.ArchiveAppBarButton.Command = e.NewValue as ICommand;
         }
 
+        private static void OnUnseenCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MailMessageControl? control = (d as MailMessageControl) ?? new MailMessageControl();
+
+            control.UnseenAppBarButton.Command = e.NewValue as ICommand;
+        }
+
         private void Grid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e) => CommandBarFlyoutFlagAndDelete.ShowAt(sender as Grid, new FlyoutShowOptions { ShowMode = FlyoutShowMode.Standard });
+
+        private void SwipeItemUnseen_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args) => UnseenCommand.Execute(new object());
 
         private void SwipeItemFlag_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args) => FlagCommand.Execute(new object());
 

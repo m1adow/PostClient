@@ -35,13 +35,11 @@ namespace PostClient.Models.Services
 
         public async Task SendMessage(MimeMessage message) => await SendMessage(_smtpClient, message, _exceptionHandler);
 
-        public async Task DeleteMessage(MailMessage message, SpecialFolder specialFolder, string subFolder) => await DeleteMessage(_imapClient, message, specialFolder, subFolder);
+        public async Task FlagMessage(MailMessage message, MessageFlags messageFlags, SpecialFolder specialFolder, string subFolder) => await AddFlagToMessage(_imapClient, message, messageFlags, specialFolder, subFolder);
 
-        public async Task FlagMessage(MailMessage message, SpecialFolder specialFolder, string subFolder) => await FlagMessage(_imapClient, message, specialFolder, subFolder);
-
-        public async Task<Dictionary<UniqueId, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "")
+        public async Task<Dictionary<IMessageSummary, MimeMessage>> LoadMessages(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "")
         {
-            var result = new Dictionary<UniqueId, MimeMessage>();
+            var result = new Dictionary<IMessageSummary, MimeMessage>();
 
             if (!_isImapClientEngaged)
             {
@@ -50,7 +48,7 @@ namespace PostClient.Models.Services
                 _isImapClientEngaged = false;
             }
             else
-                throw new System.Exception("Wait for end of previous action");
+                throw new Exception("Wait for end of previous action");
 
             return result;
         }
