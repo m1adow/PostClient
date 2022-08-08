@@ -6,7 +6,7 @@ namespace PostClient.Models.Helpers
 {
     public static class StorageFileWriterAndReader
     {
-        public static async void Write(string name, string data)
+        public static async Task Write(string name, string data)
         {
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
             StorageFile file = await storageFolder.CreateFileAsync(name,

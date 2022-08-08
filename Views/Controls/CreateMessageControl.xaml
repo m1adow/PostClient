@@ -1,0 +1,278 @@
+﻿<UserControl
+    x:Class="PostClient.Views.Controls.CreateMessageControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PostClient.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="600"
+    d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <RelativePanel Grid.Row="0">
+            <AppBarButton Click="StyleButton_Click"
+                          Icon="Bold"
+                          x:Name="BoldButton">
+                <AppBarButton.Content>
+                    <TextBlock Text="Bold"/>
+                </AppBarButton.Content>
+            </AppBarButton>
+            <AppBarButton Click="StyleButton_Click"
+                          Icon="Italic"
+                          x:Name="ItalicButton"
+                          RelativePanel.RightOf="BoldButton">
+                <AppBarButton.Content>
+                    <TextBlock Text="Italic"/>
+                </AppBarButton.Content>
+            </AppBarButton>
+            <AppBarButton Click="StyleButton_Click"
+                          Icon="Underline"
+                          x:Name="UnderlineButton"
+                          RelativePanel.RightOf="ItalicButton">
+                <AppBarButton.Content>
+                    <TextBlock Text="Underline"/>
+                </AppBarButton.Content>
+            </AppBarButton>
+            <DropDownButton x:Name="BackColorButton"
+                            Margin="0,5,5,0"
+                            RelativePanel.LeftOf="FontColorButton"
+                            Foreground="Black">
+                <SymbolIcon Symbol="Highlight"/>
+                <DropDownButton.Flyout>
+                    <Flyout Placement="Bottom">
+                        <VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3">
+                            <VariableSizedWrapGrid.Resources>
+                                <Style TargetType="Rectangle">
+                                    <Setter Property="Width" Value="32"/>
+                                    <Setter Property="Height" Value="32"/>
+                                </Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="MinWidth" Value="0"/>
+                                    <Setter Property="MinHeight" Value="0"/>
+                                    <Setter Property="Margin" Value="6"/>
+                                </Style>
+                            </VariableSizedWrapGrid.Resources>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Clear">
+                                <Button.Content>
+                                    <Rectangle Fill="#00FFFFFF"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="White">
+                                <Button.Content>
+                                    <Rectangle Fill="White"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Black">
+                                <Button.Content>
+                                    <Rectangle Fill="Black"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Red">
+                                <Button.Content>
+                                    <Rectangle Fill="Red"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Orange">
+                                <Button.Content>
+                                    <Rectangle Fill="Orange"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Yellow">
+                                <Button.Content>
+                                    <Rectangle Fill="Yellow"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Green">
+                                <Button.Content>
+                                    <Rectangle Fill="Green"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Aquamarine">
+                                <Button.Content>
+                                    <Rectangle Fill="Aquamarine"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Blue">
+                                <Button.Content>
+                                    <Rectangle Fill="Blue"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Cyan">
+                                <Button.Content>
+                                    <Rectangle Fill="Cyan"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Indigo">
+                                <Button.Content>
+                                    <Rectangle Fill="Indigo">
+                                    </Rectangle>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Violet">
+                                <Button.Content>
+                                    <Rectangle Fill="Violet"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="BackColorButton_Click"
+                                    AutomationProperties.Name="Gray">
+                                <Button.Content>
+                                    <Rectangle Fill="Gray"/>
+                                </Button.Content>
+                            </Button>
+                        </VariableSizedWrapGrid>
+                    </Flyout>
+                </DropDownButton.Flyout>
+            </DropDownButton>
+            <DropDownButton x:Name="FontColorButton"
+                            Margin="0,5,0,0"
+                            RelativePanel.AlignRightWithPanel="True"
+                            Foreground="Black">
+                <SymbolIcon Symbol="FontColor"/>
+                <DropDownButton.Flyout>
+                    <Flyout Placement="Bottom">
+                        <VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3">
+                            <VariableSizedWrapGrid.Resources>
+                                <Style TargetType="Rectangle">
+                                    <Setter Property="Width" Value="32"/>
+                                    <Setter Property="Height" Value="32"/>
+                                </Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="MinWidth" Value="0"/>
+                                    <Setter Property="MinHeight" Value="0"/>
+                                    <Setter Property="Margin" Value="6"/>
+                                </Style>
+                            </VariableSizedWrapGrid.Resources>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Clear">
+                                <Button.Content>
+                                    <Rectangle Fill="#00FFFFFF"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="White">
+                                <Button.Content>
+                                    <Rectangle Fill="White"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Black">
+                                <Button.Content>
+                                    <Rectangle Fill="Black"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Red">
+                                <Button.Content>
+                                    <Rectangle Fill="Red"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Orange">
+                                <Button.Content>
+                                    <Rectangle Fill="Orange"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Yellow">
+                                <Button.Content>
+                                    <Rectangle Fill="Yellow"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Green">
+                                <Button.Content>
+                                    <Rectangle Fill="Green"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Aquamarine">
+                                <Button.Content>
+                                    <Rectangle Fill="Aquamarine"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Blue">
+                                <Button.Content>
+                                    <Rectangle Fill="Blue"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Cyan">
+                                <Button.Content>
+                                    <Rectangle Fill="Cyan"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Indigo">
+                                <Button.Content>
+                                    <Rectangle Fill="Indigo">
+                                    </Rectangle>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Violet">
+                                <Button.Content>
+                                    <Rectangle Fill="Violet"/>
+                                </Button.Content>
+                            </Button>
+                            <Button Click="FontColorButton_Click"
+                                    AutomationProperties.Name="Gray">
+                                <Button.Content>
+                                    <Rectangle Fill="Gray"/>
+                                </Button.Content>
+                            </Button>
+                        </VariableSizedWrapGrid>
+                    </Flyout>
+                </DropDownButton.Flyout>
+            </DropDownButton>
+        </RelativePanel>
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="1">
+            <AppBarButton Icon="Attach"
+                          x:Uid="AppBarButtonInsert"
+                          x:Name="AttachButton"/>
+            <ComboBox x:Name="FilesComboBox"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Center"
+                      Width="400"/>
+        </StackPanel>
+        <RichEditBox Grid.Row="2"
+                     x:Name="Editor"
+                     TextChanged="Editor_TextChanged"/>
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Grid.Row="3">
+            <AppBarButton Icon="Back"
+                          x:Uid="AppBarButtonCancel"
+                          x:Name="CancelButton"/>
+            <AppBarSeparator/>
+            <AppBarButton Icon="Document"
+                          x:Uid="AppBarButtonDraft"
+                          x:Name="DraftButton"/>
+            <AppBarSeparator/>
+            <AppBarButton Icon="Send"
+                          x:Uid="AppBarButtonSend"
+                          x:Name="SendButton"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

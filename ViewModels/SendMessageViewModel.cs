@@ -15,6 +15,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using RtfPipe;
 
 namespace PostClient.ViewModels
 {
@@ -27,7 +28,7 @@ namespace PostClient.ViewModels
         public string? MessageSender
         {
             get => _messageSender;
-            private set => Set(ref _messageSender, value);
+            set => Set(ref _messageSender, value);
         }
 
         private string? _messageReciever = string.Empty;
@@ -90,11 +91,9 @@ namespace PostClient.ViewModels
 
         public ICommand HideSendingControlsCommand { get; }
 
-        public ICommand StyleSelectedTextCommand { get; }
-
-        public ICommand AddLineCommand { get; }
-
         public ICommand ChooseContactCommand { get; }
+
+        public Action<string> PasteTextAction { get; }
 
         public Func<Visibility, MailMessage, bool> ChangeSendMessageControlsVisibilityAndFillFieldsFunc { get; }
 
@@ -106,17 +105,18 @@ namespace PostClient.ViewModels
 
         private readonly Func<IPostService> _getService;
 
-        private readonly Func<MailMessage, bool> _deleteDraft;
+        private readonly Func<MailMessage, Task> _deleteDraft;
 
         private List<KeyValuePair<string, byte[]>>? _files = new List<KeyValuePair<string, byte[]>>();
 
-        public SendMessageViewModel(Func<IPostService> getService, Func<Account> getAccount, Func<MailMessage, bool> deleteDraft)
+        public SendMessageViewModel(Func<IPostService> getService, Func<Account> getAccount, Func<MailMessage, Task> deleteDraft)
         {                  
             _getAccount = getAccount;
             _account = getAccount();
             _getService = getService;
             _deleteDraft = deleteDraft;
 
+            PasteTextAction = PasteText;
             ChangeSendMessageControlsVisibilityAndFillFieldsFunc = ChangeSendMessageControlsVisibilityAndFillFields;
 
             SendMessageCommand = new RelayCommand(SendMessage, IsSendMessageFieldsFilled);
@@ -125,8 +125,6 @@ namespace PostClient.ViewModels
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
             ShowSendingControlsCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
             HideSendingControlsCommand = new RelayCommand(HideSendMessageControls);
-            StyleSelectedTextCommand = new RelayCommand(StyleSelectedText);
-            AddLineCommand = new RelayCommand(AddLine);
             ChooseContactCommand = new RelayCommand(ChooseContact);
         }
 
@@ -138,7 +136,7 @@ namespace PostClient.ViewModels
             await _getService().SendMessage(message);
 
             if (_selectedMessage.IsDraft)
-                _deleteDraft(_selectedMessage);
+                await _deleteDraft(_selectedMessage);
 
             MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
 
@@ -154,13 +152,13 @@ namespace PostClient.ViewModels
         {
             MimeMessage message = new MimeMessage();
 
-            message.From.Add(new MailboxAddress(MessageName, _account?.Email));
+            message.From.Add(new MailboxAddress(MessageName, MessageSender));
             message.To.Add(MailboxAddress.Parse(MessageReciever));
             message.Subject = MessageSubject;
 
             var builder = new BodyBuilder();
 
-            builder.HtmlBody = MessageBody;
+            builder.HtmlBody = Rtf.ToHtml(MessageBody);
 
             if (_files?.Count > 0)
                 foreach (var file in _files)
@@ -185,7 +183,6 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Inserting files
-
         private async void InsertFile(object parameter)
         {
             var files = await GetFileBytesAsync();
@@ -242,7 +239,7 @@ namespace PostClient.ViewModels
                 IsDraft = true
             });
 
-            JSONSaverAndReaderHelper.Save(draftMessages, "DraftMessages.json");
+            await JSONSaverAndReaderHelper.Save(draftMessages, "DraftMessages.json");
             ClearFields((parameter as ComboBox) ?? new ComboBox());
         }
         #endregion
@@ -292,33 +289,6 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        #region Styling text
-        private void StyleSelectedText(object parameter)
-        {
-            string tag = parameter.ToString();
-
-            if (SelectedText.Contains($"<{tag}>") || SelectedText.Contains($"</{tag}>"))
-            {
-                SelectedText = SelectedText.Replace($"<{tag}>", "");
-                SelectedText = SelectedText.Replace($"</{tag}>", "");
-            }
-            else
-                SelectedText = $"<{tag}>{SelectedText}</{tag}>";
-        }
-        #endregion
-
-        #region Adding line
-        private void AddLine(object parameter)
-        {
-            string tag = "<br>";
-
-            if (SelectedText.Contains(tag))
-                SelectedText = SelectedText.Replace($"\n{tag}\n", "");
-            else
-                SelectedText += $"\n{tag}\n";           
-        }
-        #endregion
-
         #region Choosing contact
         private async void ChooseContact(object parameter)
         {
@@ -329,5 +299,7 @@ namespace PostClient.ViewModels
                 MessageReciever = contact.Emails[0].Address;
         }
         #endregion
+
+        private void PasteText(string text) => MessageBody = text;
     }
 }

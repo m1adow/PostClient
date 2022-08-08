@@ -60,6 +60,7 @@ namespace PostClient.ViewModels
                 };
 
                 AccountViewModel.UpdateAccountControlsAction(_account);
+                SendMessageViewModel.MessageSender = _account.Email;
             }
         }
 

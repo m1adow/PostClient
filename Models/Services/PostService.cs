@@ -1,5 +1,6 @@
 ﻿using MailKit;
 using MailKit.Net.Imap;
+using MailKit.Net.Pop3;
 using MailKit.Net.Smtp;
 using MailKit.Search;
 using MailKit.Security;
@@ -62,19 +63,16 @@ namespace PostClient.Models.Services
         {
             IList<UniqueId> uids = new List<UniqueId>()
             {
-                    new UniqueId(message.Uid)
+                new UniqueId(message.Uid)
             };
 
             var folder = GetFolder(client, specialFolder, subFolder);
             await folder.OpenAsync(FolderAccess.ReadWrite);
-            
-            if (messageFlags == MessageFlags.Flagged || messageFlags == MessageFlags.Seen)
-            {
-                if (message.IsFlagged || message.IsSeen)
-                    await folder.RemoveFlagsAsync(uids, messageFlags, true);
-                else
-                    await folder.AddFlagsAsync(uids, messageFlags, true);
-            }
+
+            if (messageFlags == MessageFlags.Flagged)
+                await AddOrRemoveFlags(folder, uids, messageFlags, message.IsFlagged);
+            if (messageFlags == MessageFlags.Seen)
+                await AddOrRemoveFlags(folder, uids, messageFlags, message.IsSeen);
             else
                 await folder.AddFlagsAsync(uids, messageFlags, true);
 
@@ -100,6 +98,14 @@ namespace PostClient.Models.Services
             }
 
             return folder;
+        }
+
+        private async Task AddOrRemoveFlags(IMailFolder folder, IList<UniqueId> uids, MessageFlags messageFlags, bool isAdded)
+        {
+            if (isAdded)
+                await folder.RemoveFlagsAsync(uids, messageFlags, true);
+            else
+                await folder.AddFlagsAsync(uids, messageFlags, true);
         }
 
         protected async void CloseClients(SmtpClient smtpClient, ImapClient imapClient)

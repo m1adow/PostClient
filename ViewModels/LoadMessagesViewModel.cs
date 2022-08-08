@@ -52,13 +52,13 @@ namespace PostClient.ViewModels
 
         public Action<object> LoadMessagesFromLocalStorageAction { get; }
 
-        public Func<MailMessage, Task<bool>> FlagMessageFunc { get; }
+        public Func<MailMessage, Task> FlagMessageFunc { get; }
 
-        public Func<MailMessage, bool> DeleteMessageFunc { get; }
+        public Func<MailMessage, Task> DeleteMessageFunc { get; }
 
-        public Action<MailMessage> ArchiveMessageAction { get; }
+        public Func<MailMessage, Task> ArchiveMessageAction { get; }
 
-        public Action<MailMessage, MailMessage> UpdateMessagesAction { get; }
+        public Func<MailMessage, MailMessage, Task> UpdateMessagesAction { get; }
 
         private string _messageFolder = string.Empty;
 
@@ -225,9 +225,9 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Flag message
-        private async Task<bool> FlagMessage(MailMessage message)
+        private async Task FlagMessage(MailMessage message)
         {
-            var flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");     
+            var flaggedMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("FlaggedMessages.json");
 
             var flagMessage = flaggedMessages.Where(m => m.Equals(message)).FirstOrDefault() ?? message;
 
@@ -242,33 +242,37 @@ namespace PostClient.ViewModels
                 flaggedMessages?.Add(flagMessage);
             }
 
+            var allMessagesInFolder = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder);
             var allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
-            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, flagMessage, allMessages));
 
-            JSONSaverAndReaderHelper.Save(flaggedMessages, "FlaggedMessages.json");
-            JSONSaverAndReaderHelper.Save(allMessages, "AllMessages.json");
+            allMessages.FirstOrDefault(m => m.Uid == flagMessage.Uid).IsFlagged = flagMessage.IsFlagged;
 
-            return true;
+            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, flagMessage, allMessagesInFolder));
+
+            await JSONSaverAndReaderHelper.Save(flaggedMessages, "FlaggedMessages.json");
+            await JSONSaverAndReaderHelper.Save(allMessages, "AllMessages.json");
+
+            if (_messageFolder != "FlaggedMessages.json")
+                await JSONSaverAndReaderHelper.Save(allMessagesInFolder, _messageFolder);
         }
         #endregion
 
         #region Delete message
-        private bool DeleteMessage(MailMessage message)
+        private async Task DeleteMessage(MailMessage message)
         {
             Messages?.Remove(message);
-            JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
-            return true;
+            await JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
         }
         #endregion
 
         #region Archive message
-        private async void ArchiveMessage(MailMessage message)
+        private async Task ArchiveMessage(MailMessage message)
         {
             var archiveMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("ArchiveMessages.json");
             archiveMessages.Add(message);
-            JSONSaverAndReaderHelper.Save(archiveMessages, "ArchiveMessages.json");
+            await JSONSaverAndReaderHelper.Save(archiveMessages, "ArchiveMessages.json");
 
-            DeleteMessage(message);
+            await DeleteMessage(message);
         }
         #endregion
 
@@ -297,10 +301,10 @@ namespace PostClient.ViewModels
         }
         #endregion
 
-        private async void UpdateMessages(MailMessage message, MailMessage messageForReplace)
+        private async Task UpdateMessages(MailMessage message, MailMessage messageForReplace)
         {
             Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, messageForReplace, await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)));
-            JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
+            await JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
         }
 
         private List<MailMessage> ReplaceMessageInCollection(MailMessage message, MailMessage messageForReplace, List<MailMessage> messages)

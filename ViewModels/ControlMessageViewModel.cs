@@ -54,19 +54,19 @@ namespace PostClient.ViewModels
 
         public ICommand ChangeMessageOnTapCommand { get; }
 
-        private readonly Func<MailMessage, Task<bool>> _updateFlaggedList;
+        private readonly Func<MailMessage, Task> _updateFlaggedList;
 
-        private readonly Func<MailMessage, bool> _deleteMessageFromList;
+        private readonly Func<MailMessage, Task> _deleteMessageFromList;
 
         private readonly Func<Visibility, MailMessage, bool> _changeSendMessageControlsVisibilityAndMessage;
 
         private readonly Func<IPostService> _getService;
 
-        private readonly Action<MailMessage> _archiveMessageAction;
+        private readonly Func<MailMessage, Task> _archiveMessageAction;
 
-        private readonly Action<MailMessage, MailMessage> _updateMessagesAction;
+        private readonly Func<MailMessage, MailMessage, Task> _updateMessagesAction;
 
-        public ControlMessageViewModel(Func<IPostService> getService, Func<MailMessage, Task<bool>> updateFlaggedList, Func<MailMessage, bool> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage, Action<MailMessage> archiveMessageAction, Action<MailMessage, MailMessage> updateMessagesAction)
+        public ControlMessageViewModel(Func<IPostService> getService, Func<MailMessage, Task> updateFlaggedList, Func<MailMessage, Task> deleteMessageFromList, Func<Visibility, MailMessage, bool> changeSendMessageControlsVisibilityAndMessage, Func<MailMessage, Task> archiveMessageAction, Func<MailMessage, MailMessage, Task> updateMessagesAction)
         {
             _getService = getService;
             _updateFlaggedList = updateFlaggedList;
@@ -97,13 +97,13 @@ namespace PostClient.ViewModels
         private async void DeleteMessage(object parameter)
         {
             await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Deleted, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
-            _deleteMessageFromList(SelectedMailMessage);
+            await _deleteMessageFromList(SelectedMailMessage);
             CloseMessage(parameter);
         }
         #endregion
 
         #region Archive message
-        private void ArchiveMessage(object parameter) => _archiveMessageAction(SelectedMailMessage);
+        private async void ArchiveMessage(object parameter) => await _archiveMessageAction(SelectedMailMessage);
         #endregion
 
         #region Unseen message
@@ -113,7 +113,7 @@ namespace PostClient.ViewModels
             {
                 await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
                 SelectedMailMessage.IsSeen = false;
-                _updateMessagesAction(new MailMessage { Uid = SelectedMailMessage.Uid }, SelectedMailMessage);
+                await _updateMessagesAction(new MailMessage { Uid = SelectedMailMessage.Uid }, SelectedMailMessage);
             }
         }
         #endregion
@@ -150,7 +150,7 @@ namespace PostClient.ViewModels
             {
                 await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
                 SelectedMailMessage.IsSeen = true;
-                _updateMessagesAction(new MailMessage { Uid = SelectedMailMessage.Uid }, SelectedMailMessage);
+                await _updateMessagesAction(new MailMessage { Uid = SelectedMailMessage.Uid }, SelectedMailMessage);
             }
         }
         #endregion

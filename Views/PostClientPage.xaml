@@ -325,10 +325,8 @@
             <Grid Grid.Row="1"
                   Visibility="{Binding SendMessageViewModel.SendMessageControlsVisibility}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1.7*"/>
-                    <RowDefinition Height="0.4*"/>
                     <RowDefinition Height="2*"/>
-                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="5*"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <Grid.RowDefinitions>
@@ -392,90 +390,12 @@
                         </StackPanel>
                     </Grid>
                 </Grid>
-                <TextBlock x:Uid="TextBlockMessage"
-                           Grid.Row="1"
-                           Margin="10,0,0,0"/>
-                <Grid Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition Height="320"/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
-                        <AppBarButton Icon="Attach"
-                                      x:Uid="AppBarButtonInsert"
-                                      Grid.Column="0"
-                                      Command="{Binding SendMessageViewModel.InsertFileCommand}"
-                                      CommandParameter="{Binding ElementName=filesComboBox}"/>
-                        <ComboBox x:Name="filesComboBox"
-                                  Grid.Column="1"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Center">
-
-                        </ComboBox>
-                        <Grid Grid.Column="2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <AppBarButton Grid.Column="0"
-                                          Icon="Bold"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Command="{Binding SendMessageViewModel.StyleSelectedTextCommand}"
-                                          CommandParameter="b"/>
-                            <AppBarButton Grid.Column="1"
-                                          Icon="Italic"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Command="{Binding SendMessageViewModel.StyleSelectedTextCommand}"
-                                          CommandParameter="i"/>
-                            <AppBarButton Grid.Column="2"
-                                          Icon="Underline"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Command="{Binding SendMessageViewModel.StyleSelectedTextCommand}"
-                                          CommandParameter="u"/>
-                            <AppBarButton Grid.Column="3"
-                                          Icon="Add"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Command="{Binding SendMessageViewModel.AddLineCommand}"/>
-                        </Grid>
-                    </Grid>
-                    <TextBox Margin="5,0,5,0"
-                             Grid.Row="1"
-                             TextWrapping="Wrap"
-                             HorizontalAlignment="Stretch"
-                             VerticalAlignment="Stretch"  
-                             SelectedText="{Binding SendMessageViewModel.SelectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Text="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                    </TextBox>
-                </Grid>
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            Grid.Row="3">
-                    <AppBarButton Icon="Back"
-                                  x:Uid="AppBarButtonCancel"
-                                  Command="{Binding SendMessageViewModel.CancelSendingMessageCommand}"
-                                  CommandParameter="{Binding ElementName=filesComboBox}"/>
-                    <AppBarSeparator/>
-                    <AppBarButton Icon="Document"
-                                  x:Uid="AppBarButtonDraft"
-                                  Command="{Binding SendMessageViewModel.DraftMessageCommand}"
-                                  CommandParameter="{Binding ElementName=filesComboBox}"/>
-                    <AppBarSeparator/>
-                    <AppBarButton Icon="Send"
-                                  x:Uid="AppBarButtonSend"
-                                  Command="{Binding SendMessageViewModel.SendMessageCommand}"
-                                  CommandParameter="{Binding ElementName=filesComboBox}"/>
-                </StackPanel>
+                <uc:CreateMessageControl Grid.Row="1"
+                                         SendCommand="{Binding SendMessageViewModel.SendMessageCommand}"
+                                         DraftCommand="{Binding SendMessageViewModel.DraftMessageCommand}"
+                                         CancelCommand="{Binding SendMessageViewModel.CancelSendingMessageCommand}"
+                                         AttachCommand="{Binding SendMessageViewModel.InsertFileCommand}"
+                                         MessageText="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
         </Grid>
     </Grid>

@@ -5,14 +5,14 @@ namespace PostClient.Models.Helpers
 {
     public static class JSONSaverAndReaderHelper
     {
-        public static void Save<T>(T objectForSerialization, string name)
+        public static async Task Save<T>(T objectForSerialization, string name)
         {
             string json = JsonSerializer.Serialize((object)objectForSerialization, new JsonSerializerOptions
             {
                 WriteIndented = true
             });
 
-            StorageFileWriterAndReader.Write(name, json);
+            await StorageFileWriterAndReader.Write(name, json);
         }
 
         public static async Task<T> Read<T>(string name)
