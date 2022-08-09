@@ -168,6 +168,9 @@
   <data name="CheckBoxRememberMe.Content" xml:space="preserve">
     <value>Запам'ятати мене</value>
   </data>
+  <data name="ComboBoxAttachments.Header" xml:space="preserve">
+    <value>Вкладення</value>
+  </data>
   <data name="DropDownButtonSort.Content" xml:space="preserve">
     <value>Сортувати</value>
   </data>

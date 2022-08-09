@@ -22,10 +22,10 @@ namespace PostClient.Models.Services
         private const string _smtpLink = "smtp.gmail.com";
         private const string _imapLink = "imap.gmail.com";
 
-        private readonly Action<string> _exceptionHandler;
+        private readonly Action<string, string> _exceptionHandler;
         private bool _isImapClientEngaged;
 
-        public GmailService(Account account, Action<string> exceptionHandler)
+        public GmailService(Account account, Action<string, string> exceptionHandler)
         {
             this.Account = account;
             _smtpClient = new SmtpClient();

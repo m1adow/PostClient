@@ -20,10 +20,10 @@ namespace PostClient.Models.Services
         private const string _smtpLink = "smtp.outlook.com";
         private const string _imapLink = "imap.outlook.com";
 
-        private readonly Action<string> _exceptionHandler;
+        private readonly Action<string, string> _exceptionHandler;
         private bool _isImapClientEngaged;
 
-        public OutlookService(Account account, Action<string> exceptionHandler)
+        public OutlookService(Account account, Action<string, string> exceptionHandler)
         {
             this.Account = account;
             _smtpClient = new SmtpClient();

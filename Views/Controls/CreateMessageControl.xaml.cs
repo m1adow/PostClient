@@ -1,8 +1,11 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.Windows.Input;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
@@ -58,13 +61,24 @@ namespace PostClient.Views.Controls
         }
 
         public static readonly DependencyProperty MessageTextProperty =
-            DependencyProperty.Register(nameof(MessageText), typeof(string), typeof(CreateMessageControl), new PropertyMetadata("Hi world!", OnMessageTextDependencyPropertyChanged));
+            DependencyProperty.Register(nameof(MessageText), typeof(string), typeof(CreateMessageControl), new PropertyMetadata(null, OnMessageTextDependencyPropertyChanged));
+
+        public List<KeyValuePair<string, byte[]>>? Attachments
+        {
+            get => (List<KeyValuePair<string, byte[]>>)GetValue(AttachmentsProperty);
+            set => SetValue(AttachmentsProperty, value);
+        }
+
+        public static readonly DependencyProperty AttachmentsProperty =
+            DependencyProperty.Register(nameof(Attachments), typeof(List<KeyValuePair<string, byte[]>>), typeof(CreateMessageControl), new PropertyMetadata(null, OnAttachmentsDependecyPropertyChanged));
+
+        private Color _currentColor = Colors.Black;
 
         public CreateMessageControl()
         {
             this.InitializeComponent();
 
-            Editor.Document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(0, 0, 0, 0);
+            Editor.Document.Selection.CharacterFormat.ForegroundColor = _currentColor;
         }
 
         private static void OnSendCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => AddCommandToButton("Send", d, e);
@@ -104,7 +118,24 @@ namespace PostClient.Views.Controls
         {
             CreateMessageControl? control = (d as CreateMessageControl) ?? new CreateMessageControl();
 
-            control.MessageText = e.NewValue as string;
+            var text = e.NewValue as string;
+
+            control.MessageText = text;
+
+            control.Editor.Document.GetText(TextGetOptions.UseCrlf, out string documentText);
+            if (documentText == "" || text == "")
+                control.Editor.Document.SetText(TextSetOptions.FormatRtf, text);
+        }
+
+        private static void OnAttachmentsDependecyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            CreateMessageControl? control = (d as CreateMessageControl) ?? new CreateMessageControl();
+
+            var files = e.NewValue as List<KeyValuePair<string, byte[]>>;
+
+            control.Attachments = files;
+            control.FilesComboBox.Items.Clear();
+            files?.ForEach(f => control.FilesComboBox.Items.Add(f.Key));
         }
 
         private void StyleButton_Click(object sender, RoutedEventArgs e)
@@ -129,30 +160,60 @@ namespace PostClient.Views.Controls
             }
         }
 
-        private void BackColorButton_Click(object sender, RoutedEventArgs e) => ChangeColor(sender, false);
-
-        private void FontColorButton_Click(object sender, RoutedEventArgs e) => ChangeColor(sender, true);
-
-        private void ChangeColor(object sender, bool isFont)
+        private void BackColorButton_Click(object sender, RoutedEventArgs e)
         {
             Button clickedColor = (Button)sender;
             var rectangle = (Rectangle)clickedColor.Content;
             var color = ((SolidColorBrush)rectangle.Fill).Color;
 
-            if (isFont)
-                Editor.Document.Selection.CharacterFormat.ForegroundColor = color;
-            else
-                Editor.Document.Selection.CharacterFormat.BackgroundColor = color;
+            Editor.Document.Selection.CharacterFormat.BackgroundColor = color;
 
-            Editor.Document.ApplyDisplayUpdates();
-            FontColorButton.Flyout.Hide();
             Editor.Focus(FocusState.Keyboard);
         }
 
         private void Editor_TextChanged(object sender, RoutedEventArgs e)
         {
+            if (Editor.Document.Selection.CharacterFormat.ForegroundColor != _currentColor)
+                Editor.Document.Selection.CharacterFormat.ForegroundColor = _currentColor;
+
             Editor.Document.GetText(TextGetOptions.FormatRtf, out string text);
             MessageText = text;
+        }
+
+        private void ColorButton_Click(SplitButton sender, SplitButtonClickEventArgs args)
+        {
+            var border = (Border)sender.Content;
+            var color = ((SolidColorBrush)border.Background).Color;
+
+            Editor.Document.Selection.CharacterFormat.ForegroundColor = color;
+            _currentColor = color;
+        }
+
+        private void GridView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            var rect = (Rectangle)e.ClickedItem;
+            var color = ((SolidColorBrush)rect.Fill).Color;
+            Editor.Document.Selection.CharacterFormat.ForegroundColor = color;
+            CurrentColor.Background = new SolidColorBrush(color);
+
+            ColorButton.Flyout.Hide();
+            _currentColor = color;
+        }
+
+        private void Grid_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case VirtualKey.Insert:
+                    SendCommand.Execute(new object());
+                    break;
+                case VirtualKey.End:
+                    CancelCommand.Execute(new object());
+                    break;
+                case VirtualKey.Home:
+                    DraftCommand.Execute(new object());
+                    break;
+            }
         }
     }
 }

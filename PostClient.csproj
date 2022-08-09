@@ -129,9 +129,10 @@
     <Compile Include="ViewModels\ControlMessageViewModel.cs" />
     <Compile Include="Models\Helpers\EncryptionHelper.cs" />
     <Compile Include="Models\Helpers\JSONSaverAndReaderHelper.cs" />
-    <Compile Include="Models\Helpers\MessageDialogShower.cs" />
+    <Compile Include="Models\Helpers\ContentDialogShower.cs" />
     <Compile Include="Models\Helpers\StorageFileWriterAndReader.cs" />
     <Compile Include="ViewModels\Infrastructure\RelayCommand.cs" />
+    <Compile Include="ViewModels\KeyDownImplementationViewModel.cs" />
     <Compile Include="ViewModels\LoadMessagesViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\PostClientViewModel.cs" />

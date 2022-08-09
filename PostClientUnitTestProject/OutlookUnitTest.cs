@@ -18,8 +18,8 @@ namespace PostClientUnitTestProject
         private static readonly Account _sendingAccount = new Account() { Email = "somethinggreat3@outlook.com", Password = "BRxeX_rrr82.kUp" };
         private static readonly Account _receivingAccount = new Account() { Email = "somethingmaynothavesense@outlook.com", Password = "heIv4Y%Zsw7!Q*%I51PE^R*SMnGBe8pdx2^c##$#" };
 
-        private readonly OutlookService _sendingService = new OutlookService(_sendingAccount, MessageDialogShower.ShowMessageDialog);
-        private readonly OutlookService _loadingService = new OutlookService(_receivingAccount, MessageDialogShower.ShowMessageDialog);
+        private readonly OutlookService _sendingService = new OutlookService(_sendingAccount, ContentDialogShower.ShowMessageDialog);
+        private readonly OutlookService _loadingService = new OutlookService(_receivingAccount, ContentDialogShower.ShowMessageDialog);
 
         [TestMethod]
         public async Task SendMessagesTest()

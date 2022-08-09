@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="300"
+    d:DesignHeight="600"
     d:DesignWidth="400">
     <Grid>
         <Grid.RowDefinitions>
@@ -16,7 +16,7 @@
         <WebView Grid.Row="0"
                  x:Name="webView"/>
         <ComboBox Grid.Row="1" 
-                  Header="Attachemts"
+                  x:Uid="ComboBoxAttachments"
                   x:Name="attachmentsComboBox"
                   HorizontalAlignment="Stretch"
                   SelectionChanged="AttachmentsComboBox_SelectionChanged"/>

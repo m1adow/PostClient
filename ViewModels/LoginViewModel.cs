@@ -82,8 +82,6 @@ namespace PostClient.ViewModels
 
         private Visibility? _loginButtonVisibility;
 
-        private Visibility? _accountControlsVisibility;
-
         public LoginViewModel(Action<Account> changeAccount, Action<object> loadMessages, Visibility? loginButtonVisibility, Visibility? accountControlsVisibility, Action<Account> updateAccountControls)
         {
             _changeAccount = changeAccount;
@@ -97,7 +95,7 @@ namespace PostClient.ViewModels
         }
 
         #region Login
-        private void LoginIntoAccount(object parameter)
+        private async void LoginIntoAccount(object parameter)
         {
             try
             {
@@ -120,7 +118,7 @@ namespace PostClient.ViewModels
                 };
 
                 if (IsRememberMeChecked)
-                    JSONSaverAndReaderHelper.Save(encryptedAccount, "AccountCredentials.json");
+                    await JSONSaverAndReaderHelper.Save(encryptedAccount, "AccountCredentials.json");
 
                 ClearFields();
                 HideLoginControls(parameter);
@@ -128,7 +126,7 @@ namespace PostClient.ViewModels
             }
             catch (MailKit.Security.AuthenticationException exception)
             {
-                MessageDialogShower.ShowMessageDialog(exception.Message);
+                ContentDialogShower.ShowMessageDialog("Error!", exception.Message);
             }
         }
 

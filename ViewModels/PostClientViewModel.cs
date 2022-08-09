@@ -6,8 +6,6 @@ using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using System;
 using System.Threading.Tasks;
-using Windows.UI.Xaml;
-using System.Linq;
 
 namespace PostClient.ViewModels
 {
@@ -27,6 +25,8 @@ namespace PostClient.ViewModels
 
         public AccountViewModel AccountViewModel { get; }
 
+        public KeyDownImplementationViewModel KeyDownImplementationViewModel { get; }
+
         private IPostService? _postService;
 
         private Account? _account;
@@ -36,10 +36,11 @@ namespace PostClient.ViewModels
             LoadedHandlerCommand = new RelayCommand(LoadedHandler);
 
             LoadMessagesViewModel = new LoadMessagesViewModel(GetService);
-            AccountViewModel = new AccountViewModel(SetAccount);
+            AccountViewModel = new AccountViewModel(SetAccount, LoadMessagesViewModel.ClearMessagesAction);
             LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction, AccountViewModel.LoginButtonVisibility, AccountViewModel.AccountControlsVisibility, AccountViewModel.UpdateAccountControlsAction);
             SendMessageViewModel = new SendMessageViewModel(GetService, GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
             ControlMessageViewModel = new ControlMessageViewModel(GetService, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc, SendMessageViewModel.ChangeSendMessageControlsVisibilityAndFillFieldsFunc, LoadMessagesViewModel.ArchiveMessageAction, LoadMessagesViewModel.UpdateMessagesAction);
+            KeyDownImplementationViewModel = new KeyDownImplementationViewModel(ControlMessageViewModel.DeleteMessageCommand.Execute, ControlMessageViewModel.FlagMessageCommand.Execute, ControlMessageViewModel.UnseenMessageCommand.Execute, ControlMessageViewModel.ArchiveMessageCommand.Execute, LoadMessagesViewModel.LoadMessagesFromServerCommand.Execute);
         }
 
         private Account GetAccount() => _account;
@@ -50,12 +51,12 @@ namespace PostClient.ViewModels
 
         private void GenerateService()
         {
-            if (_account != null && _account.Email != null && _account.Password != null)
+            if (_account != null && _account.Email != string.Empty && _account.Password != string.Empty)
             {
                 _postService = _account.PostServiceName switch
                 {
-                    nameof(GmailService) => new GmailService(_account, MessageDialogShower.ShowMessageDialog),
-                    nameof(OutlookService) => new OutlookService(_account, MessageDialogShower.ShowMessageDialog),
+                    nameof(GmailService) => new GmailService(_account, ContentDialogShower.ShowMessageDialog),
+                    nameof(OutlookService) => new OutlookService(_account, ContentDialogShower.ShowMessageDialog),
                     _ => throw new ArgumentNullException(_account.PostServiceName),
                 };
 
@@ -88,7 +89,7 @@ namespace PostClient.ViewModels
             }
             catch
             {
-                MessageDialogShower.ShowMessageDialog("You have to login");
+                ContentDialogShower.ShowMessageDialog("Warning!", "You have to login");
             }
         }
     }

@@ -14,22 +14,22 @@ namespace PostClient.Models.Services
 {
     public abstract class PostService
     {
-        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort, Action<string> excpetionHandler)
+        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort, Action<string, string> excpetionHandler)
         {
             try
             {
-                imapClient.Connect(imapServer, 993, true);
+                imapClient.Connect(imapServer, 993, SecureSocketOptions.Auto);
                 imapClient.Authenticate(account.Email, account.Password);
                 smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
                 smtpClient.Authenticate(account.Email, account.Password);
             }
             catch (Exception exception)
             {
-                excpetionHandler(exception.Message);
+                excpetionHandler("Error!", exception.Message);
             }
         }
 
-        protected async Task SendMessage(SmtpClient client, MimeMessage message, Action<string> exceptionHandler)
+        protected async Task SendMessage(SmtpClient client, MimeMessage message, Action<string, string> exceptionHandler)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace PostClient.Models.Services
             }
             catch (Exception exception)
             {
-                exceptionHandler(exception.Message);
+                exceptionHandler("Error!", exception.Message);
             }
         }
 
@@ -71,12 +71,13 @@ namespace PostClient.Models.Services
 
             if (messageFlags == MessageFlags.Flagged)
                 await AddOrRemoveFlags(folder, uids, messageFlags, message.IsFlagged);
-            if (messageFlags == MessageFlags.Seen)
+            else if (messageFlags == MessageFlags.Seen)
                 await AddOrRemoveFlags(folder, uids, messageFlags, message.IsSeen);
             else
+            {
                 await folder.AddFlagsAsync(uids, messageFlags, true);
-
-            await folder.ExpungeAsync(uids);
+                await folder.ExpungeAsync();
+            }
         }
 
         private IMailFolder GetFolder(ImapClient client, SpecialFolder specialFolder, string subFolder)

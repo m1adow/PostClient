@@ -5,10 +5,7 @@ using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Windows.UI;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
 
 namespace PostClient.ViewModels
 {
@@ -88,28 +85,39 @@ namespace PostClient.ViewModels
         #region Flag message
         private async void FlagMessage(object parameter)
         {
-            await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Flagged, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
-            await _updateFlaggedList(SelectedMailMessage);
+            if (SelectedMailMessage.Uid != 0)
+            {
+                await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Flagged, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+                await _updateFlaggedList(SelectedMailMessage);
+            }
         }
         #endregion
 
         #region Delete message
         private async void DeleteMessage(object parameter)
         {
-            await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Deleted, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
-            await _deleteMessageFromList(SelectedMailMessage);
-            CloseMessage(parameter);
+            if (SelectedMailMessage.Uid != 0)
+            {
+                if (!SelectedMailMessage.IsDraft)
+                    await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Deleted, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+                await _deleteMessageFromList(SelectedMailMessage);
+                CloseMessage(parameter);
+            }
         }
         #endregion
 
         #region Archive message
-        private async void ArchiveMessage(object parameter) => await _archiveMessageAction(SelectedMailMessage);
+        private async void ArchiveMessage(object parameter)
+        {
+            if (SelectedMailMessage.Uid != 0)
+                await _archiveMessageAction(SelectedMailMessage);
+        }
         #endregion
 
         #region Unseen message
         private async void UnseenMessage(object parameter)
         {
-            if (SelectedMailMessage.IsSeen)
+            if (SelectedMailMessage.IsSeen && SelectedMailMessage.Uid != 0)
             {
                 await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
                 SelectedMailMessage.IsSeen = false;
@@ -146,7 +154,7 @@ namespace PostClient.ViewModels
             else if (SelectedMailMessage.IsDraft)
                 _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, SelectedMailMessage);
 
-            if (!SelectedMailMessage.IsSeen)
+            if (!SelectedMailMessage.IsSeen && !SelectedMailMessage.IsDraft)
             {
                 await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
                 SelectedMailMessage.IsSeen = true;

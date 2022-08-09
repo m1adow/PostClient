@@ -52,6 +52,8 @@ namespace PostClient.ViewModels
 
         public Action<object> LoadMessagesFromLocalStorageAction { get; }
 
+        public Action ClearMessagesAction { get; }
+
         public Func<MailMessage, Task> FlagMessageFunc { get; }
 
         public Func<MailMessage, Task> DeleteMessageFunc { get; }
@@ -62,6 +64,8 @@ namespace PostClient.ViewModels
 
         private string _messageFolder = string.Empty;
 
+        private readonly List<string> _folders = new List<string>() { "AllMessages.json", "SentMessages.json", "FlaggedMessages.json" };
+
         private readonly Func<IPostService> _getService;
 
         private IBackgroundTaskRegistration? _backgroundTask;
@@ -71,6 +75,7 @@ namespace PostClient.ViewModels
             _getService = getService;
             LoadMessagesFromServerAction = LoadMessagesFromServer;
             LoadMessagesFromLocalStorageAction = LoadMessagesFromLocalStorage;
+            ClearMessagesAction = ClearMessages;
             FlagMessageFunc = FlagMessage;
             DeleteMessageFunc = DeleteMessage;
             ArchiveMessageAction = ArchiveMessage;
@@ -120,10 +125,10 @@ namespace PostClient.ViewModels
             }
             catch (Exception exception)
             {
-                MessageDialogShower.ShowMessageDialog(exception.Message);
+                ContentDialogShower.ShowMessageDialog("Error!", exception.Message);
             }
 
-            MessageDialogShower.ShowMessageDialog("Messages was downloaded");
+            ContentDialogShower.ShowMessageDialog("Notification", "Messages was downloaded");
             storyboard?.Stop();
         }
 
@@ -221,7 +226,7 @@ namespace PostClient.ViewModels
                         .Show();
         }
 
-        private void SaveMessages(List<MailMessage> messages, string name) => JSONSaverAndReaderHelper.Save(messages, name);
+        private async void SaveMessages(List<MailMessage> messages, string name) => await JSONSaverAndReaderHelper.Save(messages, name);
         #endregion
 
         #region Flag message
@@ -242,18 +247,19 @@ namespace PostClient.ViewModels
                 flaggedMessages?.Add(flagMessage);
             }
 
-            var allMessagesInFolder = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder);
-            var allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
-
-            allMessages.FirstOrDefault(m => m.Uid == flagMessage.Uid).IsFlagged = flagMessage.IsFlagged;
-
-            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, flagMessage, allMessagesInFolder));
-
             await JSONSaverAndReaderHelper.Save(flaggedMessages, "FlaggedMessages.json");
-            await JSONSaverAndReaderHelper.Save(allMessages, "AllMessages.json");
+
+            ReplaceMessageInCollection(message, flagMessage, Messages);
+
+            if (_messageFolder != "AllMessages.json")
+            {
+                var allMessages = await JSONSaverAndReaderHelper.Read<List<MailMessage>>("AllMessages.json");
+                allMessages.FirstOrDefault(m => m.Uid == flagMessage.Uid).IsFlagged = flagMessage.IsFlagged;
+                await JSONSaverAndReaderHelper.Save(allMessages, "AllMessages.json");
+            }
 
             if (_messageFolder != "FlaggedMessages.json")
-                await JSONSaverAndReaderHelper.Save(allMessagesInFolder, _messageFolder);
+                await JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
         }
         #endregion
 
@@ -261,7 +267,17 @@ namespace PostClient.ViewModels
         private async Task DeleteMessage(MailMessage message)
         {
             Messages?.Remove(message);
-            await JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
+            await DeleteMessageInAllFolders(message);
+        }
+
+        private async Task DeleteMessageInAllFolders(MailMessage message)
+        {
+            foreach (string folder in _folders)
+            {
+                var collection = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(folder);
+                collection.Remove(message);
+                await JSONSaverAndReaderHelper.Save(collection, folder);
+            }
         }
         #endregion
 
@@ -301,19 +317,35 @@ namespace PostClient.ViewModels
         }
         #endregion
 
+        #region Update messages
         private async Task UpdateMessages(MailMessage message, MailMessage messageForReplace)
         {
-            Messages = new ObservableCollection<MailMessage>(ReplaceMessageInCollection(message, messageForReplace, await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder)));
-            await JSONSaverAndReaderHelper.Save(Messages, _messageFolder);
+            ReplaceMessageInCollection(message, messageForReplace, Messages);
+            await UpdateMessagesInAllFolders(message, messageForReplace);
         }
 
-        private List<MailMessage> ReplaceMessageInCollection(MailMessage message, MailMessage messageForReplace, List<MailMessage> messages)
+        private async Task UpdateMessagesInAllFolders(MailMessage message, MailMessage messageForReplace)
         {
-            for (int i = 0; i < messages.Count; i++)
+            foreach (string folder in _folders)
+            {
+                var collection = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(folder);
+
+                for (int i = 0; i < collection.Count; i++)
+                    if (collection[i].Equals(message))
+                        collection[i] = messageForReplace;
+
+                await JSONSaverAndReaderHelper.Save(collection, folder);
+            }
+        }
+        #endregion
+
+        private void ReplaceMessageInCollection(MailMessage message, MailMessage messageForReplace, ObservableCollection<MailMessage>? messages)
+        {
+            for (int i = 0; i < messages?.Count; i++)
                 if (messages[i].Equals(message))
                     messages[i] = messageForReplace;
-
-            return messages;
         }
+
+        private void ClearMessages() => Messages = new ObservableCollection<MailMessage>();
     }
 }

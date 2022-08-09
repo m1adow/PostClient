@@ -261,6 +261,10 @@
                         <core:EventTriggerBehavior EventName="SelectionChanged">
                             <core:InvokeCommandAction Command="{Binding SendMessageViewModel.HideSendingControlsCommand}"/>
                         </core:EventTriggerBehavior>
+                        <core:EventTriggerBehavior EventName="Loaded">
+                            <core:InvokeCommandAction Command="{Binding KeyDownImplementationViewModel.ListViewLoadedCommand}"
+                                                      CommandParameter="{Binding ElementName=listViewMessages}"/>
+                        </core:EventTriggerBehavior>
                     </ineractivity:Interaction.Behaviors>
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -395,7 +399,8 @@
                                          DraftCommand="{Binding SendMessageViewModel.DraftMessageCommand}"
                                          CancelCommand="{Binding SendMessageViewModel.CancelSendingMessageCommand}"
                                          AttachCommand="{Binding SendMessageViewModel.InsertFileCommand}"
-                                         MessageText="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                         MessageText="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Attachments="{Binding SendMessageViewModel.Files}"/>
             </Grid>
         </Grid>
     </Grid>

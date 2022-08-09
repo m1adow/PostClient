@@ -39,7 +39,7 @@ namespace PostClient.ViewModels
             set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand, DraftMessageCommand });
         }
 
-        private string? _messageName = "Username";
+        private string? _messageName = string.Empty;
 
         public string? MessageName
         {
@@ -47,7 +47,7 @@ namespace PostClient.ViewModels
             set => Set(ref _messageName, value);
         }
 
-        private string? _messageSubject = "It's my beautiful post app";
+        private string? _messageSubject = string.Empty;
 
         public string? MessageSubject
         {
@@ -55,7 +55,7 @@ namespace PostClient.ViewModels
             set => Set(ref _messageSubject, value);
         }
 
-        private string? _messageBody = "Hi world!";
+        private string? _messageBody = "";
 
         public string? MessageBody
         {
@@ -63,12 +63,12 @@ namespace PostClient.ViewModels
             set => Set(ref _messageBody, value);
         }
 
-        private string? _selectedText = string.Empty;
+        private List<KeyValuePair<string, byte[]>>? _files = new List<KeyValuePair<string, byte[]>>();
 
-        public string? SelectedText
+        public List<KeyValuePair<string, byte[]>>? Files
         {
-            get => _selectedText;
-            set => Set(ref _selectedText, value);
+            get => _files;
+            private set => Set(ref _files, value);
         }
 
         private Visibility? _sendMessageControlsVisibility = Visibility.Collapsed;
@@ -107,8 +107,6 @@ namespace PostClient.ViewModels
 
         private readonly Func<MailMessage, Task> _deleteDraft;
 
-        private List<KeyValuePair<string, byte[]>>? _files = new List<KeyValuePair<string, byte[]>>();
-
         public SendMessageViewModel(Func<IPostService> getService, Func<Account> getAccount, Func<MailMessage, Task> deleteDraft)
         {                  
             _getAccount = getAccount;
@@ -138,7 +136,7 @@ namespace PostClient.ViewModels
             if (_selectedMessage.IsDraft)
                 await _deleteDraft(_selectedMessage);
 
-            MessageDialogShower.ShowMessageDialog("Mail has sent successfully");
+            ContentDialogShower.ShowMessageDialog("Notification", "Mail has sent successfully");
 
             var comboBox = parameter as ComboBox;
 
@@ -160,8 +158,8 @@ namespace PostClient.ViewModels
 
             builder.HtmlBody = Rtf.ToHtml(MessageBody);
 
-            if (_files?.Count > 0)
-                foreach (var file in _files)
+            if (Files?.Count > 0)
+                foreach (var file in Files)
                     builder.Attachments.Add(file.Key, file.Value);
 
             message.Body = builder.ToMessageBody();
@@ -172,10 +170,10 @@ namespace PostClient.ViewModels
         private void ClearFields(ComboBox comboBox)
         {
             MessageReciever = string.Empty;
-            MessageName = "New message";
-            MessageSubject = "It's my beautiful post app";
-            MessageBody = "Hi world!";
-            _files?.Clear();
+            MessageName = string.Empty;
+            MessageSubject = string.Empty;
+            MessageBody = "";
+            Files?.Clear();
             comboBox.Items.Clear();
         }
 
@@ -186,11 +184,11 @@ namespace PostClient.ViewModels
         private async void InsertFile(object parameter)
         {
             var files = await GetFileBytesAsync();
-            _files = _files.Union(files).ToList();
+            Files = Files.Union(files).ToList();
 
             ComboBox? filesComboBox = (parameter as ComboBox) ?? new ComboBox();
             filesComboBox.Items.Clear();
-            _files.ForEach(f => filesComboBox.Items.Add(f.Key));
+            Files.ForEach(f => filesComboBox.Items.Add(f.Key));
         }
 
         private async Task<List<KeyValuePair<string, byte[]>>> GetFileBytesAsync()
@@ -233,9 +231,10 @@ namespace PostClient.ViewModels
                 Name = MessageName,
                 Subject = MessageSubject,
                 Body = MessageBody,
-                Attachments = _files,
+                Attachments = Files,
                 From = _account?.Email,
                 To = MessageReciever,
+                Uid = 1,
                 IsDraft = true
             });
 
@@ -281,6 +280,7 @@ namespace PostClient.ViewModels
                 MessageSubject = message.Subject;
                 MessageBody = message.Body;
                 MessageReciever = message.To;
+                Files = message.Attachments;
             }
 
             _selectedMessage = message;
