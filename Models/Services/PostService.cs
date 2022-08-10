@@ -14,19 +14,26 @@ namespace PostClient.Models.Services
 {
     public abstract class PostService
     {
-        protected void EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Account account, string imapServer, string smtpServer, int smtpPort, Action<string, string> excpetionHandler)
+        protected async Task EstablishConnection(ImapClient imapClient, SmtpClient smtpClient, Pop3Client popClient, Account account, string imapServer, string smtpServer, string popServer, int smtpPort, Action<string, string> excpetionHandler)
         {
             try
             {
-                imapClient.Connect(imapServer, 993, SecureSocketOptions.Auto);
-                imapClient.Authenticate(account.Email, account.Password);
-                smtpClient.Connect(smtpServer, smtpPort, SecureSocketOptions.Auto);
-                smtpClient.Authenticate(account.Email, account.Password);
+                await imapClient.ConnectAsync(imapServer, 993, SecureSocketOptions.Auto);
+                await imapClient.AuthenticateAsync(account.Email, account.Password);
+                await smtpClient.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.Auto);
+                await smtpClient.AuthenticateAsync(account.Email, account.Password);
             }
             catch (Exception exception)
             {
                 excpetionHandler("Error!", exception.Message);
             }
+
+            try
+            {
+                await popClient.ConnectAsync(popServer, 995, SecureSocketOptions.Auto);
+                await popClient.AuthenticateAsync(account.Email, account.Password);
+            }
+            catch { }
         }
 
         protected async Task SendMessage(SmtpClient client, MimeMessage message, Action<string, string> exceptionHandler)
@@ -116,5 +123,20 @@ namespace PostClient.Models.Services
             smtpClient.Dispose();
             imapClient.Dispose();
         }
+
+        protected async Task<Dictionary<int, MimeMessage>> LoadPopMessages(Pop3Client client)
+        {
+            var messages = new Dictionary<int, MimeMessage>();
+
+            int count = await client.GetMessageCountAsync();
+            var popMessages = (await client.GetMessagesAsync(0, count)).Reverse().ToList();
+
+            for (int i = 0; i < count; i++)
+                messages.Add(count - i, popMessages[i]);
+
+            return messages;
+        }
+
+        protected async Task DeletePopMessage(Pop3Client client, int index) => await client.DeleteMessageAsync(index);
     }
 }

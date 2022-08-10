@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace PostClient.ViewModels
 {
@@ -51,6 +52,8 @@ namespace PostClient.ViewModels
 
         public ICommand ChangeMessageOnTapCommand { get; }
 
+        public ICommand ReplyMessageCommand { get; }
+
         private readonly Func<MailMessage, Task> _updateFlaggedList;
 
         private readonly Func<MailMessage, Task> _deleteMessageFromList;
@@ -80,6 +83,7 @@ namespace PostClient.ViewModels
             HideMessageViewCommand = new RelayCommand(HideMessageView);
             ChangeMessageOnRightTapCommand = new RelayCommand(ChangeMessageOnRightTap);
             ChangeMessageOnTapCommand = new RelayCommand(ChangeMessageOnTap);
+            ReplyMessageCommand = new RelayCommand(ReplyMessage);
         }
 
         #region Flag message
@@ -87,7 +91,8 @@ namespace PostClient.ViewModels
         {
             if (SelectedMailMessage.Uid != 0)
             {
-                await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Flagged, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+                if (!SelectedMailMessage.IsPopMessage)
+                    await _getService().FlagMessageAsync(SelectedMailMessage, MessageFlags.Flagged, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
                 await _updateFlaggedList(SelectedMailMessage);
             }
         }
@@ -98,8 +103,10 @@ namespace PostClient.ViewModels
         {
             if (SelectedMailMessage.Uid != 0)
             {
-                if (!SelectedMailMessage.IsDraft)
-                    await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Deleted, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+                if (!SelectedMailMessage.IsDraft && !SelectedMailMessage.IsPopMessage)
+                    await _getService().FlagMessageAsync(SelectedMailMessage, MessageFlags.Deleted, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+                else if (SelectedMailMessage.IsPopMessage)
+                    await _getService().DeletePopMessageAsync(Convert.ToInt32(SelectedMailMessage.Uid));
                 await _deleteMessageFromList(SelectedMailMessage);
                 CloseMessage(parameter);
             }
@@ -117,9 +124,9 @@ namespace PostClient.ViewModels
         #region Unseen message
         private async void UnseenMessage(object parameter)
         {
-            if (SelectedMailMessage.IsSeen && SelectedMailMessage.Uid != 0)
+            if (SelectedMailMessage.IsSeen && SelectedMailMessage.Uid != 0 && !SelectedMailMessage.IsPopMessage)
             {
-                await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+                await _getService().FlagMessageAsync(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
                 SelectedMailMessage.IsSeen = false;
                 await _updateMessagesAction(new MailMessage { Uid = SelectedMailMessage.Uid }, SelectedMailMessage);
             }
@@ -156,10 +163,25 @@ namespace PostClient.ViewModels
 
             if (!SelectedMailMessage.IsSeen && !SelectedMailMessage.IsDraft)
             {
-                await _getService().FlagMessage(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
+                if (!SelectedMailMessage.IsPopMessage)
+                    await _getService().FlagMessageAsync(SelectedMailMessage, MessageFlags.Seen, GetSpecialFolder(SelectedMailMessage.Folder), SelectedMailMessage.Folder);
                 SelectedMailMessage.IsSeen = true;
                 await _updateMessagesAction(new MailMessage { Uid = SelectedMailMessage.Uid }, SelectedMailMessage);
             }
+        }
+        #endregion
+
+        #region Reply message
+        private void ReplyMessage(object parameter)
+        {
+            MessageViewConrtolVisibility = Visibility.Collapsed;
+            _changeSendMessageControlsVisibilityAndMessage(Visibility.Visible, 
+                new MailMessage() 
+                { 
+                    Subject = $"RE: {SelectedMailMessage.Subject}", 
+                    To = SelectedMailMessage.From, 
+                    Body = $"\n\n\n\n\n\n\n\n\nFrom: {SelectedMailMessage.From}\nSent: {SelectedMailMessage.Date}\nTo: {SelectedMailMessage.To}\nSubject: {SelectedMailMessage.Subject}"
+                });
         }
         #endregion
 

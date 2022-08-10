@@ -68,9 +68,18 @@
                     <StackPanel Margin="10"
                                 Grid.Row="1">
                         <Button x:Uid="ButtonNewMail"
+                                x:Name="NewMailButton"
                                 Command="{Binding SendMessageViewModel.ShowSendingControlsCommand}"
                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
                             <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerEnteredHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=NewMailButton}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="PointerExited">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerExitedHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=NewMailButton}"/>
+                                </core:EventTriggerBehavior>
                                 <core:EventTriggerBehavior EventName="Click">
                                     <core:InvokeCommandAction Command="{Binding ControlMessageViewModel.HideMessageViewCommand}"/>
                                 </core:EventTriggerBehavior>
@@ -98,45 +107,125 @@
                                        Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
                         </Grid>
                         <Button x:Uid="ButtonInbox"
+                                x:Name="InboxButton"
                                 Margin="10,5,0,0"
                                 HorizontalAlignment="Left"
                                 Width="80"
                                 Height="40"
                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                                 Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                                CommandParameter="AllMessages"/>
+                                CommandParameter="AllMessages">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerEnteredHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=InboxButton}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="PointerExited">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerExitedHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=InboxButton}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </Button>
                         <Button x:Uid="ButtonSentMail"
+                                x:Name="SentMailButton"
                                 Margin="10,5,0,0"
                                 HorizontalAlignment="Left"
                                 Width="80"
                                 Height="40"
                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                                 Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                                CommandParameter="SentMessages"/>
+                                CommandParameter="SentMessages">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerEnteredHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=SentMailButton}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="PointerExited">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerExitedHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=SentMailButton}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </Button>
                         <Button x:Uid="ButtonFlagged"
+                                x:Name="FlaggedButton"
                                 Margin="10,5,0,0"
                                 HorizontalAlignment="Left"
                                 Width="80"
                                 Height="40"
                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                                 Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                                CommandParameter="FlaggedMessages"/>
+                                CommandParameter="FlaggedMessages">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerEnteredHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=FlaggedButton}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="PointerExited">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerExitedHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=FlaggedButton}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </Button>
                         <Button x:Uid="ButtonDrafts"
+                                x:Name="DraftsButton"
                                 Margin="10,5,0,0"
                                 HorizontalAlignment="Left"
                                 Width="80"
                                 Height="40"
                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                                 Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                                CommandParameter="DraftMessages"/>
+                                CommandParameter="DraftMessages">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerEnteredHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=DraftsButton}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="PointerExited">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerExitedHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=DraftsButton}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </Button>
                         <Button x:Uid="ButtonArchive"
+                                x:Name="ArchiveButton"
                                 Margin="10,5,0,0"
                                 HorizontalAlignment="Left"
                                 Width="80"
                                 Height="40"
                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                                 Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
-                                CommandParameter="ArchiveMessages"/>
+                                CommandParameter="ArchiveMessages">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerEnteredHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=ArchiveButton}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="PointerExited">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerExitedHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=ArchiveButton}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </Button>
+                        <Button Content="POP"
+                                x:Name="POPButton"
+                                Margin="10,5,0,0"
+                                HorizontalAlignment="Left"
+                                Width="80"
+                                Height="40"
+                                Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                Command="{Binding LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand}"
+                                CommandParameter="POPMessages">
+                            <ineractivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="PointerEntered">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerEnteredHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=POPButton}"/>
+                                </core:EventTriggerBehavior>
+                                <core:EventTriggerBehavior EventName="PointerExited">
+                                    <core:InvokeCommandAction Command="{Binding AnimationsImplementationViewModel.PointerExitedHandlerCommand}"
+                                                              CommandParameter="{Binding ElementName=POPButton}"/>
+                                </core:EventTriggerBehavior>
+                            </ineractivity:Interaction.Behaviors>
+                        </Button>
                         <TextBlock x:Uid="TextBlockLogin"
                                    Foreground="White"
                                    Margin="0,10,0,0"
@@ -253,6 +342,8 @@
                           CanDragItems="True"
                           CanReorderItems="True"
                           AllowDrop="True"
+                          BorderThickness="1"
+                          BorderBrush="Black"
                           Margin="10"
                           Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                           ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -303,6 +394,10 @@
                   Background="#cdb4db">
                 <CommandBar Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}">
                     <CommandBar.PrimaryCommands>
+                        <AppBarButton Icon="MailReply" 
+                                      x:Uid="AppBarButtonUnseen"
+                                      Command="{Binding ControlMessageViewModel.ReplyMessageCommand}"/>
+                        <AppBarSeparator/>
                         <AppBarButton Icon="Mail" 
                                       x:Uid="AppBarButtonUnseen"
                                       Command="{Binding ControlMessageViewModel.UnseenMessageCommand}"/>
@@ -368,11 +463,13 @@
                                      Grid.Column="0"
                                      Text="{Binding SendMessageViewModel.MessageReciever, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <AppBarButton Icon="Contact"
+                                          x:Name="ContactAppBarButton"
                                           x:Uid="AppBarButtonContact"
                                           Grid.Column="1"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          Command="{Binding SendMessageViewModel.ChooseContactCommand}"/>
+                                          Command="{Binding SendMessageViewModel.ChooseContactCommand}"
+                                          CommandParameter="{Binding ElementName=ContactAppBarButton}"/>
                         </Grid>
                     </Grid>
                     <Grid Grid.Row="1">
@@ -396,11 +493,13 @@
                 </Grid>
                 <uc:CreateMessageControl Grid.Row="1"
                                          SendCommand="{Binding SendMessageViewModel.SendMessageCommand}"
+                                         SendWithDelayCommand="{Binding SendMessageViewModel.SendMessageWithDelayCommand}"
                                          DraftCommand="{Binding SendMessageViewModel.DraftMessageCommand}"
                                          CancelCommand="{Binding SendMessageViewModel.CancelSendingMessageCommand}"
                                          AttachCommand="{Binding SendMessageViewModel.InsertFileCommand}"
                                          MessageText="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         Attachments="{Binding SendMessageViewModel.Files}"/>
+                                         Attachments="{Binding SendMessageViewModel.Files}"
+                                         DelayTime="{Binding SendMessageViewModel.DelayTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
         </Grid>
     </Grid>

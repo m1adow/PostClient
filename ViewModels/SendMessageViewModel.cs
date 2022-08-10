@@ -16,6 +16,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using RtfPipe;
+using System.Timers;
 
 namespace PostClient.ViewModels
 {
@@ -36,7 +37,7 @@ namespace PostClient.ViewModels
         public string? MessageReciever
         {
             get => _messageReciever;
-            set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand, DraftMessageCommand });
+            set => Set(ref _messageReciever, value, new ICommand[] { SendMessageCommand, SendMessageWithDelayCommand, DraftMessageCommand });
         }
 
         private string? _messageName = string.Empty;
@@ -79,7 +80,17 @@ namespace PostClient.ViewModels
             set => Set(ref _sendMessageControlsVisibility, value);
         }
 
+        private TimeSpan _delayTime = new TimeSpan();
+
+        public TimeSpan DelayTime
+        {
+            get => _delayTime;
+            set => Set(ref _delayTime, value);
+        }
+
         public ICommand SendMessageCommand { get; }
+
+        public ICommand SendMessageWithDelayCommand { get; }
 
         public ICommand InsertFileCommand { get; }
 
@@ -107,6 +118,8 @@ namespace PostClient.ViewModels
 
         private readonly Func<MailMessage, Task> _deleteDraft;
 
+        private MimeMessage _scheduledMessage = new MimeMessage();
+
         public SendMessageViewModel(Func<IPostService> getService, Func<Account> getAccount, Func<MailMessage, Task> deleteDraft)
         {                  
             _getAccount = getAccount;
@@ -118,6 +131,7 @@ namespace PostClient.ViewModels
             ChangeSendMessageControlsVisibilityAndFillFieldsFunc = ChangeSendMessageControlsVisibilityAndFillFields;
 
             SendMessageCommand = new RelayCommand(SendMessage, IsSendMessageFieldsFilled);
+            SendMessageWithDelayCommand = new RelayCommand(SendMessageWithDelay, IsSendMessageFieldsFilled);
             InsertFileCommand = new RelayCommand(InsertFile);
             DraftMessageCommand = new RelayCommand(DraftMessage, IsSendMessageFieldsFilled);
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
@@ -131,7 +145,7 @@ namespace PostClient.ViewModels
         {
             MimeMessage message = CreateMessage();
 
-            await _getService().SendMessage(message);
+            await _getService().SendMessageAsync(message);
 
             if (_selectedMessage.IsDraft)
                 await _deleteDraft(_selectedMessage);
@@ -167,17 +181,43 @@ namespace PostClient.ViewModels
             return message;
         }
 
-        private void ClearFields(ComboBox comboBox)
+        private async void ClearFields(object parameter)
         {
+            if (_selectedMessage.IsDraft)
+                await _deleteDraft(_selectedMessage);
+
+            var comboBox = parameter as ComboBox;
+            comboBox?.Items.Clear();
+
             MessageReciever = string.Empty;
             MessageName = string.Empty;
             MessageSubject = string.Empty;
             MessageBody = "";
             Files?.Clear();
-            comboBox.Items.Clear();
         }
 
         private bool IsSendMessageFieldsFilled(object parameter) => MessageReciever.Length > 0;
+        #endregion
+
+        #region Sending message with delay
+        private void SendMessageWithDelay(object parameter)
+        {
+            _scheduledMessage = CreateMessage();
+            ClearFields(parameter);
+
+            DateTime dateTimeNow = DateTime.Now;
+            DateTime scheduledTime = new DateTime(dateTimeNow.Year, dateTimeNow.Month, dateTimeNow.Day, dateTimeNow.Hour + DelayTime.Hours, dateTimeNow.Minute + DelayTime.Minutes, dateTimeNow.Second);
+
+            if (dateTimeNow > scheduledTime)
+                scheduledTime = scheduledTime.AddDays(1);
+
+            double tickTime = (double)(scheduledTime - dateTimeNow).TotalMilliseconds;
+            Timer timer = new Timer(tickTime);
+            timer.Elapsed += Timer_Elapsed;
+            timer.Start();
+        }
+
+        private async void Timer_Elapsed(object sender, ElapsedEventArgs e) => await _getService().SendMessageAsync(_scheduledMessage);
         #endregion
 
         #region Inserting files
@@ -198,13 +238,17 @@ namespace PostClient.ViewModels
             var openPicker = new FileOpenPicker
             {
                 ViewMode = PickerViewMode.Thumbnail,
-                SuggestedStartLocation = PickerLocationId.PicturesLibrary
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
             };
 
             openPicker.FileTypeFilter.Add(".txt");
             openPicker.FileTypeFilter.Add(".png");
             openPicker.FileTypeFilter.Add(".jpg");
             openPicker.FileTypeFilter.Add(".jpeg");
+            openPicker.FileTypeFilter.Add(".doxc");
+            openPicker.FileTypeFilter.Add(".xlsx");
+            openPicker.FileTypeFilter.Add(".rtf");
+            openPicker.FileTypeFilter.Add(".pdf");
 
             var files = await openPicker.PickMultipleFilesAsync();
 
@@ -274,14 +318,11 @@ namespace PostClient.ViewModels
         {
             SendMessageControlsVisibility = visibility;
 
-            if (message.IsDraft)
-            {
-                MessageName = message.Name;
-                MessageSubject = message.Subject;
-                MessageBody = message.Body;
-                MessageReciever = message.To;
-                Files = message.Attachments;
-            }
+            MessageName = message.Name;
+            MessageSubject = message.Subject;
+            MessageBody = message.Body;
+            MessageReciever = message.To;
+            Files = message.Attachments;
 
             _selectedMessage = message;
 
@@ -296,8 +337,21 @@ namespace PostClient.ViewModels
             var contact = await contactPicker.PickContactAsync();
 
             if (contact != null)
-                MessageReciever = contact.Emails[0].Address;
+            {
+                MenuFlyout menuFlyout = new MenuFlyout();
+
+                foreach (var email in contact.Emails)
+                {
+                    var menuFlyoutItem = new MenuFlyoutItem() { Text = email.Address };
+                    menuFlyoutItem.Click += MenuFlyoutItem_Click;
+                    menuFlyout.Items.Add(menuFlyoutItem);
+                }
+
+                menuFlyout.ShowAt(parameter as AppBarButton);            
+            }           
         }
+
+        private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e) => MessageReciever = (sender as MenuFlyoutItem)?.Text;
         #endregion
 
         private void PasteText(string text) => MessageBody = text;

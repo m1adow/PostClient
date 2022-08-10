@@ -27,6 +27,8 @@ namespace PostClient.ViewModels
 
         public KeyDownImplementationViewModel KeyDownImplementationViewModel { get; }
 
+        public AnimationsImplementationViewModel AnimationsImplementationViewModel { get; } 
+
         private IPostService? _postService;
 
         private Account? _account;
@@ -41,6 +43,7 @@ namespace PostClient.ViewModels
             SendMessageViewModel = new SendMessageViewModel(GetService, GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
             ControlMessageViewModel = new ControlMessageViewModel(GetService, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc, SendMessageViewModel.ChangeSendMessageControlsVisibilityAndFillFieldsFunc, LoadMessagesViewModel.ArchiveMessageAction, LoadMessagesViewModel.UpdateMessagesAction);
             KeyDownImplementationViewModel = new KeyDownImplementationViewModel(ControlMessageViewModel.DeleteMessageCommand.Execute, ControlMessageViewModel.FlagMessageCommand.Execute, ControlMessageViewModel.UnseenMessageCommand.Execute, ControlMessageViewModel.ArchiveMessageCommand.Execute, LoadMessagesViewModel.LoadMessagesFromServerCommand.Execute);
+            AnimationsImplementationViewModel = new AnimationsImplementationViewModel();
         }
 
         private Account GetAccount() => _account;
@@ -49,32 +52,32 @@ namespace PostClient.ViewModels
 
         private IPostService GetService() => _postService;
 
-        private void GenerateService()
+        private async Task GenerateService(Account account)
         {
-            if (_account != null && _account.Email != string.Empty && _account.Password != string.Empty)
+            if (account != null && account.Email != string.Empty && account.Password != string.Empty)
             {
-                _postService = _account.PostServiceName switch
+                _postService = account.PostServiceName switch
                 {
-                    nameof(GmailService) => new GmailService(_account, ContentDialogShower.ShowMessageDialog),
-                    nameof(OutlookService) => new OutlookService(_account, ContentDialogShower.ShowMessageDialog),
-                    _ => throw new ArgumentNullException(_account.PostServiceName),
+                    nameof(GmailService) => await GmailService.CreateAsync(account, ContentDialogShower.ShowMessageDialog),
+                    nameof(OutlookService) => await OutlookService.CreateAsync(account, ContentDialogShower.ShowMessageDialog),
+                    _ => throw new ArgumentNullException(account.PostServiceName),
                 };
 
-                AccountViewModel.UpdateAccountControlsAction(_account);
-                SendMessageViewModel.MessageSender = _account.Email;
+                AccountViewModel.UpdateAccountControlsAction(account);
+                SendMessageViewModel.MessageSender = account.Email;
             }
         }
 
-        private void ChangeAccountAfterLogining(Account account)
+        private async void ChangeAccountAfterLogining(Account account)
         {
+            await GenerateService(account);
             _account = account;
-            GenerateService();
         }
 
         private async void LoadedHandler(object parameter)
         {
             await LoadAccount();
-            GenerateService();
+            await GenerateService(_account);
             LoadMessagesViewModel.LoadMessagesFromLocalStorageAction(parameter);
         }
 

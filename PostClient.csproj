@@ -126,6 +126,7 @@
     <Compile Include="Models\Services\OutlookService.cs" />
     <Compile Include="Models\Services\PostService.cs" />
     <Compile Include="ViewModels\AccountViewModel.cs" />
+    <Compile Include="ViewModels\AnimationsImplementationViewModel.cs" />
     <Compile Include="ViewModels\ControlMessageViewModel.cs" />
     <Compile Include="Models\Helpers\EncryptionHelper.cs" />
     <Compile Include="Models\Helpers\JSONSaverAndReaderHelper.cs" />

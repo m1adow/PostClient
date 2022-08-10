@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Input;
 using Windows.System;
 using Windows.UI;
@@ -26,6 +27,15 @@ namespace PostClient.Views.Controls
 
         public static readonly DependencyProperty SendCommandProperty =
             DependencyProperty.Register(nameof(SendCommand), typeof(ICommand), typeof(CreateMessageControl), new PropertyMetadata(null, OnSendCommandDependencyPropertyChanged));
+
+        public ICommand SendWithDelayCommand
+        {
+            get => (ICommand)GetValue(SendWithDelayCommandProprerty);
+            set => SetValue(SendWithDelayCommandProprerty, value);
+        }
+
+        public static readonly DependencyProperty SendWithDelayCommandProprerty =
+            DependencyProperty.Register(nameof(SendWithDelayCommand), typeof(ICommand), typeof(CreateMessageControl), new PropertyMetadata(null, OnSendWithDelayCommandDependencyPropertyChanged));
 
         public ICommand DraftCommand
         {
@@ -72,6 +82,15 @@ namespace PostClient.Views.Controls
         public static readonly DependencyProperty AttachmentsProperty =
             DependencyProperty.Register(nameof(Attachments), typeof(List<KeyValuePair<string, byte[]>>), typeof(CreateMessageControl), new PropertyMetadata(null, OnAttachmentsDependecyPropertyChanged));
 
+        public TimeSpan DelayTime
+        {
+            get => (TimeSpan)GetValue(DelayTimeProperty);
+            set => SetValue(DelayTimeProperty, value);
+        }
+
+        public static readonly DependencyProperty DelayTimeProperty =
+            DependencyProperty.Register(nameof(DelayTime), typeof(TimeSpan), typeof(CreateMessageControl), new PropertyMetadata(null, OnDelayTimeDependecyPropertyChanged));
+
         private Color _currentColor = Colors.Black;
 
         public CreateMessageControl()
@@ -82,6 +101,8 @@ namespace PostClient.Views.Controls
         }
 
         private static void OnSendCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => AddCommandToButton("Send", d, e);
+
+        private static void OnSendWithDelayCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => AddCommandToButton("SendWithDelay", d, e);
 
         private static void OnDraftCommandDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => AddCommandToButton("Draft", d, e);
 
@@ -99,6 +120,10 @@ namespace PostClient.Views.Controls
                     control.SendButton.Command = e.NewValue as ICommand;
                     control.SendButton.CommandParameter = control.FilesComboBox;
                     break;
+                case "SendWithDelay":
+                    control.SendWithDelayButton.Command = e.NewValue as ICommand;
+                    control.SendWithDelayButton.CommandParameter = control.FilesComboBox;
+                    break;  
                 case "Draft":
                     control.DraftButton.Command = e.NewValue as ICommand;
                     control.SendButton.CommandParameter = control.FilesComboBox;
@@ -136,6 +161,13 @@ namespace PostClient.Views.Controls
             control.Attachments = files;
             control.FilesComboBox.Items.Clear();
             files?.ForEach(f => control.FilesComboBox.Items.Add(f.Key));
+        }
+
+        private static void OnDelayTimeDependecyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            CreateMessageControl? control = (d as CreateMessageControl) ?? new CreateMessageControl();
+
+            control.DelayTime = (TimeSpan)e.NewValue;
         }
 
         private void StyleButton_Click(object sender, RoutedEventArgs e)
@@ -215,5 +247,7 @@ namespace PostClient.Views.Controls
                     break;
             }
         }
+
+        private void TimePicker_SelectedTimeChanged(TimePicker sender, TimePickerSelectedValueChangedEventArgs args) => DelayTime = sender.Time;
     }
 }

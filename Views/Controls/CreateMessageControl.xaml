@@ -213,6 +213,23 @@
                           x:Uid="AppBarButtonDraft"
                           x:Name="DraftButton"/>
             <AppBarSeparator/>
+            <AppBarButton Icon="Clock"
+                          x:Uid="AppBarButtonSendWithDelay">
+                <AppBarButton.Flyout>
+                    <Flyout>
+                        <StackPanel>
+                            <TextBlock Text="Pick time"
+                                       Foreground="White"/>
+                            <TimePicker ClockIdentifier="24HourClock"
+                                        SelectedTimeChanged="TimePicker_SelectedTimeChanged"/>
+                            <AppBarButton Icon="Send"
+                                          Foreground="White"
+                                          x:Uid="AppBarButtonSend"
+                                          x:Name="SendWithDelayButton"/>
+                        </StackPanel>
+                    </Flyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
             <AppBarButton Icon="Send"
                           x:Uid="AppBarButtonSend"
                           x:Name="SendButton"/>

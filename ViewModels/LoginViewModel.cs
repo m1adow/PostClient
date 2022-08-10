@@ -103,7 +103,7 @@ namespace PostClient.ViewModels
                 {
                     Email = this.Email,
                     Password = this.Password,
-                    PostServiceName = this.GetServiceName()
+                    PostServiceName = this.GetServiceName(),
                 };
 
                 _changeAccount(account);
@@ -114,7 +114,7 @@ namespace PostClient.ViewModels
                 {
                     Email = this.Email,
                     Password = EncryptionHelper.Encrypt(this.Password),
-                    PostServiceName = this.GetServiceName()
+                    PostServiceName = this.GetServiceName(),
                 };
 
                 if (IsRememberMeChecked)
@@ -130,13 +130,7 @@ namespace PostClient.ViewModels
             }
         }
 
-        private string GetServiceName()
-        {
-            if (IsGmailRadioButtonChecked)
-                return nameof(GmailService);
-            else
-                return nameof(OutlookService);
-        }
+        private string GetServiceName() => IsGmailRadioButtonChecked ? nameof(GmailService) : nameof(OutlookService);
 
         private void ClearFields()
         {

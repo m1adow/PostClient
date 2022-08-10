@@ -64,7 +64,7 @@ namespace PostClient.ViewModels
 
         private string _messageFolder = string.Empty;
 
-        private readonly List<string> _folders = new List<string>() { "AllMessages.json", "SentMessages.json", "FlaggedMessages.json" };
+        private readonly List<string> _folders = new List<string>() { "AllMessages.json", "SentMessages.json", "FlaggedMessages.json", "POPMessages.json"};
 
         private readonly Func<IPostService> _getService;
 
@@ -86,8 +86,8 @@ namespace PostClient.ViewModels
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
-            //_backgroundTask = UpdatingMessagesBackground.Register();
-            //_backgroundTask.Completed += BackgroundTask_Completed;
+            _backgroundTask = UpdatingMessagesBackground.Register();
+            _backgroundTask.Completed += BackgroundTask_Completed;
         }
 
         private async void BackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
@@ -102,8 +102,15 @@ namespace PostClient.ViewModels
         #region Load messages from local storage
         private async void LoadMessagesFromLocalStorage(object parameter)
         {
-            _messageFolder = parameter.ToString() + ".json";
-            Messages = new ObservableCollection<MailMessage>(await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder));
+            try
+            {
+                _messageFolder = parameter.ToString() + ".json";
+                Messages = new ObservableCollection<MailMessage>(await JSONSaverAndReaderHelper.Read<List<MailMessage>>(_messageFolder));
+            }
+            catch (Exception exception)
+            {
+                ContentDialogShower.ShowMessageDialog("Error!", exception.Message);
+            }        
         }
         #endregion   
 
@@ -128,6 +135,15 @@ namespace PostClient.ViewModels
                 ContentDialogShower.ShowMessageDialog("Error!", exception.Message);
             }
 
+            try
+            {
+                var popMessages = await _getService().LoadPopMessagesAsync();
+                var popMailMessages = ConvertFromPOPMimeMessageToMailMessage(popMessages);
+                popMailMessages.ForEach(m => m.IsPopMessage = true);
+                SaveMessages(popMailMessages, "POPMessages.json");
+            }
+            catch { }
+
             ContentDialogShower.ShowMessageDialog("Notification", "Messages was downloaded");
             storyboard?.Stop();
         }
@@ -141,7 +157,7 @@ namespace PostClient.ViewModels
             var allMimeMessages = await GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.All);
             var flaggedMimeMessages = await GetMimeMessagesAsync(SpecialFolder.All, SearchQuery.Flagged);
             var sentMimeMessages = await GetMimeMessagesAsync(SpecialFolder.Sent, SearchQuery.All, "Sent");
-
+            
             var allMailMessages = ConvertFromMimeMessageToMailMessage(allMimeMessages);
             SendNotificationAboutNewMessages(allMailMessages, tempMessages.ToList());
             messages = new ObservableCollection<MailMessage>(allMailMessages);
@@ -155,16 +171,16 @@ namespace PostClient.ViewModels
                 m.IsFlagged = true;
                 m.Folder = "Flagged";
             });
-
+       
             SaveMessages(allMailMessages, "AllMessages.json");
             SaveMessages(sentMailMessages, "SentMessages.json");
             SaveMessages(flaggedMailMessages, "FlaggedMessages.json");
             SaveMessages(new List<MailMessage>(), "DraftMessages.json"); //clear draft messages after syncing
-
+            
             return messages;
         }
 
-        private async Task<Dictionary<IMessageSummary, MimeMessage>> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => await _getService().LoadMessages(specialFolder, searchQuery, subFolder);
+        private async Task<Dictionary<IMessageSummary, MimeMessage>> GetMimeMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "") => await _getService().LoadMessagesAsync(specialFolder, searchQuery, subFolder);
 
         private List<MailMessage> ConvertFromMimeMessageToMailMessage(Dictionary<IMessageSummary, MimeMessage> messages)
         {
@@ -178,13 +194,13 @@ namespace PostClient.ViewModels
 
         private MailMessage CreateMessage(KeyValuePair<IMessageSummary, MimeMessage> mimeMessage)
         {
-            var message = new MailMessage
+            var message = new MailMessage()
             {
                 Uid = mimeMessage.Key.UniqueId.Id,
                 Subject = mimeMessage.Value.Subject,
                 Body = mimeMessage.Value.HtmlBody ?? "",
                 Attachments = ConvertMimeAttachmentsToMailMessageAttachments(mimeMessage.Value.Attachments),
-                From = mimeMessage.Value.From[0].Name,
+                From = mimeMessage.Value.From[0].ToString(),
                 Date = mimeMessage.Value.Date,
                 IsSeen = mimeMessage.Key.Flags.Value.HasFlag(MessageFlags.Seen)
             };
@@ -224,6 +240,24 @@ namespace PostClient.ViewModels
                         .AddText($"You have recieved new messages!")
                         .AddText($"Check this out.")
                         .Show();
+        }
+
+        private List<MailMessage> ConvertFromPOPMimeMessageToMailMessage(Dictionary<int, MimeMessage> messages)
+        {
+            var mailMessages = new List<MailMessage>();
+
+            foreach (var message in messages)
+                mailMessages?.Add(new MailMessage()
+                {
+                    Uid = Convert.ToUInt32(message.Key),
+                    Subject = message.Value.Subject,
+                    Body = message.Value.HtmlBody ?? "",
+                    Attachments = ConvertMimeAttachmentsToMailMessageAttachments(message.Value.Attachments),
+                    From = message.Value.From[0].ToString(),
+                    Date = message.Value.Date
+                });
+
+            return mailMessages;
         }
 
         private async void SaveMessages(List<MailMessage> messages, string name) => await JSONSaverAndReaderHelper.Save(messages, name);
@@ -331,9 +365,14 @@ namespace PostClient.ViewModels
                 var collection = await JSONSaverAndReaderHelper.Read<List<MailMessage>>(folder);
 
                 for (int i = 0; i < collection.Count; i++)
+                {
                     if (collection[i].Equals(message))
+                    {
                         collection[i] = messageForReplace;
-
+                        break;
+                    }
+                }
+                    
                 await JSONSaverAndReaderHelper.Save(collection, folder);
             }
         }
@@ -342,8 +381,13 @@ namespace PostClient.ViewModels
         private void ReplaceMessageInCollection(MailMessage message, MailMessage messageForReplace, ObservableCollection<MailMessage>? messages)
         {
             for (int i = 0; i < messages?.Count; i++)
+            {
                 if (messages[i].Equals(message))
+                {
                     messages[i] = messageForReplace;
+                    break;
+                }    
+            }
         }
 
         private void ClearMessages() => Messages = new ObservableCollection<MailMessage>();

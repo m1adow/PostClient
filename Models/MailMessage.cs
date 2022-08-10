@@ -17,6 +17,7 @@ namespace PostClient.Models
         public bool IsSeen { get; set; }
         public bool IsFlagged { get; set; }
         public bool IsDraft { get; set; }
+        public bool IsPopMessage { get; set; }
         public string Folder { get; set; }
         public DateTimeOffset Date { get; set; }
 
@@ -32,6 +33,7 @@ namespace PostClient.Models
             IsSeen = false;
             IsFlagged = false;  
             IsDraft = false;
+            IsPopMessage = false;
             Folder = "";
             Date = DateTimeOffset.Now;
         }

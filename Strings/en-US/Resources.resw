@@ -141,8 +141,14 @@
   <data name="AppBarButtonOK.Label" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="AppBarButtonReply.Label" xml:space="preserve">
+    <value>Reply</value>
+  </data>
   <data name="AppBarButtonSend.Label" xml:space="preserve">
     <value>Send</value>
+  </data>
+  <data name="AppBarButtonSendWithDelay.Label" xml:space="preserve">
+    <value>Time</value>
   </data>
   <data name="AppBarButtonSync.Label" xml:space="preserve">
     <value>Sync</value>

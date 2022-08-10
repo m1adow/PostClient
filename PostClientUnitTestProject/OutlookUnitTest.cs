@@ -15,17 +15,17 @@ namespace PostClientUnitTestProject
     [TestClass]
     public class OutlookTests
     {
-        private static readonly Account _sendingAccount = new Account() { Email = "somethinggreat3@outlook.com", Password = "BRxeX_rrr82.kUp" };
-        private static readonly Account _receivingAccount = new Account() { Email = "somethingmaynothavesense@outlook.com", Password = "heIv4Y%Zsw7!Q*%I51PE^R*SMnGBe8pdx2^c##$#" };
-
-        private readonly OutlookService _sendingService = new OutlookService(_sendingAccount, ContentDialogShower.ShowMessageDialog);
-        private readonly OutlookService _loadingService = new OutlookService(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+        private readonly Account _sendingAccount = new Account() { Email = "somethinggreat3@outlook.com", Password = "BRxeX_rrr82.kUp" };
+        private readonly Account _receivingAccount = new Account() { Email = "somethingmaynothavesense@outlook.com", Password = "heIv4Y%Zsw7!Q*%I51PE^R*SMnGBe8pdx2^c##$#" };
 
         [TestMethod]
         public async Task SendMessagesTest()
         {
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+
             var sendingViewModel = new SendMessageViewModel(
-                    new Func<IPostService>(() => _sendingService),
+                    new Func<IPostService>(() => sendingService),
                     new Func<Account>(() =>
                         _sendingAccount),
                     null);
@@ -39,54 +39,63 @@ namespace PostClientUnitTestProject
 
             sendingViewModel.SendMessageCommand.Execute(new object());
             await Task.Delay(4000);
-            var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
+            var messages = await loadingService.LoadMessagesAsync(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
 
             Assert.IsTrue(messages.Any(m => m.Value.Subject == subject));
 
             foreach (var message in messages)
-                await _loadingService.FlagMessage(new MailMessage { Uid = message.Key.UniqueId.Id }, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
+                await loadingService.FlagMessageAsync(new MailMessage { Uid = message.Key.UniqueId.Id }, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
         }
 
         [TestMethod]
         public async Task LoadMessagesTest()
         {
-            await _sendingService.SendMessage(CreateMessage("LoadMessagesTest"));
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+
+            await sendingService.SendMessageAsync(CreateMessage("LoadMessagesTest"));
             await Task.Delay(4000);
-            var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
+            var messages = await loadingService.LoadMessagesAsync(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
 
             Assert.IsTrue(messages.Count >= 1);
 
             foreach (var message in messages)
-                await _loadingService.FlagMessage(new MailMessage { Uid = message.Key.UniqueId.Id }, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
+                await loadingService.FlagMessageAsync(new MailMessage { Uid = message.Key.UniqueId.Id }, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
         }
 
         [TestMethod]
         public async Task FlagMessageTest()
         {
-            await _sendingService.SendMessage(CreateMessage("FlagMessage"));
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+
+            await sendingService.SendMessageAsync(CreateMessage("FlagMessage"));
             await Task.Delay(4000);
-            var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
+            var messages = await loadingService.LoadMessagesAsync(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
             var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "FlagMessage").Key.UniqueId.Id };
 
-            await _loadingService.FlagMessage(mailMessage, MailKit.MessageFlags.Flagged, MailKit.SpecialFolder.All, "");
-            var flaggedMessages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.Flagged);
+            await loadingService.FlagMessageAsync(mailMessage, MailKit.MessageFlags.Flagged, MailKit.SpecialFolder.All, "");
+            var flaggedMessages = await loadingService.LoadMessagesAsync(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.Flagged);
 
             Assert.IsTrue(flaggedMessages.Any(f => f.Key.UniqueId.Id == mailMessage.Uid));
-            await _loadingService.FlagMessage(mailMessage, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
+            await loadingService.FlagMessageAsync(mailMessage, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
         }
 
         [TestMethod]
         public async Task DeleteMessageTest()
         {
-            await _sendingService.SendMessage(CreateMessage("DeleteMessage"));
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+
+            await sendingService.SendMessageAsync(CreateMessage("DeleteMessage"));
             await Task.Delay(4000);
-            var messages = await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
+            var messages = await loadingService.LoadMessagesAsync(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All);
             var mailMessage = new MailMessage { Uid = messages.FirstOrDefault(m => m.Value.Subject == "DeleteMessage").Key.UniqueId.Id };
 
-            await _loadingService.FlagMessage(mailMessage, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
+            await loadingService.FlagMessageAsync(mailMessage, MailKit.MessageFlags.Deleted, MailKit.SpecialFolder.All, "");
             await Task.Delay(4000);
 
-            Assert.IsTrue((await _loadingService.LoadMessages(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All)).Values.Count == 0);
+            Assert.IsTrue((await loadingService.LoadMessagesAsync(MailKit.SpecialFolder.All, MailKit.Search.SearchQuery.All)).Values.Count == 0);
         }
 
         private MimeMessage CreateMessage(string subject)

@@ -21,9 +21,11 @@ namespace PostClientBackground
             if (registration != null)
                 registration.Unregister(true);
 
-            var taskBuilder = new BackgroundTaskBuilder();
-            taskBuilder.Name = _taskName;
-            taskBuilder.TaskEntryPoint = _taskName;
+            var taskBuilder = new BackgroundTaskBuilder
+            {
+                Name = _taskName,
+                TaskEntryPoint = _taskName
+            };
             taskBuilder.SetTrigger(new TimeTrigger(60, false));
             taskBuilder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
 
