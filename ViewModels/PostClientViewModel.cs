@@ -38,10 +38,10 @@ namespace PostClient.ViewModels
             LoadedHandlerCommand = new RelayCommand(LoadedHandler);
 
             LoadMessagesViewModel = new LoadMessagesViewModel(GetService);
-            AccountViewModel = new AccountViewModel(SetAccount, LoadMessagesViewModel.ClearMessagesAction);
-            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction, AccountViewModel.LoginButtonVisibility, AccountViewModel.AccountControlsVisibility, AccountViewModel.UpdateAccountControlsAction);
+            AccountViewModel = new AccountViewModel(SetAccount, LoadMessagesViewModel.ClearMessagesAction, ClearService);
             SendMessageViewModel = new SendMessageViewModel(GetService, GetAccount, LoadMessagesViewModel.DeleteMessageFunc);
             ControlMessageViewModel = new ControlMessageViewModel(GetService, LoadMessagesViewModel.FlagMessageFunc, LoadMessagesViewModel.DeleteMessageFunc, SendMessageViewModel.ChangeSendMessageControlsVisibilityAndFillFieldsFunc, LoadMessagesViewModel.ArchiveMessageAction, LoadMessagesViewModel.UpdateMessagesAction);
+            LoginViewModel = new LoginViewModel(ChangeAccountAfterLogining, LoadMessagesViewModel.LoadMessagesFromServerAction, ControlMessageViewModel.ChangeSearchBoxControlVisibilityAction, AccountViewModel.LoginButtonVisibility, AccountViewModel.UpdateAccountControlsAction);
             KeyDownImplementationViewModel = new KeyDownImplementationViewModel(ControlMessageViewModel.DeleteMessageCommand.Execute, ControlMessageViewModel.FlagMessageCommand.Execute, ControlMessageViewModel.UnseenMessageCommand.Execute, ControlMessageViewModel.ArchiveMessageCommand.Execute, LoadMessagesViewModel.LoadMessagesFromServerCommand.Execute);
             AnimationsImplementationViewModel = new AnimationsImplementationViewModel();
         }
@@ -65,10 +65,20 @@ namespace PostClient.ViewModels
 
                 AccountViewModel.UpdateAccountControlsAction(account);
                 SendMessageViewModel.MessageSender = account.Email;
+                (LoadMessagesViewModel.LoadMessagesFromServerCommand as RelayCommand)?.OnExecuteChanged();
+                (SendMessageViewModel.ShowSendingControlsCommand as RelayCommand)?.OnExecuteChanged();
             }
         }
 
-        private async void ChangeAccountAfterLogining(Account account)
+        private async Task ClearService()
+        {
+            await _postService.CloseClients();
+            _postService = null;
+            (LoadMessagesViewModel.LoadMessagesFromServerCommand as RelayCommand)?.OnExecuteChanged();
+            (SendMessageViewModel.ShowSendingControlsCommand as RelayCommand)?.OnExecuteChanged();
+        }
+
+        private async Task ChangeAccountAfterLogining(Account account)
         {
             await GenerateService(account);
             _account = account;

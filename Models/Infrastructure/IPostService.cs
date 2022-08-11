@@ -14,6 +14,6 @@ namespace PostClient.Models.Infrastructure
         Task<Dictionary<IMessageSummary, MimeMessage>> LoadMessagesAsync(SpecialFolder specialFolder, SearchQuery searchQuery, string subFolder = "");
         Task DeletePopMessageAsync(int index);
         Task<Dictionary<int, MimeMessage>> LoadPopMessagesAsync();
-        void CloseClients();
+        Task CloseClients();
     }
 }

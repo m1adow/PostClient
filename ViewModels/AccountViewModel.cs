@@ -57,10 +57,13 @@ namespace PostClient.ViewModels
 
         private readonly Action _clearMessages;
 
-        public AccountViewModel(Action<Account> setAccount, Action clearMessages)
+        private readonly Func<Task> _clearService;
+
+        public AccountViewModel(Action<Account> setAccount, Action clearMessages, Func<Task> clearService)
         {
             _setAccount = setAccount;
             _clearMessages = clearMessages;
+            _clearService = clearService;
             UpdateAccountControlsAction = UpdateAccountControls;
 
             LogoutCommand = new RelayCommand(Logout);
@@ -76,11 +79,12 @@ namespace PostClient.ViewModels
             _setAccount(account);
             await JSONSaverAndReaderHelper.Save(account, "AccountCredentials.json");
             await ClearAllMessages();
+            await _clearService();
         }
 
         private async Task ClearAllMessages()
         {
-            var folders = new string[] { "AllMessages.json", "ArchiveMessages.json", "DraftMessages.json", "FlaggedMessages.json", "SentMessages.json" };
+            var folders = new string[] { "AllMessages.json", "ArchiveMessages.json", "DraftMessages.json", "FlaggedMessages.json", "SentMessages.json", "POPMessages.json" };
 
             foreach (string folder in folders)
                 await JSONSaverAndReaderHelper.Save(new List<MailMessage>(), folder);

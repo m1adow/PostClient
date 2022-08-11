@@ -64,7 +64,7 @@ namespace PostClient.Models.Services
             return result;
         }
 
-        public void CloseClients() => CloseClients(_smtpClient, _imapClient);
+        public async Task CloseClients() => await CloseClients(_smtpClient, _imapClient);
 
         public Task DeletePopMessageAsync(int index) => DeletePopMessage(_popClient, index);
 

@@ -82,12 +82,12 @@ namespace PostClient.ViewModels
             UpdateMessagesAction = UpdateMessages;
 
             LoadMessagesFromLocalStorageCommand = new RelayCommand(LoadMessagesFromLocalStorage);
-            LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer);
+            LoadMessagesFromServerCommand = new RelayCommand(LoadMessagesFromServer, CanLoadMessagesFromServer);
             SearchMessageCommand = new RelayCommand(SearchMessage);
             SortMessagesCommand = new RelayCommand(SortMessages);
 
-            _backgroundTask = UpdatingMessagesBackground.Register();
-            _backgroundTask.Completed += BackgroundTask_Completed;
+            //_backgroundTask = UpdatingMessagesBackground.Register();
+            //_backgroundTask.Completed += BackgroundTask_Completed;
         }
 
         private async void BackgroundTask_Completed(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
@@ -115,6 +115,8 @@ namespace PostClient.ViewModels
         #endregion   
 
         #region Load messages from server
+        private bool CanLoadMessagesFromServer(object parameter) => _getService() != null;
+
         private async void LoadMessagesFromServer(object parameter)
         {
             Storyboard? storyboard = parameter as Storyboard;

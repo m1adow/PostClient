@@ -144,6 +144,9 @@
   <data name="AppBarButtonReply.Label" xml:space="preserve">
     <value>Reply</value>
   </data>
+  <data name="AppBarButtonSelection.Label" xml:space="preserve">
+    <value>Selection</value>
+  </data>
   <data name="AppBarButtonSend.Label" xml:space="preserve">
     <value>Send</value>
   </data>

@@ -135,7 +135,7 @@ namespace PostClient.ViewModels
             InsertFileCommand = new RelayCommand(InsertFile);
             DraftMessageCommand = new RelayCommand(DraftMessage, IsSendMessageFieldsFilled);
             CancelSendingMessageCommand = new RelayCommand(CancelSendingMessage);
-            ShowSendingControlsCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount);
+            ShowSendingControlsCommand = new RelayCommand(ShowSendMessageControlsAndLoadAccount, CanSendMessage);
             HideSendingControlsCommand = new RelayCommand(HideSendMessageControls);
             ChooseContactCommand = new RelayCommand(ChooseContact);
         }
@@ -296,6 +296,8 @@ namespace PostClient.ViewModels
         #endregion
 
         #region Showing and hiding send message controls
+        private bool CanSendMessage(object parameter) => _getService() != null;
+
         private void ShowSendMessageControlsAndLoadAccount(object parameter)
         {
             SendMessageControlsVisibility = Visibility.Visible;

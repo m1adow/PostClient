@@ -288,15 +288,31 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="6*"/>
+                        <ColumnDefinition Width="4*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0"
                                 Margin="10,0,0,0">
+                        <StackPanel Visibility="{Binding ControlMessageViewModel.ActsControlsVisibility}"
+                                    Orientation="Horizontal"
+                                    Margin="0,5,0,0">
+                            <AppBarButton Icon="Mail"
+                                          x:Uid="AppBarButtonUnseen"
+                                          Command="{Binding ControlMessageViewModel.UnseenMessageCommand}"/>
+                            <AppBarButton Icon="Save"
+                                          x:Uid="AppBarButtonArchive"
+                                          Command="{Binding ControlMessageViewModel.ArchiveMessageCommand}"/>
+                            <AppBarButton Icon="Flag"
+                                          x:Uid="AppBarButtonFlag"
+                                          Command="{Binding ControlMessageViewModel.FlagMessageCommand}"/>
+                            <AppBarButton Icon="Delete"
+                                          x:Uid="AppBarButtonDelete"
+                                          Command="{Binding ControlMessageViewModel.DeleteMessageCommand}"/>
+                        </StackPanel>
                         <TextBlock x:Uid="TextBlockSearch"
-                                   Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                                   Visibility="{Binding ControlMessageViewModel.SearchBoxControlsVisibility}"/>
                         <TextBox Text="{Binding LoadMessagesViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                 Visibility="{Binding ControlMessageViewModel.SearchBoxControlsVisibility}"
                                  x:Uid="TextBoxSearch">
                             <ineractivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="TextChanged">
@@ -306,18 +322,30 @@
                         </TextBox>
                     </StackPanel>
                     <StackPanel Grid.Column="1">
-                        <AppBarButton Icon="Refresh"
-                                  x:Uid="AppBarButtonSync"
-                                  Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
-                                  CommandParameter="{Binding ElementName=StoryboardLoading}"
-                                  Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center">
-                        </AppBarButton>
+                        <StackPanel Orientation="Horizontal">
+                            <AppBarButton Icon="Refresh"
+                                          x:Uid="AppBarButtonSync"
+                                          Command="{Binding LoadMessagesViewModel.LoadMessagesFromServerCommand}"
+                                          CommandParameter="{Binding ElementName=StoryboardLoading}"
+                                          Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                            <AppBarButton x:Uid="AppBarButtonSelection"
+                                          Margin="10,0,0,0"
+                                          Command="{Binding ControlMessageViewModel.ChangeListViewSelectionCommand}"
+                                          Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center">
+                                <AppBarButton.Content>
+                                    <FontIcon Glyph="&#xE762;"/>
+                                </AppBarButton.Content>
+                            </AppBarButton>
+                        </StackPanel>
                         <DropDownButton Foreground="Black"
+                                        Margin="10,0,10,0"
                                         x:Uid="DropDownButtonSort"                                      
                                         Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
-                                        HorizontalAlignment="Center"
+                                        HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center">
                             <DropDownButton.Flyout>
                                 <MenuFlyout Placement="Bottom">
@@ -339,16 +367,19 @@
                     </StackPanel>
                 </Grid>
                 <ListView x:Name="listViewMessages" 
+                          SelectionMode="{Binding ControlMessageViewModel.ListViewWithMessagesSelectionMode}"
                           CanDragItems="True"
                           CanReorderItems="True"
                           AllowDrop="True"
-                          BorderThickness="1"
-                          BorderBrush="Black"
                           Margin="10"
                           Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"
                           ItemsSource="{Binding LoadMessagesViewModel.Messages, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           Grid.Row="1">
                     <ineractivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="SelectionChanged">
+                            <core:InvokeCommandAction Command="{Binding ControlMessageViewModel.SelectionChangedHandlingCommand}"
+                                                      CommandParameter="{Binding ElementName=listViewMessages}"/>
+                        </core:EventTriggerBehavior>
                         <core:EventTriggerBehavior EventName="SelectionChanged">
                             <core:InvokeCommandAction Command="{Binding SendMessageViewModel.HideSendingControlsCommand}"/>
                         </core:EventTriggerBehavior>
@@ -370,10 +401,6 @@
                                                    ArchiveCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ArchiveMessageCommand}"
                                                    UnseenCommand="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.UnseenMessageCommand}">
                                 <ineractivity:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeMessageOnTapCommand}"
-                                                                  CommandParameter="{Binding}"/>
-                                    </core:EventTriggerBehavior>
                                     <core:EventTriggerBehavior EventName="RightTapped">
                                         <core:InvokeCommandAction Command="{Binding Source={StaticResource viewModel}, Path=ControlMessageViewModel.ChangeMessageOnRightTapCommand}"
                                                                   CommandParameter="{Binding}"/>
@@ -395,7 +422,7 @@
                 <CommandBar Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}">
                     <CommandBar.PrimaryCommands>
                         <AppBarButton Icon="MailReply" 
-                                      x:Uid="AppBarButtonUnseen"
+                                      x:Uid="AppBarButtonReply"
                                       Command="{Binding ControlMessageViewModel.ReplyMessageCommand}"/>
                         <AppBarSeparator/>
                         <AppBarButton Icon="Mail" 

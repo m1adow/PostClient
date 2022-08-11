@@ -116,7 +116,7 @@ namespace PostClient.Models.Services
                 await folder.AddFlagsAsync(uids, messageFlags, true);
         }
 
-        protected async void CloseClients(SmtpClient smtpClient, ImapClient imapClient)
+        protected async Task CloseClients(SmtpClient smtpClient, ImapClient imapClient)
         {
             await smtpClient.DisconnectAsync(true);
             await imapClient.DisconnectAsync(true);

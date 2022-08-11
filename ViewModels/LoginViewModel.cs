@@ -5,6 +5,7 @@ using PostClient.ViewModels.Infrastructure;
 using System;
 using System.Windows.Input;
 using Windows.UI.Xaml;
+using System.Threading.Tasks;
 
 namespace PostClient.ViewModels
 {
@@ -74,24 +75,27 @@ namespace PostClient.ViewModels
 
         public ICommand CancelLoginControlsCommand { get; }
 
-        private readonly Action<object> _loadMessages;
+        private readonly Action<object> _loadMessagesAction;
 
-        private readonly Action<Account> _changeAccount;
+        private readonly Func<Account, Task> _changeAccountFunc;
 
-        private readonly Action<Account> _updateAccountControls;
+        private readonly Action<Account> _updateAccountControlsAction;
+
+        private readonly Action<Visibility> _changeSearchBoxVisibilityAction;
 
         private Visibility? _loginButtonVisibility;
 
-        public LoginViewModel(Action<Account> changeAccount, Action<object> loadMessages, Visibility? loginButtonVisibility, Visibility? accountControlsVisibility, Action<Account> updateAccountControls)
+        public LoginViewModel(Func<Account, Task> changeAccount, Action<object> loadMessages, Action<Visibility> changeSearchBoxVisibilityAction, Visibility? loginButtonVisibility, Action<Account> updateAccountControls)
         {
-            _changeAccount = changeAccount;
-            _loadMessages = loadMessages;
-            _updateAccountControls = updateAccountControls;
+            _changeAccountFunc = changeAccount;
+            _loadMessagesAction = loadMessages;
+            _updateAccountControlsAction = updateAccountControls;
+            _changeSearchBoxVisibilityAction = changeSearchBoxVisibilityAction;
+            _loginButtonVisibility = loginButtonVisibility;
 
             LoginCommand = new RelayCommand(LoginIntoAccount, IsLoginFieldsFilled);
             ShowLoginControlsCommand = new RelayCommand(ShowLoginControls);
             CancelLoginControlsCommand = new RelayCommand(HideLoginControls);
-            _loginButtonVisibility = loginButtonVisibility;
         }
 
         #region Login
@@ -106,9 +110,10 @@ namespace PostClient.ViewModels
                     PostServiceName = this.GetServiceName(),
                 };
 
-                _changeAccount(account);
-                _loadMessages(parameter);
-                _updateAccountControls(account);
+                HideLoginControls(parameter);
+                _updateAccountControlsAction(account);
+                await _changeAccountFunc(account);
+                _loadMessagesAction(parameter);
 
                 Account encryptedAccount = new Account
                 {
@@ -121,7 +126,6 @@ namespace PostClient.ViewModels
                     await JSONSaverAndReaderHelper.Save(encryptedAccount, "AccountCredentials.json");
 
                 ClearFields();
-                HideLoginControls(parameter);
                 (LoginCommand as RelayCommand)?.OnExecuteChanged(); //for disabling login button on second time
             }
             catch (MailKit.Security.AuthenticationException exception)
@@ -147,6 +151,7 @@ namespace PostClient.ViewModels
             ManagmentButtonsVisibility = Visibility.Collapsed;
             _loginButtonVisibility = Visibility.Collapsed;
             LoginControlsVisibility = Visibility.Visible;
+            _changeSearchBoxVisibilityAction(Visibility.Collapsed);
         }
         #endregion
 
@@ -155,6 +160,7 @@ namespace PostClient.ViewModels
         {
             ManagmentButtonsVisibility = Visibility.Visible;
             LoginControlsVisibility = Visibility.Collapsed;
+            _changeSearchBoxVisibilityAction(Visibility.Visible);
         }
         #endregion
     }
