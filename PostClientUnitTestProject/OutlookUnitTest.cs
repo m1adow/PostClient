@@ -21,8 +21,8 @@ namespace PostClientUnitTestProject
         [TestMethod]
         public async Task SendMessagesTest()
         {
-            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
-            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowContentDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowContentDialog);
 
             var sendingViewModel = new SendMessageViewModel(
                     new Func<IPostService>(() => sendingService),
@@ -50,8 +50,8 @@ namespace PostClientUnitTestProject
         [TestMethod]
         public async Task LoadMessagesTest()
         {
-            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
-            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowContentDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowContentDialog);
 
             await sendingService.SendMessageAsync(CreateMessage("LoadMessagesTest"));
             await Task.Delay(4000);
@@ -66,8 +66,8 @@ namespace PostClientUnitTestProject
         [TestMethod]
         public async Task FlagMessageTest()
         {
-            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
-            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowContentDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowContentDialog);
 
             await sendingService.SendMessageAsync(CreateMessage("FlagMessage"));
             await Task.Delay(4000);
@@ -84,8 +84,8 @@ namespace PostClientUnitTestProject
         [TestMethod]
         public async Task DeleteMessageTest()
         {
-            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowMessageDialog);
-            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowMessageDialog);
+            IPostService sendingService = await OutlookService.CreateAsync(_sendingAccount, ContentDialogShower.ShowContentDialog);
+            IPostService loadingService = await OutlookService.CreateAsync(_receivingAccount, ContentDialogShower.ShowContentDialog);
 
             await sendingService.SendMessageAsync(CreateMessage("DeleteMessage"));
             await Task.Delay(4000);

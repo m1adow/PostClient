@@ -1,0 +1,22 @@
+﻿<UserControl
+    x:Class="PostClient.Views.Controls.AccountControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PostClient.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+    <Grid>
+        <StackPanel Margin="5">
+            <TextBlock x:Name="ServiceTextBlock"
+                       FontWeight="Bold"
+                       FontSize="15"/>
+            <TextBlock x:Name="NameTextBlock" 
+                       Margin="10,0,0,0"
+                       FontSize="10"
+                       FontWeight="Normal"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

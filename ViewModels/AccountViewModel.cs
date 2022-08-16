@@ -92,7 +92,7 @@ namespace PostClient.ViewModels
             _clearMessages();
         }
 
-        private void ShowAccountInfo(object parameter) => ContentDialogShower.ShowMessageDialog("Account", $"Email: {Email}\nService: {Service}");
+        private void ShowAccountInfo(object parameter) => ContentDialogShower.ShowContentDialog("Account", $"Email: {Email}\nService: {Service}");
 
         private void UpdateAccountControls(Account account)
         {

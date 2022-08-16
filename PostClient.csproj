@@ -120,6 +120,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\Converters\RemoveUnnecessaryCharsFromStringAccountConverter.cs" />
     <Compile Include="Models\MailMessage.cs" />
     <Compile Include="Models\Services\GmailService.cs" />
     <Compile Include="Models\Infrastructure\IPostService.cs" />
@@ -139,6 +140,9 @@
     <Compile Include="ViewModels\PostClientViewModel.cs" />
     <Compile Include="ViewModels\Infrastructure\ViewModelBase.cs" />
     <Compile Include="ViewModels\SendMessageViewModel.cs" />
+    <Compile Include="Views\Controls\AccountControl.xaml.cs">
+      <DependentUpon>AccountControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\MailMessageControl.xaml.cs">
       <DependentUpon>MailMessageControl.xaml</DependentUpon>
     </Compile>
@@ -173,6 +177,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\Controls\AccountControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\MailMessageControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

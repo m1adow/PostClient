@@ -7,12 +7,13 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:PostClient.ViewModels"
-    xmlns:uc="using:PostClient.Views.Controls"
+    xmlns:viewmodels="using:PostClient.ViewModels"
+    xmlns:converters="using:PostClient.Models.Converters"
+    xmlns:usercontrols="using:PostClient.Views.Controls"
     mc:Ignorable="d"
     Background="#ffc8dd">
     <Page.Resources>
-        <vm:PostClientViewModel x:Key="viewModel"/>
+        <viewmodels:PostClientViewModel x:Key="viewModel"/>
         <Storyboard x:Name="StoryboardLoading">
             <ColorAnimationUsingKeyFrames Storyboard.TargetName="listViewMessages" Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)">
                 <EasingColorKeyFrame KeyTime="00:00:00" Value="#bde0fe"/>
@@ -20,6 +21,7 @@
                 <EasingColorKeyFrame KeyTime="00:00:02" Value="#bde0fe"/>
             </ColorAnimationUsingKeyFrames>
         </Storyboard>
+        <converters:RemoveUnnecessaryCharsFromStringAccountConverter x:Key="RemoveUnnecessaryCharsFromStringAccountConverter"/>
     </Page.Resources>
     <ineractivity:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loaded">
@@ -58,7 +60,12 @@
                                             Icon="ShowResults"
                                             Command="{Binding AccountViewModel.ShowAccountInfoCommand}"
                                             Visibility="{Binding AccountViewModel.AccountControlsVisibility}"/>
-                            <MenuFlyoutSeparator/>
+                            <MenuFlyoutSeparator Visibility="{Binding AccountViewModel.AccountControlsVisibility}"/>
+                            <MenuFlyoutItem x:Uid="MenuFlyoutItemAddNewAccount"
+                                            Icon="Add"
+                                            Command="{Binding LoginViewModel.ShowLoginControlsCommand}"
+                                            Visibility="{Binding AccountViewModel.AccountControlsVisibility}"/>
+                            <MenuFlyoutSeparator Visibility="{Binding AccountViewModel.AccountControlsVisibility}"/>
                             <MenuFlyoutItem x:Uid="MenuFlyoutItemLogout"
                                             Icon="Cancel"
                                             Command="{Binding AccountViewModel.LogoutCommand}"
@@ -93,6 +100,33 @@
                                            Margin="10,2,0,0"/>
                             </RelativePanel>
                         </Button>
+                        <Grid Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="3*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <SymbolIcon Grid.Column="0"
+                                        Symbol="Contact"
+                                        Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                                    <TextBlock Grid.Column="1"
+                                           x:Uid="TextBlockAccounts"
+                                           Foreground="White"
+                                           Visibility="{Binding LoginViewModel.ManagmentButtonsVisibility}"/>
+                                </Grid>
+                                <ListView ItemsSource="{Binding Accounts, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          SelectedItem="{Binding SelectedAccount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="5">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <usercontrols:AccountControl AccountName="{Binding Email, Converter={StaticResource RemoveUnnecessaryCharsFromStringAccountConverter}}"
+                                                                         AccountService="{Binding PostServiceName, Converter={StaticResource RemoveUnnecessaryCharsFromStringAccountConverter}}"/>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Grid>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -390,7 +424,7 @@
                     </ineractivity:Interaction.Behaviors>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <uc:MailMessageControl Grid.Column="1"
+                            <usercontrols:MailMessageControl Grid.Column="1"
                                                    Subject="{Binding Subject}"
                                                    Date="{Binding Date}"
                                                    From="{Binding From}"
@@ -406,7 +440,7 @@
                                                                   CommandParameter="{Binding}"/>
                                     </core:EventTriggerBehavior>
                                 </ineractivity:Interaction.Behaviors>
-                            </uc:MailMessageControl>
+                            </usercontrols:MailMessageControl>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
@@ -443,7 +477,7 @@
                     </CommandBar.PrimaryCommands>
                 </CommandBar>
             </Grid>
-            <uc:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.SelectedMailMessage.Body}"
+            <usercontrols:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.SelectedMailMessage.Body}"
                                    Attachments="{Binding ControlMessageViewModel.SelectedMailMessage.Attachments}"
                                    Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"
                                    Grid.Row="1"
@@ -518,15 +552,15 @@
                         </StackPanel>
                     </Grid>
                 </Grid>
-                <uc:CreateMessageControl Grid.Row="1"
-                                         SendCommand="{Binding SendMessageViewModel.SendMessageCommand}"
-                                         SendWithDelayCommand="{Binding SendMessageViewModel.SendMessageWithDelayCommand}"
-                                         DraftCommand="{Binding SendMessageViewModel.DraftMessageCommand}"
-                                         CancelCommand="{Binding SendMessageViewModel.CancelSendingMessageCommand}"
-                                         AttachCommand="{Binding SendMessageViewModel.InsertFileCommand}"
-                                         MessageText="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         Attachments="{Binding SendMessageViewModel.Files}"
-                                         DelayTime="{Binding SendMessageViewModel.DelayTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <usercontrols:CreateMessageControl Grid.Row="1"
+                                                   SendCommand="{Binding SendMessageViewModel.SendMessageCommand}"
+                                                   SendWithDelayCommand="{Binding SendMessageViewModel.SendMessageWithDelayCommand}"
+                                                   DraftCommand="{Binding SendMessageViewModel.DraftMessageCommand}"
+                                                   CancelCommand="{Binding SendMessageViewModel.CancelSendingMessageCommand}"
+                                                   AttachCommand="{Binding SendMessageViewModel.InsertFileCommand}"
+                                                   MessageText="{Binding SendMessageViewModel.MessageBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                   Attachments="{Binding SendMessageViewModel.Files}"
+                                                   DelayTime="{Binding SendMessageViewModel.DelayTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
         </Grid>
     </Grid>

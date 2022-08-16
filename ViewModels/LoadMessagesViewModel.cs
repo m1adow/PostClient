@@ -109,7 +109,7 @@ namespace PostClient.ViewModels
             }
             catch (Exception exception)
             {
-                ContentDialogShower.ShowMessageDialog("Error!", exception.Message);
+                ContentDialogShower.ShowContentDialog("Error!", exception.Message);
             }        
         }
         #endregion   
@@ -134,7 +134,7 @@ namespace PostClient.ViewModels
             }
             catch (Exception exception)
             {
-                ContentDialogShower.ShowMessageDialog("Error!", exception.Message);
+                ContentDialogShower.ShowContentDialog("Error!", exception.Message);
             }
 
             try
@@ -146,7 +146,7 @@ namespace PostClient.ViewModels
             }
             catch { }
 
-            ContentDialogShower.ShowMessageDialog("Notification", "Messages was downloaded");
+            ContentDialogShower.ShowContentDialog("Notification", "Messages was downloaded");
             storyboard?.Stop();
         }
 

@@ -150,7 +150,7 @@ namespace PostClient.ViewModels
             if (_selectedMessage.IsDraft)
                 await _deleteDraft(_selectedMessage);
 
-            ContentDialogShower.ShowMessageDialog("Notification", "Mail has sent successfully");
+            ContentDialogShower.ShowContentDialog("Notification", "Mail has sent successfully");
 
             var comboBox = parameter as ComboBox;
 

@@ -189,6 +189,9 @@
   <data name="MenuFlyoutItemA-Z.Text" xml:space="preserve">
     <value>А-Я</value>
   </data>
+  <data name="MenuFlyoutItemAddNewAccount.Text" xml:space="preserve">
+    <value>Додати новий аккаунт</value>
+  </data>
   <data name="MenuFlyoutItemInformation.Text" xml:space="preserve">
     <value>Інформація </value>
   </data>
@@ -212,6 +215,9 @@
   </data>
   <data name="RadioButtonOutlook.Content" xml:space="preserve">
     <value>Outlook</value>
+  </data>
+  <data name="TextBlockAccounts.Text" xml:space="preserve">
+    <value>Аккаунти</value>
   </data>
   <data name="TextBlockEmail.Text" xml:space="preserve">
     <value>Ел.Пошта</value>

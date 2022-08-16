@@ -189,6 +189,9 @@
   <data name="MenuFlyoutItemA-Z.Text" xml:space="preserve">
     <value>A-Z</value>
   </data>
+  <data name="MenuFlyoutItemAddNewAccount.Text" xml:space="preserve">
+    <value>Add new account</value>
+  </data>
   <data name="MenuFlyoutItemInformation.Text" xml:space="preserve">
     <value>Information</value>
   </data>
@@ -212,6 +215,9 @@
   </data>
   <data name="RadioButtonOutlook.Content" xml:space="preserve">
     <value>Outlook</value>
+  </data>
+  <data name="TextBlockAccounts.Text" xml:space="preserve">
+    <value>Accounts</value>
   </data>
   <data name="TextBlockEmail.Text" xml:space="preserve">
     <value>Email</value>

@@ -6,13 +6,32 @@ using PostClient.Models.Infrastructure;
 using PostClient.Models.Services;
 using System;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PostClient.ViewModels
 {
 #nullable enable
 
     public sealed class PostClientViewModel : ViewModelBase
-    {       
+    {
+        private ObservableCollection<Account>? _accounts = new ObservableCollection<Account>();
+
+        public ObservableCollection<Account>? Accounts
+        {
+            get => _accounts;
+            set => Set(ref _accounts, value);
+        }
+
+        private Account? _selectedAccount = new Account();
+
+        public Account? SelectedAccount
+        {
+            get => _selectedAccount;
+            set => Set(ref _selectedAccount, value);
+        }
+
         public ICommand LoadedHandlerCommand { get; }
 
         public SendMessageViewModel SendMessageViewModel { get; }
@@ -31,8 +50,6 @@ namespace PostClient.ViewModels
 
         private IPostService? _postService;
 
-        private Account? _account;
-
         public PostClientViewModel()
         {
             LoadedHandlerCommand = new RelayCommand(LoadedHandler);
@@ -46,9 +63,9 @@ namespace PostClient.ViewModels
             AnimationsImplementationViewModel = new AnimationsImplementationViewModel();
         }
 
-        private Account GetAccount() => _account;
+        private Account GetAccount() => _selectedAccount;
 
-        private void SetAccount(Account account) => _account = account;
+        private void SetAccount(Account account) => _accounts.Add(account);
 
         private IPostService GetService() => _postService;
 
@@ -58,8 +75,8 @@ namespace PostClient.ViewModels
             {
                 _postService = account.PostServiceName switch
                 {
-                    nameof(GmailService) => await GmailService.CreateAsync(account, ContentDialogShower.ShowMessageDialog),
-                    nameof(OutlookService) => await OutlookService.CreateAsync(account, ContentDialogShower.ShowMessageDialog),
+                    nameof(GmailService) => await GmailService.CreateAsync(account, ContentDialogShower.ShowContentDialog),
+                    nameof(OutlookService) => await OutlookService.CreateAsync(account, ContentDialogShower.ShowContentDialog),
                     _ => throw new ArgumentNullException(account.PostServiceName),
                 };
 
@@ -67,6 +84,7 @@ namespace PostClient.ViewModels
                 SendMessageViewModel.MessageSender = account.Email;
                 (LoadMessagesViewModel.LoadMessagesFromServerCommand as RelayCommand)?.OnExecuteChanged();
                 (SendMessageViewModel.ShowSendingControlsCommand as RelayCommand)?.OnExecuteChanged();
+                Accounts?.Add(account);
             }
         }
 
@@ -81,13 +99,13 @@ namespace PostClient.ViewModels
         private async Task ChangeAccountAfterLogining(Account account)
         {
             await GenerateService(account);
-            _account = account;
+            _selectedAccount = account;
         }
 
         private async void LoadedHandler(object parameter)
         {
             await LoadAccount();
-            await GenerateService(_account);
+            await GenerateService(_selectedAccount);
             LoadMessagesViewModel.LoadMessagesFromLocalStorageAction(parameter);
         }
 
@@ -95,14 +113,21 @@ namespace PostClient.ViewModels
         {
             try
             {
-                _account = await JSONSaverAndReaderHelper.Read<Account>("AccountCredentials.json");
-                if (_account.Email == null || _account.Password == null)
+                var accounts = await JSONSaverAndReaderHelper.Read<List<Account>>("AccountsCredentials.json");
+                if (accounts.Count != 0)
+                {
+                    Accounts = new ObservableCollection<Account>(accounts);
+                    _selectedAccount = accounts.FirstOrDefault(a => a.Email != null && a.Password != null);
+                    if (_selectedAccount.Email == null || _selectedAccount.Password == null)
+                        throw new Exception();
+                    _selectedAccount.Password = EncryptionHelper.Decrypt(_selectedAccount.Password);
+                }
+                else
                     throw new Exception();
-                _account.Password = EncryptionHelper.Decrypt(_account.Password);
             }
             catch
             {
-                ContentDialogShower.ShowMessageDialog("Warning!", "You have to login");
+                ContentDialogShower.ShowContentDialog("Warning!", "You have to login");
             }
         }
     }

@@ -6,6 +6,7 @@ using System;
 using System.Windows.Input;
 using Windows.UI.Xaml;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace PostClient.ViewModels
 {
@@ -29,7 +30,7 @@ namespace PostClient.ViewModels
             set => Set(ref _loginControlsVisibility, value);
         }
 
-        private bool _isRememberMeChecked = false;
+        private bool _isRememberMeChecked = true;
 
         public bool IsRememberMeChecked
         {
@@ -85,6 +86,8 @@ namespace PostClient.ViewModels
 
         private Visibility? _loginButtonVisibility;
 
+        private const string _fileName = "AccountsCredentials.json";
+
         public LoginViewModel(Func<Account, Task> changeAccount, Action<object> loadMessages, Action<Visibility> changeSearchBoxVisibilityAction, Visibility? loginButtonVisibility, Action<Account> updateAccountControls)
         {
             _changeAccountFunc = changeAccount;
@@ -119,18 +122,23 @@ namespace PostClient.ViewModels
                 {
                     Email = this.Email,
                     Password = EncryptionHelper.Encrypt(this.Password),
-                    PostServiceName = this.GetServiceName(),
+                    PostServiceName = this.GetServiceName()
                 };
 
                 if (IsRememberMeChecked)
-                    await JSONSaverAndReaderHelper.Save(encryptedAccount, "AccountCredentials.json");
+                {
+                    var accounts = await JSONSaverAndReaderHelper.Read<List<Account>>(_fileName);
+                    accounts.Add(encryptedAccount);
+                    await JSONSaverAndReaderHelper.Save(accounts, _fileName);
+                }
+                    
 
                 ClearFields();
                 (LoginCommand as RelayCommand)?.OnExecuteChanged(); //for disabling login button on second time
             }
             catch (MailKit.Security.AuthenticationException exception)
             {
-                ContentDialogShower.ShowMessageDialog("Error!", exception.Message);
+                ContentDialogShower.ShowContentDialog("Error!", exception.Message);
             }
         }
 
@@ -140,9 +148,12 @@ namespace PostClient.ViewModels
         {
             Email = string.Empty;
             Password = string.Empty;
+            IsOutlookRadioButtonChecked = false;
+            IsGmailRadioButtonChecked = true;
+            IsRememberMeChecked = true;
         }
 
-        private bool IsLoginFieldsFilled(object parameter) => Email?.Length > 0 && Password?.Length > 0 && (IsGmailRadioButtonChecked || IsOutlookRadioButtonChecked);
+        private bool IsLoginFieldsFilled(object parameter) => Email?.Length > 0 && Password?.Length > 0;
         #endregion       
 
         #region Showing login controls

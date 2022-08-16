@@ -5,7 +5,7 @@ namespace PostClient.Models.Helpers
 {
     public static class ContentDialogShower
     {
-        public static async void ShowMessageDialog(string title, string content)
+        public static async void ShowContentDialog(string title, string content)
         {
             try
             {
