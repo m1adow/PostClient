@@ -8,7 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:PostClient.ViewModels"
-    xmlns:converters="using:PostClient.Models.Converters"
+    xmlns:converters="using:PostClient.Helpers.Converters"
     xmlns:usercontrols="using:PostClient.Views.Controls"
     mc:Ignorable="d"
     Background="#ffc8dd">
@@ -478,10 +478,10 @@
                 </CommandBar>
             </Grid>
             <usercontrols:MessageBodyControl MessageBody="{Binding ControlMessageViewModel.SelectedMailMessage.Body}"
-                                   Attachments="{Binding ControlMessageViewModel.SelectedMailMessage.Attachments}"
-                                   Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"
-                                   Grid.Row="1"
-                                   Margin="10"/>
+                                             Attachments="{Binding ControlMessageViewModel.SelectedMailMessage.Attachments}"
+                                             Visibility="{Binding ControlMessageViewModel.MessageViewConrtolVisibility}"
+                                             Grid.Row="1"
+                                             Margin="10"/>
             <Grid Grid.Row="1"
                   Visibility="{Binding SendMessageViewModel.SendMessageControlsVisibility}">
                 <Grid.RowDefinitions>
