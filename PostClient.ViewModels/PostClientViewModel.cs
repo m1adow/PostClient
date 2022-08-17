@@ -29,7 +29,11 @@ namespace PostClient.ViewModels
         public Account? SelectedAccount
         {
             get => _selectedAccount;
-            set => Set(ref _selectedAccount, value);
+            set
+            {
+                Set(ref _selectedAccount, value);
+                LoadMessagesViewModel.LoadMessagesFromLocalStorageCommand.Execute("AllMessages");
+            }
         }
 
         public ICommand LoadedHandlerCommand { get; }
@@ -84,7 +88,8 @@ namespace PostClient.ViewModels
                 SendMessageViewModel.MessageSender = account.Email;
                 (LoadMessagesViewModel.LoadMessagesFromServerCommand as RelayCommand)?.OnExecuteChanged();
                 (SendMessageViewModel.ShowSendingControlsCommand as RelayCommand)?.OnExecuteChanged();
-                Accounts?.Add(account);
+                if (!Accounts.Contains(account))
+                    Accounts?.Add(account);
             }
         }
 
